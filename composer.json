@@ -1,0 +1,26 @@
+{
+    "name": "mindy/mindy_yii",
+    "homepage": "https://github.com/studio107/Mindy_Yii",
+    "version": "1.0.0",
+    "license": "MIT",
+    "autoload": {
+        "psr-0": {
+            "": "src/"
+        }
+    },
+    "require": {
+        "php": ">=5.4"
+    },
+    "require-dev": {
+        "satooshi/php-coveralls": "dev-master"
+    },
+    "authors": [{
+        "name": "Maxim Falaleev",
+        "email": "max@studio107.ru",
+        "homepage": "http://studio107.ru",
+        "role": "Developer"
+    }],
+    "support": {
+        "issues": "https://github.com/studio107/Mindy_Yii/issues?state=open"
+    }
+}
