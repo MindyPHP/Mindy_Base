@@ -4,8 +4,6 @@ use Mindy\Helper\Dumper;
 
 Yii::setPathOfAlias('mindy', __DIR__);
 
-include_once(__DIR__ . '/../Mindy/Form/src.php');
-
 $importAliases = [
     'mindy.m',
     'mindy.app.*',
