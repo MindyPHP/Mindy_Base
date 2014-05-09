@@ -403,7 +403,8 @@ class NoimageHelper
 
         imageDestroy($img); //Destroy the image to free memory.
 
-        return CHtml::asset($pathToSave);
+        // TODO return CHtml::asset($pathToSave);
+        throw new Exception('TODO return CHtml::asset($pathToSave);');
     }
 
     //Ruquay K Calloway http://ruquay.com/sandbox/imagettf/ made a better function to find the coordinates of the text bounding box so I used it.

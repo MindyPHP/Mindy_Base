@@ -4,8 +4,6 @@ use Mindy\Helper\Dumper;
 
 Yii::setPathOfAlias('mindy', __DIR__);
 
-include_once(__DIR__ . '/../Mindy/Form/src.php');
-
 $importAliases = [
     'mindy.m',
     'mindy.app.*',
@@ -85,7 +83,7 @@ class Mindy extends Yii
         }
 
         foreach ($app->modules as $name => $settings) {
-            if ($modulePath = Yii::getPathOfAlias($name)) {
+            if ($modulePath = Yii::getPathOfAlias("application.modules.".$name)) {
                 $app->commandRunner->addCommands($modulePath . DIRECTORY_SEPARATOR . 'commands');
             }
         }

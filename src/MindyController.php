@@ -18,6 +18,11 @@ class MindyController extends MindyBaseController
 {
     use RenderTrait, TitleBreadcrumbsTrait, ApplicationList;
 
+    public function render($view, array $data = [])
+    {
+        return $this->renderTemplate($view, $data);
+    }
+
     public function json(array $data = [])
     {
         header('Content-Type: application/json');

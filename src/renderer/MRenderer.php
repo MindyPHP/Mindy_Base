@@ -1,4 +1,5 @@
 <?php
+use Mindy\Helper\Console;
 
 /**
  * Twig view renderer
@@ -93,12 +94,21 @@ class MRenderer extends CApplicationComponent
         $this->addGlobals([
             'params' => $app->params,
             'request' => $app->request,
-            'user' => $app->user,
             'app' => $app,
-
-            'csrf_name' => $app->request->csrfTokenName,
-            'csrf_token' => $app->request->getCsrfToken(),
         ]);
+
+        if(Console::isCli() === false) {
+            $this->addGlobals([
+                'csrf_name' => $app->request->csrfTokenName,
+                'csrf_token' => $app->request->getCsrfToken(),
+            ]);
+        }
+
+        if($app->hasComponent('auth')) {
+            $this->addGlobals([
+                'user' => $app->auth->getModel(),
+            ]);
+        }
 
         $this->addFunctions([
             'can' => 'Yii::app()->user->can',
@@ -285,7 +295,11 @@ class ETwigViewRendererStaticClassProxy
 
     public function __call($method, $arguments)
     {
-        return call_user_func_array(array($this->_staticClassName, $method), $arguments);
+        if(!is_callable($this->_staticClassName)) {
+            return null;
+        } else {
+            return call_user_func_array(array($this->_staticClassName, $method), $arguments);
+        }
     }
 }
 
