@@ -18,4 +18,9 @@ use Mindy\Utils\RenderTrait;
 class MWidget extends MBaseWidget
 {
     use RenderTrait;
+
+    public function render($view, array $data = [])
+    {
+        return $this->renderTemplate($view, $data);
+    }
 }

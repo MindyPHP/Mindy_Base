@@ -83,7 +83,7 @@ class Mindy extends Yii
         }
 
         foreach ($app->modules as $name => $settings) {
-            if ($modulePath = Yii::getPathOfAlias($name)) {
+            if ($modulePath = Yii::getPathOfAlias("application.modules.".$name)) {
                 $app->commandRunner->addCommands($modulePath . DIRECTORY_SEPARATOR . 'commands');
             }
         }
