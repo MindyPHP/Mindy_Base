@@ -96,6 +96,7 @@ class MRenderer extends CApplicationComponent
             'request' => $app->request,
             'app' => $app,
         ]);
+        $this->_twig->addGlobal('user', $app->auth->getModel());
 
         if(Console::isCli() === false) {
             $this->addGlobals([
