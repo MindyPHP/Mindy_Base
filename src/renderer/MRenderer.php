@@ -93,12 +93,12 @@ class MRenderer extends CApplicationComponent
         $this->addGlobals([
             'params' => $app->params,
             'request' => $app->request,
-            'user' => $app->user,
             'app' => $app,
 
             'csrf_name' => $app->request->csrfTokenName,
             'csrf_token' => $app->request->getCsrfToken(),
         ]);
+        $this->_twig->addGlobal('user', $app->auth->getModel());
 
         $this->addFunctions([
             'can' => 'Yii::app()->user->can',
