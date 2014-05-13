@@ -1,22 +1,38 @@
 <?php
 
-/**
- *
- *
- * All rights reserved.
- *
- * @author Falaleev Maxim
- * @email max@studio107.ru
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 09/04/14.04.2014 18:49
- */
-class MUrlManager extends CUrlManager
+use Aura\Router\DefinitionFactory;
+use Aura\Router\Map;
+use Aura\Router\RouteFactory;
+use Mindy\Router\Patterns;
+
+class MUrlManager extends Map
 {
-    public $keepSlashes = false;
+    public $urlsAlias = 'application.config.urls';
 
-    public $urlRuleClass = 'MUrlRule';
+    /**
+     * @var array of routes for backward compatability
+     */
+    public $rulesCsrfExcluded = [];
 
-    public $rulesCsrfExcluded = array();
+    public function __construct()
+    {
+        $patterns = new Patterns($this->urlsAlias);
+
+        parent::__construct(new DefinitionFactory, new RouteFactory, $patterns->getRoutes());
+    }
+
+    public function init()
+    {
+
+    }
+
+    public function createUrl($name, $data = null)
+    {
+        return $this->generate($name, $data);
+    }
+
+    public function parseUrl($request)
+    {
+        return $this->match($request->getRequestUri(), $_SERVER);
+    }
 }

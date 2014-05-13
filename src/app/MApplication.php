@@ -105,6 +105,7 @@ class MApplication extends CApplication
 
     private $_commandPath;
     private $_runner;
+    private $_urlManager;
 
     public function __construct($config = null)
     {
@@ -158,10 +159,12 @@ class MApplication extends CApplication
         } else {
             if (is_array($this->catchAllRequest) && isset($this->catchAllRequest[0])) {
                 $route = $this->catchAllRequest[0];
-                foreach (array_splice($this->catchAllRequest, 1) as $name => $value)
+                foreach (array_splice($this->catchAllRequest, 1) as $name => $value) {
                     $_GET[$name] = $value;
-            } else
+                }
+            } else {
                 $route = $this->getUrlManager()->parseUrl($this->getRequest());
+            }
             $this->runController($route);
         }
     }
@@ -173,9 +176,33 @@ class MApplication extends CApplication
      */
     protected function registerCoreComponents()
     {
-        parent::registerCoreComponents();
-
         $components = array(
+            'coreMessages' => array(
+                'class' => 'CPhpMessageSource',
+                'language' => 'en_us',
+                'basePath' => YII_PATH . DIRECTORY_SEPARATOR . 'messages',
+            ),
+            'db' => array(
+                'class' => 'CDbConnection',
+            ),
+            'messages' => array(
+                'class' => 'CPhpMessageSource',
+            ),
+            'errorHandler' => array(
+                'class' => 'CErrorHandler',
+            ),
+            'securityManager' => array(
+                'class' => 'CSecurityManager',
+            ),
+            'statePersister' => array(
+                'class' => 'CStatePersister',
+            ),
+            'request' => array(
+                'class' => 'CHttpRequest',
+            ),
+            'format' => array(
+                'class' => 'CFormatter',
+            ),
             'session' => array(
                 'class' => 'CHttpSession',
             ),
@@ -262,66 +289,24 @@ class MApplication extends CApplication
      * the corresponding controller. For example, if the route is "admin/user/create",
      * then the controller will be created using the class file "protected/controllers/admin/UserController.php".</li>
      * </ol>
-     * @param string $route the route of the request.
+     * @param \Aura\Router\Route $route the route of the request.
      * @param CWebModule $owner the module that the new controller will belong to. Defaults to null, meaning the application
      * instance is the owner.
      * @return array the controller instance and the action ID. Null if the controller class does not exist or the route is invalid.
      */
     public function createController($route, $owner = null)
     {
-        if ($owner === null)
+        if ($owner === null) {
             $owner = $this;
-        if (($route = trim($route, '/')) === '')
-            $route = $owner->defaultController;
-        $caseSensitive = $this->getUrlManager()->caseSensitive;
-
-        $route .= '/';
-        while (($pos = strpos($route, '/')) !== false) {
-            $id = substr($route, 0, $pos);
-            if (!preg_match('/^\w+$/', $id))
-                return null;
-            if (!$caseSensitive)
-                $id = strtolower($id);
-            $route = (string)substr($route, $pos + 1);
-            if (!isset($basePath)) // first segment
-            {
-                if (isset($owner->controllerMap[$id])) {
-                    return array(
-                        Yii::createComponent($owner->controllerMap[$id], $id, $owner === $this ? null : $owner),
-                        $this->parseActionParams($route),
-                    );
-                }
-
-                if (($module = $owner->getModule($id)) !== null)
-                    return $this->createController($route, $module);
-
-                $basePath = $owner->getControllerPath();
-                $controllerID = '';
-            } else
-                $controllerID .= '/';
-            $className = ucfirst($id) . 'Controller';
-            $classFile = $basePath . DIRECTORY_SEPARATOR . $className . '.php';
-
-            if ($owner->controllerNamespace !== null)
-                $className = $owner->controllerNamespace . '\\' . $className;
-
-            if (is_file($classFile)) {
-                if (!class_exists($className, false))
-                    require($classFile);
-
-                // Fuck yii hardcode
-                if (class_exists($className, false) && is_subclass_of($className, $this->baseController)) {
-                    $id[0] = strtolower($id[0]);
-                    return array(
-                        new $className($controllerID . $id, $owner === $this ? null : $owner),
-                        $this->parseActionParams($route),
-                    );
-                }
-                return null;
-            }
-            $controllerID .= $id;
-            $basePath .= DIRECTORY_SEPARATOR . $id;
         }
+
+        if($route) {
+            $className = $route->values['controller'];
+            $controller = new $className(time(), $owner === $this ? null : $owner);
+            return [$controller, $route->values['action']];
+        }
+
+        return null;
     }
 
     /**
