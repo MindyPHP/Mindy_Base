@@ -290,10 +290,11 @@ class MindyBaseController extends CBaseController
         $priorAction = $this->_action;
         $this->_action = $action;
         if ($this->beforeAction($action)) {
-            if ($action->runWithParams($this->getActionParams()) === false)
+            if ($action->runWithParams($this->getActionParams()) === false) {
                 $this->invalidActionParams($action);
-            else
+            } else {
                 $this->afterAction($action);
+            }
         }
         $this->_action = $priorAction;
     }
