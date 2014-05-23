@@ -2,6 +2,7 @@
 use Mindy\Form\BaseForm;
 use Mindy\Form\Renderer\MindyRenderer;
 use Mindy\Helper\Console;
+use Mindy\Helper\Creator;
 use Mindy\Orm\Model;
 
 /**
@@ -80,6 +81,8 @@ class MApplication extends CApplication
     private $_viewPath;
     private $_systemViewPath;
     private $_controller;
+    private $_components = [];
+    private $_componentConfig = [];
 
     public $baseController = 'CBaseController';
 
@@ -105,7 +108,6 @@ class MApplication extends CApplication
 
     private $_commandPath;
     private $_runner;
-    private $_urlManager;
 
     public function __construct($config = null)
     {
@@ -206,9 +208,6 @@ class MApplication extends CApplication
             'session' => array(
                 'class' => 'CHttpSession',
             ),
-            'user' => array(
-                'class' => 'CWebUser',
-            ),
             'widgetFactory' => array(
                 'class' => 'CWidgetFactory',
             ),
@@ -230,7 +229,11 @@ class MApplication extends CApplication
      */
     public function getUser()
     {
-        return $this->getComponent('auth')->getModel();
+        $auth = $this->getComponent('auth');
+        if (!$auth) {
+            throw new Exception("Auth component not initialized");
+        }
+        return $auth->getModel();
     }
 
     /**
@@ -300,7 +303,7 @@ class MApplication extends CApplication
             $owner = $this;
         }
 
-        if($route) {
+        if ($route) {
             $className = $route->values['controller'];
             $controller = new $className(time(), $owner === $this ? null : $owner);
             return [$controller, $route->values['action']];

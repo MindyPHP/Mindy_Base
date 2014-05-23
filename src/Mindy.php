@@ -39,6 +39,14 @@ function d()
 class Mindy extends Yii
 {
     /**
+     * @return MApplication
+     */
+    public static function app()
+    {
+        return parent::app();
+    }
+
+    /**
      * @return string the version of Mindy
      */
     public static function getVersion()

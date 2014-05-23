@@ -11,7 +11,7 @@ class m
         return Console::isCli();
     }
 
-    public static function d($var, $highlight = true, $die = true, $depth = 10)
+    public static function d($var, $highlight = true, $depth = 10)
     {
         Dumper::dump($var, $depth, $highlight);
     }

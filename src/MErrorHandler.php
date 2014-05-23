@@ -1,4 +1,5 @@
 <?php
+use Mindy\Helper\Console;
 
 /**
  *
@@ -14,10 +15,65 @@
  */
 class MErrorHandler extends CErrorHandler
 {
+    private $_error;
+    private $_exception;
+
+    public function getError()
+    {
+        return $this->_error;
+    }
+
     protected function handleException($exception)
     {
         Yii::app()->middleware->processException($exception);
-        parent::handleException($exception);
+
+        $app = Mindy::app();
+        if (Console::isCli() === false) {
+            if (($trace = $this->getExactTrace($exception)) === null) {
+                $fileName = $exception->getFile();
+                $errorLine = $exception->getLine();
+            } else {
+                $fileName = $trace['file'];
+                $errorLine = $trace['line'];
+            }
+
+            $trace = $exception->getTrace();
+
+            foreach ($trace as $i => $t) {
+                if (!isset($t['file'])) {
+                    $trace[$i]['file'] = 'unknown';
+                }
+
+                if (!isset($t['line'])) {
+                    $trace[$i]['line'] = 0;
+                }
+
+                if (!isset($t['function'])) {
+                    $trace[$i]['function'] = 'unknown';
+                }
+
+                unset($trace[$i]['object']);
+            }
+
+            $this->_exception = $exception;
+            $this->_error = $data = array(
+                'code' => ($exception instanceof CHttpException) ? $exception->statusCode : 500,
+                'type' => get_class($exception),
+                'errorCode' => $exception->getCode(),
+                'message' => $exception->getMessage(),
+                'file' => $fileName,
+                'line' => $errorLine,
+                'trace' => $exception->getTraceAsString(),
+                'traces' => $trace,
+            );
+
+            if (!headers_sent()) {
+                header("HTTP/1.0 {$data['code']} " . $this->getHttpHeader($data['code'], get_class($exception)));
+            }
+
+            $this->renderException();
+        } else
+            $app->displayException($exception);
     }
 
     protected function handleError($event)
@@ -40,7 +96,11 @@ class MErrorHandler extends CErrorHandler
         $data['time'] = time();
         $data['admin'] = $this->adminInfo;
 
-        $template = $this->getViewFile($view, $data['code']);
+        if(!isset($data['code'])) {
+            $template = $this->getViewFile($view, '');
+        } else {
+            $template = $this->getViewFile($view, $data['code']);
+        }
 
         if ($template === null) {
             $template = $this->getViewFile($view, '');
@@ -68,9 +128,9 @@ class MErrorHandler extends CErrorHandler
         return parent::isCoreCode($trace);
     }
 
-    public function renderSource($file,$errorLine,$maxLines)
+    public function renderSource($file, $errorLine, $maxLines)
     {
-        return $this->renderSourceCode($file,$errorLine,$maxLines);
+        return $this->renderSourceCode($file, $errorLine, $maxLines);
     }
 
     protected function getViewFile($view, $code)
@@ -85,10 +145,10 @@ class MErrorHandler extends CErrorHandler
      */
     protected function renderError()
     {
-        $data=$this->getError();
-        if(YII_DEBUG)
-            $this->render('exception',$data);
+        $data = $this->getError();
+        if (YII_DEBUG)
+            $this->render('exception', $data);
         else
-            $this->render('error',$data);
+            $this->render('error', $data);
     }
 }

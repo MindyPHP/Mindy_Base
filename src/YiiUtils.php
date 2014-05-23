@@ -28,17 +28,9 @@ class YiiUtils
             return $text;
     }
 
-    public static function createUrl($tmp, $params = array())
+    public static function createUrl($route, $data = null)
     {
-        if (is_array($tmp)) {
-            $route = $tmp[0];
-            unset($tmp[0]);
-            $params = $tmp;
-        } else {
-            $route = $tmp;
-        }
-
-        return Yii::app()->createUrl($route, $params);
+        return Yii::app()->urlManager->createUrl($route, $data);
     }
 
     public static function csrf()

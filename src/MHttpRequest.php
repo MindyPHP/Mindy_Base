@@ -15,7 +15,32 @@
  */
 class MHttpRequest extends CHttpRequest
 {
+    /**
+     * @var bool
+     */
+    public $enableCsrfValidation = true;
+    /**
+     * @var bool
+     */
+    public $enableCookieValidation = true;
+    /**
+     * @var string
+     */
+    public $csrfTokenName = 'csrf_token';
+    /**
+     * @var
+     */
     private $_csrfToken;
+    /**
+     * @var
+     */
+    public $is_ajax;
+
+    public function init()
+    {
+        parent::init();
+        $this->is_ajax = $this->getIsAjaxRequest();
+    }
 
     /**
      * Returns the random token used to perform CSRF validation.
@@ -135,5 +160,15 @@ class MHttpRequest extends CHttpRequest
         if ($this->enableCsrfValidation && array_search($url, $urlManager->rulesCsrfExcluded) === false) {
             Yii::app()->attachEventHandler('onBeginRequest', array($this, 'validateCsrfToken'));
         }
+    }
+
+    public function getPath()
+    {
+        return $this->getRequestUri();
+    }
+
+    public function getIsAjax()
+    {
+        return $this->getIsAjaxRequest();
     }
 }

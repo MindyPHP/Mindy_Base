@@ -64,8 +64,14 @@ class MRenderer extends CApplicationComponent
      */
     public $lexerOptions = [];
 
+    /**
+     * @var Twig_Environment
+     */
     private $_twig;
 
+    private $_stringLoader;
+
+    private $_templateLoader;
 
     /**
      * @var Twig_Loader_Filesystem
@@ -76,8 +82,6 @@ class MRenderer extends CApplicationComponent
     {
         $app = Yii::app();
 
-        $paths = array_merge(['/'], Yii::app()->finder->getPaths());
-        $this->loader = new Twig_Loader_Filesystem($paths);
         $defaultOptions = array(
             'autoescape' => true, // false because other way Twig escapes all HTML in templates
             'auto_reload' => true,
@@ -85,8 +89,10 @@ class MRenderer extends CApplicationComponent
             'charset' => $app->charset,
         );
 
-        $options = array_merge($defaultOptions, $this->options);
-        $this->_twig = new Twig_Environment($this->loader, $options);
+        $this->_twig = new Twig_Environment(new Twig_Loader_Chain([
+            $this->getTemplateLoader(),
+            $this->getStringLoader()
+        ]), array_merge($defaultOptions, $this->options));
 
         // Adding Yii's core static classes proxy as 'C' shortcut (usage: {{C.Html.tag(...)}})
         $this->_twig->addGlobal('C', new ETwigViewRendererYiiCoreStaticClassesProxy());
@@ -96,7 +102,6 @@ class MRenderer extends CApplicationComponent
             'request' => $app->request,
             'app' => $app,
         ]);
-        $this->_twig->addGlobal('user', $app->auth->getModel());
 
         if(Console::isCli() === false) {
             $this->addGlobals([
@@ -106,9 +111,7 @@ class MRenderer extends CApplicationComponent
         }
 
         if($app->hasComponent('auth')) {
-            $this->addGlobals([
-                'user' => $app->auth->getModel(),
-            ]);
+            $this->_twig->addGlobal('user', $app->auth->getModel());
         }
 
         $this->addFunctions([
@@ -118,11 +121,13 @@ class MRenderer extends CApplicationComponent
             'url' => 'YiiUtils::createUrl',
             'breadcrumbs' => 'Yii::app()->controller->setBreadcrumbs',
             'dump' => 'd',
+            'get_version' => 'Mindy::getVersion',
             'csrf' => 'YiiUtils::csrf',
             'get_class' => 'get_class',
             'time' => 'time',
             'date' => 'date',
             'is_file' => 'is_file',
+            'debug_panel' => 'DebugPanel::render'
         ]);
 
         $this->addFilters([
@@ -161,6 +166,22 @@ class MRenderer extends CApplicationComponent
         }
 
         return parent::init();
+    }
+
+    protected function getStringLoader()
+    {
+        if(!$this->_stringLoader) {
+            $this->_stringLoader = new Twig_Loader_String();
+        }
+        return $this->_stringLoader;
+    }
+
+    protected function getTemplateLoader()
+    {
+        if(!$this->_templateLoader) {
+            $this->_templateLoader = new Twig_Loader_Filesystem(array_merge(['/'], Yii::app()->finder->getPaths()));
+        }
+        return $this->_templateLoader;
     }
 
     public function render($sourceFile, array $data = [])
