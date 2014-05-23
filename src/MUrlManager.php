@@ -42,7 +42,8 @@ class MUrlManager extends Map
      */
     public function match($path, array $server)
     {
-        $path = rtrim($path, '/');
+        $path = strtok($path, '?');
+
         // reset the log
         $this->log = [];
 
@@ -52,8 +53,12 @@ class MUrlManager extends Map
             if ($route->isMatch($path, $server)) {
                 return $route;
             } else {
-                if($this->trailingSlash && $route->isMatch($path . '/', $server)) {
-                    $this->trailingSlashCallback($path . '/');
+                if($this->trailingSlash) {
+                    if(substr($path, -1) === '/' && $route->isMatch(rtrim($path, '/'), $server)) {
+                        $this->trailingSlashCallback(rtrim($path, '/'));
+                    } else if($route->isMatch($path . '/', $server)) {
+                        $this->trailingSlashCallback($path . '/');
+                    }
                 }
             }
         }
@@ -88,7 +93,7 @@ class MUrlManager extends Map
 
     public function parseUrl($request)
     {
-        $uri = strtok($request->getRequestUri(), '?');
+        $uri = $request->getRequestUri();
         if ($route = $this->match($uri, $_SERVER)) {
             foreach ($route->values as $key => $value) {
                 if (in_array($key, ['controller', 'action'])) {
