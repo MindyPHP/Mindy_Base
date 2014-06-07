@@ -104,10 +104,8 @@ class MRenderer extends CApplicationComponent
         ]);
 
         if(Console::isCli() === false) {
-            $this->addGlobals([
-                'csrf_name' => $app->request->csrfTokenName,
-                'csrf_token' => $app->request->getCsrfToken(),
-            ]);
+            $this->_twig->addGlobal('csrf_name', $app->request->csrfTokenName);
+            $this->_twig->addGlobal('csrf_token', $app->request->getCsrfToken());
         }
 
         if($app->hasComponent('auth')) {
@@ -196,9 +194,6 @@ class MRenderer extends CApplicationComponent
     public function addGlobals($globals)
     {
         foreach ($globals as $name => $value) {
-            if (!is_object($value)) {
-                $value = new ETwigViewRendererStaticClassProxy($value);
-            }
             $this->_twig->addGlobal($name, $value);
         }
     }

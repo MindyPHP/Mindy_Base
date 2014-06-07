@@ -26,7 +26,7 @@ class MHttpRequest extends CHttpRequest
     /**
      * @var string
      */
-    public $csrfTokenName = 'csrf_token';
+    public $csrfTokenName = 'X-CSRFToken';
     /**
      * @var
      */
@@ -75,10 +75,7 @@ class MHttpRequest extends CHttpRequest
      */
     public function validateCsrfToken($event)
     {
-        if ($this->getIsPostRequest() ||
-            $this->getIsPutRequest() ||
-            $this->getIsDeleteRequest()
-        ) {
+        if ($this->getIsPostRequest() || $this->getIsPutRequest() || $this->getIsDeleteRequest()) {
             $cookies = $this->getCookies();
 
             $method = $this->getRequestType();
@@ -92,31 +89,45 @@ class MHttpRequest extends CHttpRequest
                 case 'DELETE':
                     $userToken = $this->getDelete($this->csrfTokenName);
                     break;
-                case 'GET':
-                    $userToken = $this->getGet($this->csrfTokenName);
-                    break;
             }
 
-            if (empty($userToken)) {
-                $session = Yii::app()->session;
-
-                // check token in $_SERVER variable
-                if (isset($_SERVER["HTTP_" . strtoupper($this->csrfTokenName)]))
-                    $userToken = $_SERVER["HTTP_" . strtoupper($this->csrfTokenName)];
-                else if ($session->contains($this->csrfTokenName)) {
-                    // check token in session
-                    $userToken = $session->itemAt($this->csrfTokenName);
-                }
+            if(empty($userToken)) {
+                $userToken = $this->getHeaderValue($this->csrfTokenName);
             }
-
 
             if (!empty($userToken) && $cookies->contains($this->csrfTokenName)) {
                 $cookieToken = $cookies->itemAt($this->csrfTokenName)->value;
                 $valid = $cookieToken === $userToken;
-            } else
+            } else {
                 $valid = false;
-            if (!$valid)
+            }
+
+            if (!$valid) {
                 throw new CHttpException(400, Yii::t('yii', 'The CSRF token could not be verified.'));
+            }
+        }
+    }
+
+    public function getHeaderValue($name)
+    {
+        $this->getHeaderValues();
+        return isset($headers[$name]) ? $headers[$name] : null;
+    }
+
+    public function getHeaderValues()
+    {
+        if (function_exists('apache_request_headers')) {
+            return apache_request_headers();
+        } else {
+            $headers = [];
+            foreach ($_SERVER as $key => $value) {
+                if (substr($key, 0, 5) <> 'HTTP_') {
+                    continue;
+                }
+                $header = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
+                $headers[$header] = $value;
+            }
+            return $headers;
         }
     }
 
