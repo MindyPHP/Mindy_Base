@@ -1,5 +1,10 @@
 <?php
 
+namespace Mindy\Base;
+
+use Mindy\Base\Mindy;
+use Mindy\Base\Module;
+
 /**
  * All rights reserved.
  *
@@ -20,7 +25,7 @@ trait ApplicationList
 
     public function getApplications()
     {
-        $modules = Yii::app()->getModules();
+        $modules = Mindy::app()->getModules();
         foreach($this->exclude as $exclude) {
             unset($modules[$exclude]);
         }
@@ -28,13 +33,13 @@ trait ApplicationList
         return $this->buildMenu($modules);
     }
 
-    protected function buildMenu($modules = array(), CModule $parentModule = null)
+    protected function buildMenu($modules = array(), Module $parentModule = null)
     {
         $array = [];
         foreach ($modules as $name => $config) {
             $name = is_array($config) ? $name : $config;
 
-            $module = $parentModule ? $parentModule->getModule($name) : Yii::app()->getModule($name);
+            $module = $parentModule ? $parentModule->getModule($name) : Mindy::app()->getModule($name);
 
             if (method_exists($module, 'getMenu')) {
                 $items = $module->getMenu();
@@ -67,7 +72,7 @@ trait ApplicationList
 
     public function findModule($moduleID)
     {
-        return $this->findInModule(Yii::app(), $moduleID);
+        return $this->findInModule(Mindy::app(), $moduleID);
     }
 
     private function findInModule($parent, $moduleID)
