@@ -1,0 +1,22 @@
+<phpunit bootstrap="bootstrap.php"
+         colors="false"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         stopOnFailure="false">
+
+    <php>
+        <ini name="memory_limit" value="-1"/>
+        <ini name="display_errors" value="1"/>
+        <ini name="error_reporting" value="-1"/>
+    </php>
+
+    <testsuites>
+        <testsuite name="base"><directory>framework/base</directory></testsuite>
+        <testsuite name="cli"><directory>framework/cli</directory></testsuite>
+        <testsuite name="collections"><directory>framework/collections</directory></testsuite>
+        <testsuite name="i18n"><directory>framework/i18n</directory></testsuite>
+        <testsuite name="utils"><directory>framework/utils</directory></testsuite>
+        <testsuite name="web"><directory>framework/web</directory></testsuite>
+    </testsuites>
+</phpunit>
