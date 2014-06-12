@@ -1,6 +1,6 @@
 <?php
 
-use Mindy\Base\LocalizedFormatter;
+use Mindy\Locale\LocalizedFormatter;
 use Mindy\Base\Mindy;
 
 class CLocalizedFormatterTest extends CTestCase

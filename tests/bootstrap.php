@@ -6,6 +6,7 @@ $loader->add('Mindy\\', __DIR__ . '/../src/');
 $loader->add('Mindy\\Core\\', __DIR__ . '/../vendor/mindy/core/src');
 $loader->add('Mindy\\Helper\\', __DIR__ . '/../vendor/mindy/helper/src');
 $loader->add('Mindy\\Utils\\', __DIR__ . '/../vendor/mindy/utils/src');
+$loader->add('Monolog\\', __DIR__ . '/../vendor/monolog/monolog/src');
 $loader->register();
 
 defined('YII_ENABLE_EXCEPTION_HANDLER') or define('YII_ENABLE_EXCEPTION_HANDLER', false);

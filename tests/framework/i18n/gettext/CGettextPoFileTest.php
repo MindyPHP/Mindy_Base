@@ -1,6 +1,6 @@
 <?php
 
-use Mindy\Base\GettextPoFile;
+use Mindy\Locale\GettextPoFile;
 
 class CGettextPoFileTest extends CTestCase
 {

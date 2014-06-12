@@ -1,6 +1,6 @@
 <?php
 
-use Mindy\Base\NumberFormatter;
+use Mindy\Locale\NumberFormatter;
 
 class CNumberFormatterTest extends CTestCase
 {

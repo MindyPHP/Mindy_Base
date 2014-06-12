@@ -1,6 +1,6 @@
 <?php
 
-use Mindy\Base\Locale;
+use Mindy\Locale\Locale;
 use Mindy\Base\Mindy;
 
 class CLocaleTest extends CTestCase

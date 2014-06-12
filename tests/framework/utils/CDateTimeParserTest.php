@@ -1,6 +1,6 @@
 <?php
 
-use Mindy\Base\DateTimeParser;
+use Mindy\Locale\DateTimeParser;
 use Mindy\Base\Mindy;
 
 class CDateTimeParserTest extends CTestCase

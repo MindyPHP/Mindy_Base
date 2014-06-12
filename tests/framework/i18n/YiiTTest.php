@@ -2,7 +2,7 @@
 use Mindy\Base\Mindy;
 
 /**
- * Tests for various usages of Yii::t
+ * Tests for various usages of Mindy::t
  *
  * http://code.google.com/p/yii/issues/detail?id=1875
  * http://code.google.com/p/yii/issues/detail?id=1987
@@ -17,7 +17,7 @@ class YiiTTest extends CTestCase
             'sourceLanguage' => 'es',
             'components' => array(
                 'messages' => array(
-                    'class' => '\Mindy\Base\PhpMessageSource',
+                    'class' => '\Mindy\Locale\PhpMessageSource',
                     'basePath' => dirname(__FILE__) . '/data',
                     //'forceTranslation' => true,
                 ),
