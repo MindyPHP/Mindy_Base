@@ -29,7 +29,7 @@ class MRenderer extends CApplicationComponent
     /**
      * @var array Objects or static classes
      * Keys of array are names to call in template, values - objects or names of static class as string
-     * Example: array('html'=>'CHtml', 'clientScript'=>Yii::app()->clientScript)
+     * Example: array('html'=>'CHtml', 'clientScript'=>Mindy::app()->clientScript)
      * Than in template: {{ html.link('Login', 'site/login') }} or {{ clientScript.registerCssFile(...) }}
      */
     public $globals = [];
@@ -80,7 +80,7 @@ class MRenderer extends CApplicationComponent
 
     public function init()
     {
-        $app = Yii::app();
+        $app = Mindy::app();
 
         $defaultOptions = array(
             'autoescape' => true, // false because other way Twig escapes all HTML in templates
@@ -113,11 +113,11 @@ class MRenderer extends CApplicationComponent
         }
 
         $this->addFunctions([
-            'can' => 'Yii::app()->user->can',
-            'access' => 'Yii::app()->user->checkAccess',
+            'can' => 'Mindy::app()->user->can',
+            'access' => 'Mindy::app()->user->checkAccess',
             't' => 'YiiUtils::t',
             'url' => 'YiiUtils::createUrl',
-            'breadcrumbs' => 'Yii::app()->controller->setBreadcrumbs',
+            'breadcrumbs' => 'Mindy::app()->controller->setBreadcrumbs',
             'dump' => 'd',
             'get_version' => 'Mindy::getVersion',
             'csrf' => 'YiiUtils::csrf',
@@ -177,7 +177,7 @@ class MRenderer extends CApplicationComponent
     protected function getTemplateLoader()
     {
         if(!$this->_templateLoader) {
-            $this->_templateLoader = new Twig_Loader_Filesystem(array_merge(['/'], Yii::app()->finder->getPaths()));
+            $this->_templateLoader = new Twig_Loader_Filesystem(array_merge(['/'], Mindy::app()->finder->getPaths()));
         }
         return $this->_templateLoader;
     }
@@ -273,7 +273,7 @@ class MRenderer extends CApplicationComponent
             if ($twigElement !== null) {
                 $this->_twig->{'add' . $classType}($name, $twigElement);
             } else {
-                throw new CException(Yii::t('yiiext',
+                throw new CException(Mindy::t('yiiext',
                     'Incorrect options for "{classType}" [{name}]',
                     array('{classType}' => $classType, '{name}' => $name)));
             }

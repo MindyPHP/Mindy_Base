@@ -21,7 +21,7 @@
 - Added an ability to specify Twig location through path alias (Leonid Svyatov)
 - Added an ability to change templates syntax (Leonid Svyatov)
 - Default template extension changed to '.twig' (Leonid Svyatov)
-- Yii::app() object now can be accessed in templates by name 'App' ({{ App.cache.get('id') }}) (Leonid Svyatov)
+- Mindy::app() object now can be accessed in templates by name 'App' ({{ App.cache.get('id') }}) (Leonid Svyatov)
 - changelog.txt renamed to changelog.md for better look in GitHub (Leonid Svyatov)
 - README.md link to readme_en.txt removed (Leonid Svyatov)
 - readme_en.txt renamed to README.md (Leonid Svyatov)
