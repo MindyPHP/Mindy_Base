@@ -24,7 +24,7 @@ use Mindy\Exception\InvalidConfigException;
  * You then call [[get()]] to create a new class object. Container will automatically instantiate
  * dependent objects, inject them into the object being created, configure and finally return the newly created object.
  *
- * By default, [[\Yii::$container]] refers to a Container instance which is used by [[\Yii::createObject()]]
+ * By default, [[\Mindy::$container]] refers to a Container instance which is used by [[\Mindy::createObject()]]
  * to create new object instances. You may use this method to replace the `new` operator
  * when creating a new object, which gives you the benefit of automatic dependency resolution and default
  * property configuration.

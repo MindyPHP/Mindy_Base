@@ -7,6 +7,7 @@
 
 namespace Mindy\Di;
 
+use Mindy\Base\Mindy;
 use Mindy\Exception\InvalidConfigException;
 
 /**
@@ -81,14 +82,14 @@ class Instance
      * The reference may be specified as a string or an Instance object. If the former,
      * it will be treated as a component ID, a class/interface name or an alias, depending on the container type.
      *
-     * If you do not specify a container, the method will first try `Yii::$app` followed by `Yii::$container`.
+     * If you do not specify a container, the method will first try `Mindy::$app` followed by `Mindy::$container`.
      *
      * For example,
      *
      * ```php
      * use yii\db\Connection;
      *
-     * // returns Yii::$app->db
+     * // returns Mindy::$app->db
      * $db = Instance::ensure('db', Connection::className());
      * // or
      * $instance = Instance::of('db');
@@ -130,7 +131,7 @@ class Instance
     /**
      * Returns the actual object referenced by this Instance object.
      * @param ServiceLocator|Container $container the container used to locate the referenced object.
-     * If null, the method will first try `Yii::$app` then `Yii::$container`.
+     * If null, the method will first try `Mindy::$app` then `Mindy::$container`.
      * @return object the actual object referenced by this Instance object.
      */
     public function get($container = null)
@@ -138,6 +139,9 @@ class Instance
         if ($container) {
             return $container->get($this->id);
         }
-        return ServiceLocator->get($this->id);
+        
+        if (Mindy::app() && Mindy::app()->locator->has($this->id)) {
+            return Mindy::app()->locator->get($this->id);
+        }
     }
 }
