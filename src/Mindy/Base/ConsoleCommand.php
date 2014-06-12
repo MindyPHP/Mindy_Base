@@ -26,7 +26,7 @@ use ReflectionClass;
 use ReflectionMethod;
 
 /**
- * CConsoleCommand represents an executable console command.
+ * ConsoleCommand represents an executable console command.
  *
  * It works like {@link CController} by parsing command line options and dispatching
  * the request to a specific action with appropriate option values.
@@ -54,7 +54,7 @@ use ReflectionMethod;
  * Since version 1.1.11 the return value of action methods will be used as application exit code if it is an integer value.
  *
  * @property string $name The command name.
- * @property CConsoleCommandRunner $commandRunner The command runner instance.
+ * @property ConsoleCommandRunner $commandRunner The command runner instance.
  * @property string $help The command description. Defaults to 'Usage: php entry-script.php command-name'.
  * @property array $optionHelp The command option help information. Each array element describes
  * the help information for a single action.
@@ -70,6 +70,37 @@ abstract class ConsoleCommand extends Component
      * @since 1.1.5
      */
     public $defaultAction='index';
+
+    // Set up shell colors
+    public $foregroundColors = [
+        'black' => '0;30',
+        'dark_gray' => '1;30',
+        'blue' => '0;34',
+        'light_blue' => '1;34',
+        'green' => '0;32',
+        'light_green' => '1;32',
+        'cyan' => '0;36',
+        'light_cyan' => '1;36',
+        'red' => '0;31',
+        'light_red' => '1;31',
+        'purple' => '0;35',
+        'light_purple' => '1;35',
+        'brown' => '0;33',
+        'yellow' => '1;33',
+        'light_gray' => '0;37',
+        'white' => '1;37'
+    ];
+
+    public $backgroundColors = [
+        'black' => '40',
+        'red' => '41',
+        'green' => '42',
+        'yellow' => '43',
+        'blue' => '44',
+        'magenta' => '45',
+        'cyan' => '46',
+        'light_gray' => '47'
+    ];
 
     private $_name;
     private $_runner;
@@ -612,5 +643,37 @@ abstract class ConsoleCommand extends Component
     public function onAfterAction($event)
     {
         $this->raiseEvent('onAfterAction',$event);
+    }
+
+    // Returns colored string
+    public function color($string, $foreground_color = null, $background_color = null)
+    {
+        $colored_string = "";
+
+        // Check if given foreground color found
+        if (isset($this->foregroundColors[$foreground_color])) {
+            $colored_string .= "\033[" . $this->foregroundColors[$foreground_color] . "m";
+        }
+        // Check if given background color found
+        if (isset($this->backgroundColors[$background_color])) {
+            $colored_string .= "\033[" . $this->backgroundColors[$background_color] . "m";
+        }
+
+        // Add string and end coloring
+        $colored_string .= $string . "\033[0m";
+
+        return $colored_string;
+    }
+
+    // Returns all foreground color names
+    public function getForegroundColors()
+    {
+        return array_keys($this->foregroundColors);
+    }
+
+    // Returns all background color names
+    public function getBackgroundColors()
+    {
+        return array_keys($this->backgroundColors);
     }
 }

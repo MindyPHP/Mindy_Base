@@ -28,7 +28,7 @@ defined('YII_BEGIN_TIME') or define('YII_BEGIN_TIME', microtime(true));
  */
 defined('YII_DEBUG') or define('YII_DEBUG', false);
 /**
- * This constant defines how much call stack information (file name and line number) should be logged by Yii::trace().
+ * This constant defines how much call stack information (file name and line number) should be logged by Mindy::trace().
  * Defaults to 0, meaning no backtrace information. If it is greater than 0,
  * at most that number of call stacks will be logged. Note, only user application call stacks are considered.
  */
@@ -212,29 +212,5 @@ abstract class MindyBase
             }
         }
         return $app;
-    }
-
-    /**
-     * Writes a trace message.
-     * This method will only log a message when the application is in debug mode.
-     * @param string $msg message to be logged
-     * @param string $category category of the message
-     * @see log
-     */
-    public static function trace($msg, $category = 'application')
-    {
-//        if (YII_DEBUG)
-//            self::log($msg, CLogger::LEVEL_TRACE, $category);
-    }
-
-    /**
-     * @return Logger message logger
-     */
-    public static function getLogger()
-    {
-        if (self::$_logger !== null)
-            return self::$_logger;
-        else
-            return self::$_logger = new Logger;
     }
 }

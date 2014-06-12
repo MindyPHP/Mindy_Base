@@ -69,7 +69,7 @@ PARAMETERS
      name is '.svn'. And an exclusion of '/a/b' will exclude file or
      directory 'sourcePath/a/b'.
    - translator: the name of the function for translating messages.
-     Defaults to 'Yii::t'. This is used as a mark to find messages to be
+     Defaults to 'Mindy::t'. This is used as a mark to find messages to be
      translated. Accepts both string for single function name or array for
      multiple function names.
    - overwrite: if message file must be overwritten with the merged messages.

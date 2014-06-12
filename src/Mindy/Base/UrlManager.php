@@ -3,11 +3,11 @@
 namespace Mindy\Base;
 
 use Aura\Router\DefinitionFactory;
-use Aura\Router\Map;
+use Aura\Router\Map as AuraMap;
 use Aura\Router\RouteFactory;
 use Mindy\Router\Patterns;
 
-class UrlManager extends Map
+class UrlManager extends AuraMap
 {
     public $urlsAlias = 'application.config.urls';
 

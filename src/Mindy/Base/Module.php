@@ -12,6 +12,7 @@ namespace Mindy\Base;
      */
 use Mindy\Base\Exception\Exception;
 use Mindy\Base\Interfaces\IApplicationComponent;
+use Mindy\Base\Interfaces\IModule;
 use Mindy\Di\ServiceLocator;
 use Mindy\Helper\Alias;
 use Mindy\Helper\Creator;
@@ -44,7 +45,7 @@ use ReflectionClass;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @package system.base
  */
-abstract class Module extends Component
+abstract class Module extends Component implements IModule
 {
     /**
      * @var array the IDs of the application components that should be preloaded.
@@ -282,7 +283,7 @@ abstract class Module extends Component
         elseif (isset($this->_moduleConfig[$id])) {
             $config = $this->_moduleConfig[$id];
             if (!isset($config['enabled']) || $config['enabled']) {
-                Mindy::trace("Loading \"$id\" module", 'system.base.CModule');
+                Mindy::app()->logger->info("Loading \"$id\" module", 'system.base.CModule');
                 $class = $config['class'];
                 unset($config['class'], $config['enabled']);
                 if ($this === Mindy::app()) {
@@ -536,5 +537,34 @@ abstract class Module extends Component
      */
     protected function init()
     {
+    }
+
+    public function getName()
+    {
+        return self::t(ucfirst($this->getId()));
+    }
+
+    public static function t($str, $params = [], $dic = 'main')
+    {
+        return Mindy::t(get_called_class() . "." . $dic, $str, $params);
+    }
+
+    /**
+     * Return array of mail templates and his variables
+     * @return array
+     */
+    public function getMailTemplates()
+    {
+        return [];
+    }
+
+    /**
+     * Return array for MMenu {$see: MMenu} widget
+     * @abstract
+     * @return array
+     */
+    public function getMenu()
+    {
+        return [];
     }
 }

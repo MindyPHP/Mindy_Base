@@ -68,7 +68,7 @@ use Mindy\Base\Exception\HttpException;
  * @property string $acceptTypes User browser accept types, null if not present.
  * @property integer $port Port number for insecure requests.
  * @property integer $securePort Port number for secure requests.
- * @property CCookieCollection|HttpCookie[] $cookies The cookie collection.
+ * @property CookieCollection|HttpCookie[] $cookies The cookie collection.
  * @property array $preferredAcceptType The user preferred accept type as an array map, e.g. array('type' => 'application', 'subType' => 'xhtml', 'baseType' => 'xml', 'params' => array('q' => 0.9)).
  * @property array $preferredAcceptTypes An array of all user accepted types (as array maps like array('type' => 'application', 'subType' => 'xhtml', 'baseType' => 'xml', 'params' => array('q' => 0.9)) ) in order of preference.
  * @property string $preferredLanguage The user preferred language.
@@ -84,7 +84,7 @@ class HttpRequest extends ApplicationComponent
     /**
      * @var boolean whether cookies should be validated to ensure they are not tampered. Defaults to false.
      */
-    public $enableCookieValidation = false;
+    public $enableCookieValidation = true;
     /**
      * @var boolean whether to enable CSRF (Cross-Site Request Forgery) validation. Defaults to false.
      * By setting this property to true, forms submitted to an Yii Web application must be originated
@@ -94,18 +94,22 @@ class HttpRequest extends ApplicationComponent
      * the needed HTML forms in your pages.
      * @see http://seclab.stanford.edu/websec/csrf/csrf.pdf
      */
-    public $enableCsrfValidation = false;
+    public $enableCsrfValidation = true;
     /**
      * @var string the name of the token used to prevent CSRF. Defaults to 'YII_CSRF_TOKEN'.
      * This property is effectively only when {@link enableCsrfValidation} is true.
      */
-    public $csrfTokenName = 'YII_CSRF_TOKEN';
+    public $csrfTokenName = 'X-CSRFToken';
     /**
      * @var array the property values (in name-value pairs) used to initialize the CSRF cookie.
      * Any property of {@link HttpCookie} may be initialized.
      * This property is effective only when {@link enableCsrfValidation} is true.
      */
     public $csrfCookie;
+    /**
+     * @var bool
+     */
+    public $is_ajax;
 
     private $_requestUri;
     private $_pathInfo;
@@ -128,6 +132,7 @@ class HttpRequest extends ApplicationComponent
     {
         parent::init();
         $this->normalizeRequest();
+        $this->is_ajax = $this->getIsAjaxRequest();
     }
 
     /**
@@ -149,8 +154,20 @@ class HttpRequest extends ApplicationComponent
                 $_COOKIE = $this->stripSlashes($_COOKIE);
         }
 
-        if ($this->enableCsrfValidation)
+        if ($this->enableCsrfValidation) {
             Mindy::app()->attachEventHandler('onBeginRequest', array($this, 'validateCsrfToken'));
+        }
+
+        if ($this->enableCsrfValidation) {
+            if(Mindy::app()->locator->has('urlManager')) {
+                $urlManager = Mindy::app()->urlManager;
+                if ($this->enableCsrfValidation && array_search($urlManager->parseUrl($this), $urlManager->rulesCsrfExcluded) === false) {
+                    Mindy::app()->attachEventHandler('onBeginRequest', array($this, 'validateCsrfToken'));
+                }
+            } else {
+                Mindy::app()->attachEventHandler('onBeginRequest', array($this, 'validateCsrfToken'));
+            }
+        }
     }
 
 
@@ -1253,11 +1270,7 @@ class HttpRequest extends ApplicationComponent
      */
     public function validateCsrfToken($event)
     {
-        if ($this->getIsPostRequest() ||
-            $this->getIsPutRequest() ||
-            $this->getIsPatchRequest() ||
-            $this->getIsDeleteRequest()
-        ) {
+        if ($this->getIsPostRequest() || $this->getIsPutRequest() || $this->getIsDeleteRequest()) {
             $cookies = $this->getCookies();
 
             $method = $this->getRequestType();
@@ -1268,20 +1281,48 @@ class HttpRequest extends ApplicationComponent
                 case 'PUT':
                     $userToken = $this->getPut($this->csrfTokenName);
                     break;
-                case 'PATCH':
-                    $userToken = $this->getPatch($this->csrfTokenName);
-                    break;
                 case 'DELETE':
                     $userToken = $this->getDelete($this->csrfTokenName);
+                    break;
+            }
+
+            if(empty($userToken)) {
+                $userToken = $this->getHeaderValue($this->csrfTokenName);
             }
 
             if (!empty($userToken) && $cookies->contains($this->csrfTokenName)) {
                 $cookieToken = $cookies->itemAt($this->csrfTokenName)->value;
                 $valid = $cookieToken === $userToken;
-            } else
+            } else {
                 $valid = false;
-            if (!$valid)
+            }
+
+            if (!$valid) {
                 throw new HttpException(400, Mindy::t('yii', 'The CSRF token could not be verified.'));
+            }
+        }
+    }
+
+    public function getHeaderValue($name)
+    {
+        $this->getHeaderValues();
+        return isset($headers[$name]) ? $headers[$name] : null;
+    }
+
+    public function getHeaderValues()
+    {
+        if (function_exists('apache_request_headers')) {
+            return apache_request_headers();
+        } else {
+            $headers = [];
+            foreach ($_SERVER as $key => $value) {
+                if (substr($key, 0, 5) <> 'HTTP_') {
+                    continue;
+                }
+                $header = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
+                $headers[$header] = $value;
+            }
+            return $headers;
         }
     }
 }

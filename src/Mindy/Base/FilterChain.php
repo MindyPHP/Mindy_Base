@@ -139,7 +139,7 @@ class FilterChain extends BaseList
     {
         if ($this->offsetExists($this->filterIndex)) {
             $filter = $this->itemAt($this->filterIndex++);
-            Mindy::trace('Running filter ' . ($filter instanceof InlineFilter ? get_class($this->controller) . '.filter' . $filter->name . '()' : get_class($filter) . '.filter()'), 'system.web.filters.FilterChain');
+            Mindy::app()->logger->info('Running filter ' . ($filter instanceof InlineFilter ? get_class($this->controller) . '.filter' . $filter->name . '()' : get_class($filter) . '.filter()'), 'system.web.filters.FilterChain');
             $filter->filter($this);
         } else
             $this->controller->runAction($this->action);

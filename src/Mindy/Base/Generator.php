@@ -1,6 +1,8 @@
 <?php
 
-class MGenerator extends CApplicationComponent
+namespace Mindy\Base;
+
+class Generator extends ApplicationComponent
 {
     /**
      * substr offset for .php extension
@@ -14,8 +16,9 @@ class MGenerator extends CApplicationComponent
      */
     public function getControllerActions($items = null)
     {
-        if ($items === null)
+        if ($items === null) {
             $items = $this->getControllers();
+        }
 
         foreach ($items['controllers'] as $controllerName => $controller) {
             $actions = [];
@@ -49,7 +52,7 @@ class MGenerator extends CApplicationComponent
      */
     public function getControllers($flat = false)
     {
-        $basePath = Yii::app()->basePath;
+        $basePath = Mindy::app()->basePath;
 
         $controllers = $this->getFilesInPath($basePath . DIRECTORY_SEPARATOR . 'controllers', $flat, 'controller', -14);
         $modules = $this->getFilesInModules($basePath, 'controllers', $flat, 'controller', -14);
@@ -66,7 +69,7 @@ class MGenerator extends CApplicationComponent
      */
     public function getModels($flat = false)
     {
-        $basePath = Yii::app()->basePath;
+        $basePath = Mindy::app()->basePath;
 
         $models = $this->getFilesInPath($basePath . DIRECTORY_SEPARATOR . 'models', $flat);
         $modules = $this->getFilesInModules($basePath, 'models', $flat);
@@ -84,7 +87,7 @@ class MGenerator extends CApplicationComponent
      */
     public function getSettingModels($flat = false)
     {
-        $basePath = Yii::app()->basePath;
+        $basePath = Mindy::app()->basePath;
 
         $models = $this->getFilesInPath($basePath . DIRECTORY_SEPARATOR . 'models', $flat, 'settings', -12);
         $modules = $this->getFilesInModules($basePath, 'models', $flat, 'settings', -12);
@@ -113,10 +116,10 @@ class MGenerator extends CApplicationComponent
 
                     if (strpos(strtolower($entry), $condition) !== false || empty($condition)) {
                         $name = substr($entry, 0, $offset);
-                        if($flat)
+                        if ($flat)
                             $files = substr($entry, 0, self::EXT_OFFSET);
                         else {
-                            $fileName = strpos($entryPath, 'admin/') ? 'admin.'.strtolower($name) : strtolower($name);
+                            $fileName = strpos($entryPath, 'admin/') ? 'admin.' . strtolower($name) : strtolower($name);
                             $files[$fileName] = array(
                                 'name' => $name,
                                 'baseName' => substr($entry, 0, self::EXT_OFFSET),
@@ -153,21 +156,21 @@ class MGenerator extends CApplicationComponent
         if (file_exists($modulePath) === true) {
             $moduleDirectory = scandir($modulePath);
             foreach ($moduleDirectory as $entry) {
-                if($entry == '.' || $entry == '..') {
+                if ($entry == '.' || $entry == '..') {
                     continue;
                 }
 
                 if (substr($entry, 0, 1) !== '.') {
                     $subModulePath = $modulePath . DIRECTORY_SEPARATOR . $entry;
                     if (file_exists($subModulePath) === true) {
-                        if($flat) {
-                            $filesInPath  = $this->getFilesInPath($subModulePath . DIRECTORY_SEPARATOR . $subdir, $flat, $condition, $offset);
-                            if($filesInPath !== []) {
+                        if ($flat) {
+                            $filesInPath = $this->getFilesInPath($subModulePath . DIRECTORY_SEPARATOR . $subdir, $flat, $condition, $offset);
+                            if ($filesInPath !== []) {
                                 $items[$entry][] = $filesInPath;
                             }
 
                             $filesInModules = $this->getFilesInModules($subModulePath, $subdir, $flat, $condition, $offset);
-                            if($filesInModules !== []) {
+                            if ($filesInModules !== []) {
                                 $items[$entry][] = $filesInModules;
                             }
                         } else {
