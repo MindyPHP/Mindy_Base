@@ -1,6 +1,6 @@
 {
-    "name": "mindy/mindy_yii",
-    "homepage": "https://github.com/studio107/Mindy_Yii",
+    "name": "mindy/base",
+    "homepage": "https://github.com/studio107/Mindy_Base",
     "version": "1.0.0",
     "license": "MIT",
     "minimum-stability": "dev",
@@ -35,6 +35,6 @@
         "role": "Developer"
     }],
     "support": {
-        "issues": "https://github.com/studio107/Mindy_Yii/issues?state=open"
+        "issues": "https://github.com/studio107/Mindy_Base/issues?state=open"
     }
 }
