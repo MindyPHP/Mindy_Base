@@ -12,16 +12,18 @@
  * @date 10/06/14.06.2014 18:47
  */
 
-namespace Mindy\Base;
+/**
+ * CPhpMessageSource class file.
+ *
+ * @author Qiang Xue <qiang.xue@gmail.com>
+ * @link http://www.yiiframework.com/
+ * @copyright 2008-2013 Yii Software LLC
+ * @license http://www.yiiframework.com/license/
+ */
 
-    /**
-     * CPhpMessageSource class file.
-     *
-     * @author Qiang Xue <qiang.xue@gmail.com>
-     * @link http://www.yiiframework.com/
-     * @copyright 2008-2013 Yii Software LLC
-     * @license http://www.yiiframework.com/license/
-     */
+namespace Mindy\Locale;
+
+use Mindy\Base\Mindy;
 use Mindy\Helper\Alias;
 use ReflectionClass;
 
@@ -104,8 +106,9 @@ class PhpMessageSource extends MessageSource
     public function init()
     {
         parent::init();
-        if ($this->basePath === null)
-            $this->basePath = Alias::get('application.messages');
+        if ($this->basePath === null) {
+            $this->basePath = __DIR__ . '/messages';
+        }
     }
 
     /**
@@ -125,15 +128,16 @@ class PhpMessageSource extends MessageSource
                 $extensionClass = substr($category, 0, $pos);
                 $extensionCategory = substr($category, $pos + 1);
                 // First check if there's an extension registered for this class.
-                if (isset($this->extensionPaths[$extensionClass]))
+                if (isset($this->extensionPaths[$extensionClass])) {
                     $this->_files[$category][$language] = Alias::get($this->extensionPaths[$extensionClass]) . DIRECTORY_SEPARATOR . $language . DIRECTORY_SEPARATOR . $extensionCategory . '.php';
-                else {
+                } else {
                     // No extension registered, need to find it.
                     $class = new ReflectionClass($extensionClass);
                     $this->_files[$category][$language] = dirname($class->getFileName()) . DIRECTORY_SEPARATOR . 'messages' . DIRECTORY_SEPARATOR . $language . DIRECTORY_SEPARATOR . $extensionCategory . '.php';
                 }
-            } else
+            } else {
                 $this->_files[$category][$language] = $this->basePath . DIRECTORY_SEPARATOR . $language . DIRECTORY_SEPARATOR . $category . '.php';
+            }
         }
         return $this->_files[$category][$language];
     }

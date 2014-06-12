@@ -72,7 +72,7 @@ return array (
   'CMemCache server configuration must be an array.' => 'CMemCache servera konfigurācijai ir jābūt masīvam.',
   'CMemCache server configuration must have "host" value.' => 'CMemCache servera konfigurācijas masīvam ir jāsatur elements "host".',
   'CMultiFileUpload.name is required.' => 'CMultiFileUpload.name ir obligāts.',
-  'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Yii::beginProfile() and Yii::endProfile() be properly nested.' => 'CProfileLogRoute konstatēja nekorektu koda bloku "{token}". Pārliecinieties, ka ir atbilstoši Yii::beginProfile() un Yii::endProfile() izsaukumi.',
+  'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Mindy::beginProfile() and Mindy::endProfile() be properly nested.' => 'CProfileLogRoute konstatēja nekorektu koda bloku "{token}". Pārliecinieties, ka ir atbilstoši Mindy::beginProfile() un Mindy::endProfile() izsaukumi.',
   'CProfileLogRoute.report "{report}" is invalid. Valid values include "summary" and "callstack".' => 'CProfileLogRoute.report parametrs "{report}" uzdots nekoreti. Tas var saturēt vērtības "summary" un "callstack".',
   'CSecurityManager requires PHP mcrypt extension to be loaded in order to use data encryption feature.' => 'CSecurityManager ir nepieciešams PHP paplašinājums mcrypt, lai izmantotu datu kriptēšanas iespēju.',
   'CSecurityManager.encryptionKey cannot be empty.' => 'CSecurityManager.encryptionKey ir jābūt aizpildītam.',

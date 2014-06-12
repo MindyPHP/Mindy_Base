@@ -12,7 +12,7 @@
  * @date 10/06/14.06.2014 19:41
  */
 
-namespace Mindy\Base;
+namespace Mindy\Locale;
 
 /**
  * CFormatter class file.
@@ -23,7 +23,9 @@ namespace Mindy\Base;
  * @license http://www.yiiframework.com/license/
  */
 use DateTime;
+use Mindy\Base\ApplicationComponent;
 use Mindy\Base\Exception\Exception;
+use Mindy\Base\Mindy;
 
 /**
  * CFormatter provides a set of commonly used data formatting methods.
@@ -55,7 +57,7 @@ use Mindy\Base\Exception\Exception;
  * </ul>
  *
  * By default, {@link CApplication} registers {@link CFormatter} as an application component whose ID is 'format'.
- * Therefore, one may call <code>Yii::app()->format->boolean(1)</code>.
+ * Therefore, one may call <code>Mindy::app()->format->boolean(1)</code>.
  * You might want to replace this component with {@link CLocalizedFormatter} to enable formatting based on the
  * current locale settings.
  *
@@ -83,18 +85,18 @@ class Formatter extends ApplicationComponent
      * They correspond to the number of digits after the decimal point, the character displayed as the decimal point
      * and the thousands separator character.
      */
-    public $numberFormat = array('decimals' => null, 'decimalSeparator' => null, 'thousandSeparator' => null);
+    public $numberFormat = ['decimals' => null, 'decimalSeparator' => null, 'thousandSeparator' => null];
     /**
      * @var array the text to be displayed when formatting a boolean value. The first element corresponds
      * to the text display for false, the second element for true. Defaults to <code>array('No', 'Yes')</code>.
      */
-    public $booleanFormat = array('No', 'Yes');
+    public $booleanFormat = ['No', 'Yes'];
     /**
      * @var array the options to be passed to CHtmlPurifier instance used in this class. CHtmlPurifier is used
      * in {@link formatHtml} method, so this property could be useful to customize HTML filtering behavior.
      * @since 1.1.13
      */
-    public $htmlPurifierOptions = array();
+    public $htmlPurifierOptions = [];
     /**
      * @var array the format used to format size (bytes). Three elements may be specified: "base", "decimals" and "decimalSeparator".
      * They correspond to the base at which a kilobyte is calculated (1000 or 1024 bytes per kilobyte, defaults to 1024),
@@ -102,11 +104,11 @@ class Formatter extends ApplicationComponent
      * "decimalSeparator" is available since version 1.1.13
      * @since 1.1.11
      */
-    public $sizeFormat = array(
+    public $sizeFormat = [
         'base' => 1024,
         'decimals' => 2,
         'decimalSeparator' => null,
-    );
+    ];
 
     /**
      * Calls the format method when its shortcut is invoked.
@@ -117,10 +119,11 @@ class Formatter extends ApplicationComponent
      */
     public function __call($name, $parameters)
     {
-        if (method_exists($this, 'format' . $name))
+        if (method_exists($this, 'format' . $name)) {
             return call_user_func_array(array($this, 'format' . $name), $parameters);
-        else
+        } else {
             return parent::__call($name, $parameters);
+        }
     }
 
     /**
@@ -134,10 +137,11 @@ class Formatter extends ApplicationComponent
     public function format($value, $type)
     {
         $method = 'format' . $type;
-        if (method_exists($this, $method))
+        if (method_exists($this, $method)) {
             return $this->$method($value);
-        else
+        } else {
             throw new Exception(Mindy::t('yii', 'Unknown type "{type}".', array('{type}' => $type)));
+        }
     }
 
     /**
@@ -176,8 +180,9 @@ class Formatter extends ApplicationComponent
         $value = $this->formatText($value);
         if ($paragraphs) {
             $value = '<p>' . str_replace(array("\r\n", "\n", "\r"), '</p><p>', $value) . '</p>';
-            if ($removeEmptyParagraphs)
+            if ($removeEmptyParagraphs) {
                 $value = preg_replace('/(<\/p><p>){2,}/i', '</p><p>', $value);
+            }
             return $value;
         } else {
             return nl2br($value);
@@ -225,14 +230,16 @@ class Formatter extends ApplicationComponent
     protected function normalizeDateValue($time)
     {
         if (is_string($time)) {
-            if (ctype_digit($time) || ($time{0} == '-' && ctype_digit(substr($time, 1))))
+            if (ctype_digit($time) || ($time{0} == '-' && ctype_digit(substr($time, 1)))) {
                 return (int)$time;
-            else
+            } else {
                 return strtotime($time);
-        } elseif (class_exists('DateTime', false) && $time instanceof DateTime)
+            }
+        } elseif (class_exists('DateTime', false) && $time instanceof DateTime) {
             return $time->getTimestamp();
-        else
+        } else {
             return (int)$time;
+        }
     }
 
     /**
@@ -269,8 +276,9 @@ class Formatter extends ApplicationComponent
     public function formatSize($value, $verbose = false)
     {
         $base = $this->sizeFormat['base'];
-        for ($i = 0; $base <= $value && $i < 5; $i++)
+        for ($i = 0; $base <= $value && $i < 5; $i++) {
             $value = $value / $base;
+        }
 
         $value = round($value, $this->sizeFormat['decimals']);
         $formattedValue = isset($this->sizeFormat['decimalSeparator']) ? str_replace('.', $this->sizeFormat['decimalSeparator'], $value) : $value;

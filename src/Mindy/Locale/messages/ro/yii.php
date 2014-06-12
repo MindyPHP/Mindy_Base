@@ -61,7 +61,7 @@ return array (
   'CMemCache server configuration must be an array.' => 'Configuratia serverului CMemCache trebuie să fie un array.',
   'CMemCache server configuration must have "host" value.' => 'Configuratia serverului CMemCache trebuie să aibă valoarea „host”.',
   'CMultiFileUpload.name is required.' => 'CMultiFileUpload.name este obligatoriu.',
-  'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Yii::beginProfile() and Yii::endProfile() be properly nested.' => 'CProfileLogRoute a găsit un bloc de cod nepotrivit "{token}". Asiguraţi-vă că apelurile Yii::beginProfile() şi Yii::endProfile() sunt îmbricate corespunzător.',
+  'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Mindy::beginProfile() and Mindy::endProfile() be properly nested.' => 'CProfileLogRoute a găsit un bloc de cod nepotrivit "{token}". Asiguraţi-vă că apelurile Mindy::beginProfile() şi Mindy::endProfile() sunt îmbricate corespunzător.',
   'CProfileLogRoute.report "{report}" is invalid. Valid values include "summary" and "callstack".' => 'CProfileLogRoute.report "{report}" nu este valid. Valorile valide sunt "summary" şi "callstack".',
   'CSecurityManager requires PHP mcrypt extension to be loaded in order to use data encryption feature.' => 'CSecurityManager are nevoie ca extensia PHP mcrypt să fie încărcată pentru a putea folosi criptarea de date.',
   'CSecurityManager.encryptionKey cannot be empty.' => 'CSecurityManager.encryptionKey trebuie să fie nenul.',

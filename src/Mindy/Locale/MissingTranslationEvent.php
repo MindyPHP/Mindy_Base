@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -12,7 +12,9 @@
  * @date 10/06/14.06.2014 18:48
  */
 
-namespace Mindy\Base;
+namespace Mindy\Locale;
+
+use Mindy\Base\Event;
 
 
 /**

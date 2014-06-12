@@ -73,7 +73,7 @@ return array (
   'CHttpSession.savePath "{path}" is not a valid directory.' => 'CHttpSession.savePath "{path}"는 올바른 디렉토리가 아닙니다.',
   'CMemCache server configuration must be an array.' => 'CMemCache 서버 구성은 배열이어야 합니다.',
   'CMemCache server configuration must have "host" value.' => 'CMemCache 서버 구성은 host 값이 있어야 합니다.',
-  'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Yii::beginProfile() and Yii::endProfile() be properly nested.' => 'CProfileLogRoute가 일치하지 않는 코드 블록 "{token}"를 찾았습니다. Yii::beginProfile()와 Yii::endProfile() 호출이 올바르게 중첩되어 있는지 확인하십시오.',
+  'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Mindy::beginProfile() and Mindy::endProfile() be properly nested.' => 'CProfileLogRoute가 일치하지 않는 코드 블록 "{token}"를 찾았습니다. Mindy::beginProfile()와 Mindy::endProfile() 호출이 올바르게 중첩되어 있는지 확인하십시오.',
   'CProfileLogRoute.report "{report}" is invalid. Valid values include "summary" and "callstack".' => 'CProfileLogRoute.report "{report}"이 잘못되었습니다. 올바른 값은 "summary"와 "callstack"를 포함합니다.',
   'CSecurityManager requires PHP mcrypt extension to be loaded in order to use data encryption feature.' => 'CSecurityManager 데이터 암호화 기능을 사용하기 위해서는 PHP의 mcrypt 확장을 필요로합니다.',
   'CSecurityManager.encryptionKey cannot be empty.' => 'CSecurityManager.encryptionKey는 공백을 사용할 수 없습니다.',

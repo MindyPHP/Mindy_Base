@@ -78,7 +78,7 @@ return array (
   'CMemCache requires PHP {extension} extension to be loaded.' => 'CMemCache требуется загруженное расширение PHP {extension}.',
   'CMemCache server configuration must be an array.' => 'Конфигурация сервера CMemCache должна быть массивом.',
   'CMemCache server configuration must have "host" value.' => 'Конфигурация сервера CMemCache должна содержать значение "host".',
-  'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Yii::beginProfile() and Yii::endProfile() be properly nested.' => 'Компонент CProfileLogRoute обнаружил неверный код "{token}". Удостоверьтесь, что вложенность вызовов Yii::beginProfile() и Yii::endProfile() соблюдается.',
+  'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Mindy::beginProfile() and Mindy::endProfile() be properly nested.' => 'Компонент CProfileLogRoute обнаружил неверный код "{token}". Удостоверьтесь, что вложенность вызовов Mindy::beginProfile() и Mindy::endProfile() соблюдается.',
   'CProfileLogRoute.report "{report}" is invalid. Valid values include "summary" and "callstack".' => 'Параметр CProfileLogRoute.report "{report}" задан неверно. Поддерживаются значения "summary" и "callstack".',
   'CSecurityManager requires PHP mcrypt extension to be loaded in order to use data encryption feature.' => 'Для использования возможности шифрования данных компоненту CSecurityManager требуется PHP-расширение mcrypt.',
   'CSecurityManager.encryptionKey cannot be empty.' => 'Параметр CSecurityManager.encryptionKey должен быть заполнен.',

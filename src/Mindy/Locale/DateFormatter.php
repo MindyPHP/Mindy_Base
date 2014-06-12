@@ -12,7 +12,7 @@
  * @date 10/06/14.06.2014 16:59
  */
 
-namespace Mindy\Base;
+namespace Mindy\Locale;
 
 /**
  * CDateFormatter class file.
@@ -23,7 +23,9 @@ namespace Mindy\Base;
  * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
+use Mindy\Base\Component;
 use Mindy\Base\Exception\Exception;
+use Mindy\Base\Mindy;
 
 /**
  * CDateFormatter provides date/time localization functionalities.
@@ -87,10 +89,11 @@ class DateFormatter extends Component
      */
     public function __construct($locale)
     {
-        if (is_string($locale))
+        if (is_string($locale)) {
             $this->_locale = Locale::getInstance($locale);
-        else
+        } else {
             $this->_locale = $locale;
+        }
     }
 
     /**
@@ -101,20 +104,23 @@ class DateFormatter extends Component
      */
     public function format($pattern, $time)
     {
-        if ($time === null)
+        if ($time === null) {
             return null;
+        }
 
         if (is_string($time)) {
-            if (ctype_digit($time) || ($time{0} == '-' && ctype_digit(substr($time, 1))))
+            if (ctype_digit($time) || ($time{0} == '-' && ctype_digit(substr($time, 1)))) {
                 $time = (int)$time;
-            else
+            } else {
                 $time = strtotime($time);
+            }
         }
         $date = Timestamp::getDate($time, false, false);
         $tokens = $this->parseFormat($pattern);
         foreach ($tokens as &$token) {
-            if (is_array($token)) // a callback: method name, sub-pattern
+            if (is_array($token)) {// a callback: method name, sub-pattern
                 $token = $this->{$token[0]}($token[1], $date);
+            }
         }
         return implode('', $tokens);
     }
@@ -131,19 +137,24 @@ class DateFormatter extends Component
      */
     public function formatDateTime($timestamp, $dateWidth = 'medium', $timeWidth = 'medium')
     {
-        if (!empty($dateWidth))
+        if (!empty($dateWidth)) {
             $date = $this->format($this->_locale->getDateFormat($dateWidth), $timestamp);
+        }
 
-        if (!empty($timeWidth))
+        if (!empty($timeWidth)) {
             $time = $this->format($this->_locale->getTimeFormat($timeWidth), $timestamp);
+        }
 
         if (isset($date) && isset($time)) {
             $dateTimePattern = $this->_locale->getDateTimeFormat();
             return strtr($dateTimePattern, array('{0}' => $time, '{1}' => $date));
-        } elseif (isset($date))
+        } elseif (isset($date)) {
             return $date;
-        elseif (isset($time))
+        } elseif (isset($time)) {
             return $time;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -154,8 +165,9 @@ class DateFormatter extends Component
     protected function parseFormat($pattern)
     {
         static $formats = array(); // cache
-        if (isset($formats[$pattern]))
+        if (isset($formats[$pattern])) {
             return $formats[$pattern];
+        }
         $tokens = array();
         $n = strlen($pattern);
         $isLiteral = false;
@@ -174,9 +186,9 @@ class DateFormatter extends Component
                     $isLiteral = true;
                     $literal = '';
                 }
-            } elseif ($isLiteral)
+            } elseif ($isLiteral) {
                 $literal .= $c;
-            else {
+            } else {
                 for ($j = $i + 1; $j < $n; ++$j) {
                     if ($pattern[$j] !== $c)
                         break;
@@ -189,8 +201,9 @@ class DateFormatter extends Component
                 $i = $j - 1;
             }
         }
-        if ($literal !== '')
+        if ($literal !== '') {
             $tokens[] = $literal;
+        }
 
         return $formats[$pattern] = $tokens;
     }
@@ -206,10 +219,11 @@ class DateFormatter extends Component
     protected function formatYear($pattern, $date)
     {
         $year = $date['year'];
-        if ($pattern === 'yy')
+        if ($pattern === 'yy') {
             return str_pad($year % 100, 2, '0', STR_PAD_LEFT);
-        else
+        } else {
             return str_pad($year, strlen($pattern), '0', STR_PAD_LEFT);
+        }
     }
 
     /**
@@ -264,12 +278,13 @@ class DateFormatter extends Component
     protected function formatDay($pattern, $date)
     {
         $day = $date['mday'];
-        if ($pattern === 'd')
+        if ($pattern === 'd') {
             return $day;
-        elseif ($pattern === 'dd')
+        } elseif ($pattern === 'dd') {
             return str_pad($day, 2, '0', STR_PAD_LEFT);
-        else
+        } else {
             throw new Exception(Mindy::t('yii', 'The pattern for day of the month must be "d" or "dd".'));
+        }
     }
 
     /**
@@ -282,10 +297,11 @@ class DateFormatter extends Component
     protected function formatDayInYear($pattern, $date)
     {
         $day = $date['yday'];
-        if (($n = strlen($pattern)) <= 3)
+        if (($n = strlen($pattern)) <= 3) {
             return str_pad($day, $n, '0', STR_PAD_LEFT);
-        else
+        } else {
             throw new Exception(Mindy::t('yii', 'The pattern for day in year must be "D", "DD" or "DDD".'));
+        }
     }
 
     /**
@@ -298,10 +314,11 @@ class DateFormatter extends Component
      */
     protected function formatDayInMonth($pattern, $date)
     {
-        if ($pattern === 'F')
+        if ($pattern === 'F') {
             return (int)(($date['mday'] + 6) / 7);
-        else
+        } else {
             throw new Exception(Mindy::t('yii', 'The pattern for day in month must be "F".'));
+        }
     }
 
     /**
@@ -355,12 +372,14 @@ class DateFormatter extends Component
     protected function formatPeriod($pattern, $date)
     {
         if ($pattern === 'a') {
-            if (intval($date['hours'] / 12))
+            if (intval($date['hours'] / 12)) {
                 return $this->_locale->getPMName();
-            else
+            } else {
                 return $this->_locale->getAMName();
-        } else
+            }
+        } else {
             throw new Exception(Mindy::t('yii', 'The pattern for AM/PM marker must be "a".'));
+        }
     }
 
     /**
@@ -374,12 +393,13 @@ class DateFormatter extends Component
     protected function formatHour24($pattern, $date)
     {
         $hour = $date['hours'];
-        if ($pattern === 'H')
+        if ($pattern === 'H') {
             return $hour;
-        elseif ($pattern === 'HH')
+        } elseif ($pattern === 'HH') {
             return str_pad($hour, 2, '0', STR_PAD_LEFT);
-        else
+        } else {
             throw new Exception(Mindy::t('yii', 'The pattern for 24 hour format must be "H" or "HH".'));
+        }
     }
 
     /**
@@ -394,12 +414,13 @@ class DateFormatter extends Component
     {
         $hour = $date['hours'];
         $hour = ($hour == 12 | $hour == 0) ? 12 : ($hour) % 12;
-        if ($pattern === 'h')
+        if ($pattern === 'h') {
             return $hour;
-        elseif ($pattern === 'hh')
+        } elseif ($pattern === 'hh') {
             return str_pad($hour, 2, '0', STR_PAD_LEFT);
-        else
+        } else {
             throw new Exception(Mindy::t('yii', 'The pattern for 12 hour format must be "h" or "hh".'));
+        }
     }
 
     /**
@@ -413,12 +434,13 @@ class DateFormatter extends Component
     protected function formatHourInDay($pattern, $date)
     {
         $hour = $date['hours'] == 0 ? 24 : $date['hours'];
-        if ($pattern === 'k')
+        if ($pattern === 'k') {
             return $hour;
-        elseif ($pattern === 'kk')
+        } elseif ($pattern === 'kk') {
             return str_pad($hour, 2, '0', STR_PAD_LEFT);
-        else
+        } else {
             throw new Exception(Mindy::t('yii', 'The pattern for hour in day must be "k" or "kk".'));
+        }
     }
 
     /**
@@ -432,12 +454,13 @@ class DateFormatter extends Component
     protected function formatHourInPeriod($pattern, $date)
     {
         $hour = $date['hours'] % 12;
-        if ($pattern === 'K')
+        if ($pattern === 'K') {
             return $hour;
-        elseif ($pattern === 'KK')
+        } elseif ($pattern === 'KK') {
             return str_pad($hour, 2, '0', STR_PAD_LEFT);
-        else
+        } else {
             throw new Exception(Mindy::t('yii', 'The pattern for hour in AM/PM must be "K" or "KK".'));
+        }
     }
 
     /**
@@ -451,12 +474,13 @@ class DateFormatter extends Component
     protected function formatMinutes($pattern, $date)
     {
         $minutes = $date['minutes'];
-        if ($pattern === 'm')
+        if ($pattern === 'm') {
             return $minutes;
-        elseif ($pattern === 'mm')
+        } elseif ($pattern === 'mm') {
             return str_pad($minutes, 2, '0', STR_PAD_LEFT);
-        else
+        } else {
             throw new Exception(Mindy::t('yii', 'The pattern for minutes must be "m" or "mm".'));
+        }
     }
 
     /**
@@ -470,12 +494,13 @@ class DateFormatter extends Component
     protected function formatSeconds($pattern, $date)
     {
         $seconds = $date['seconds'];
-        if ($pattern === 's')
+        if ($pattern === 's') {
             return $seconds;
-        elseif ($pattern === 'ss')
+        } elseif ($pattern === 'ss') {
             return str_pad($seconds, 2, '0', STR_PAD_LEFT);
-        else
+        } else {
             throw new Exception(Mindy::t('yii', 'The pattern for seconds must be "s" or "ss".'));
+        }
     }
 
     /**
@@ -487,10 +512,11 @@ class DateFormatter extends Component
      */
     protected function formatWeekInYear($pattern, $date)
     {
-        if ($pattern === 'w')
+        if ($pattern === 'w') {
             return @date('W', @mktime(0, 0, 0, $date['mon'], $date['mday'], $date['year']));
-        else
+        } else {
             throw new Exception(Mindy::t('yii', 'The pattern for week in year must be "w".'));
+        }
     }
 
     /**
@@ -505,8 +531,9 @@ class DateFormatter extends Component
         if ($pattern === 'W') {
             $weekDay = date('N', mktime(0, 0, 0, $date['mon'], 1, $date['year']));
             return floor(($weekDay + $date['mday'] - 2) / 7) + 1;
-        } else
+        } else {
             throw new Exception(Mindy::t('yii', 'The pattern for week in month must be "W".'));
+        }
     }
 
     /**
@@ -519,12 +546,13 @@ class DateFormatter extends Component
      */
     protected function formatTimeZone($pattern, $date)
     {
-        if ($pattern[0] === 'z' || $pattern[0] === 'v')
+        if ($pattern[0] === 'z' || $pattern[0] === 'v') {
             return @date('T', @mktime($date['hours'], $date['minutes'], $date['seconds'], $date['mon'], $date['mday'], $date['year']));
-        elseif ($pattern[0] === 'Z')
+        } elseif ($pattern[0] === 'Z') {
             return @date('O', @mktime($date['hours'], $date['minutes'], $date['seconds'], $date['mon'], $date['mday'], $date['year']));
-        else
+        } else {
             throw new Exception(Mindy::t('yii', 'The pattern for time zone must be "z" or "v".'));
+        }
     }
 
     /**

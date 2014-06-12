@@ -81,7 +81,7 @@ return array (
   'CHttpSession.savePath "{path}" is not a valid directory.' => 'CHttpSession.savePath "{path}" không phải là thư mục hợp lệ.',
   'CMemCache server configuration must be an array.' => 'Cấu hình server CMemCache phải là một mảng.',
   'CMemCache server configuration must have "host" value.' => 'Cấu hình server CMemCache phải có giá trị "host".',
-  'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Yii::beginProfile() and Yii::endProfile() be properly nested.' => 'CProfileLogRoute tìm thấy đoạn code code không đúng "{token}". Hãy chắc rằng các call tới Yii::beginProfile() và Yii::endProfile() phải được nest một cách đúng đắn.',
+  'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Mindy::beginProfile() and Mindy::endProfile() be properly nested.' => 'CProfileLogRoute tìm thấy đoạn code code không đúng "{token}". Hãy chắc rằng các call tới Mindy::beginProfile() và Mindy::endProfile() phải được nest một cách đúng đắn.',
   'CProfileLogRoute.report "{report}" is invalid. Valid values include "summary" and "callstack".' => 'CProfileLogRoute.report "{report}" không hợp lệ. Giá trị hợp lệ bao gồm "summary" và "callstack".',
   'CSecurityManager requires PHP mcrypt extension to be loaded in order to use data encryption feature.' => 'CSecurityManager cần phải có PHP mcrypt extension mới sử dụng được tính năng data encryption.',
   'CSecurityManager.encryptionKey cannot be empty.' => 'CSecurityManager.encryptionKey không được phép rỗng.',

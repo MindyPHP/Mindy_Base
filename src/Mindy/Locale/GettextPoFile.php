@@ -12,7 +12,7 @@
  * @date 10/06/14.06.2014 19:31
  */
 
-namespace Mindy\Base;
+namespace Mindy\Locale;
 
 /**
  * CGettextPoFile class file.

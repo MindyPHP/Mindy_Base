@@ -12,8 +12,6 @@
  * @date 10/06/14.06.2014 18:47
  */
 
-namespace Mindy\Base;
-
 /**
  * CMessageSource class file.
  *
@@ -22,6 +20,10 @@ namespace Mindy\Base;
  * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
+
+namespace Mindy\Locale;
+use Mindy\Base\ApplicationComponent;
+use Mindy\Base\Mindy;
 
 /**
  * CMessageSource is the base class for message translation repository classes.
@@ -49,7 +51,7 @@ abstract class MessageSource extends ApplicationComponent
     public $forceTranslation = false;
 
     private $_language;
-    private $_messages = array();
+    private $_messages = [];
 
     /**
      * Loads the message translation for the specified language and category.

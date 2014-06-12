@@ -100,7 +100,7 @@ return array (
   'CHttpSession.savePath "{path}" is not a valid directory.' => 'CHttpSession.savePath "{path}" não é um diretorio válido.',
   'CMemCache server configuration must be an array.' => 'A configuração do servidor (server) CMemCache deve ser um array.',
   'CMemCache server configuration must have "host" value.' => 'A configuração do servidor (server) CMemCache deve ter uma entrada "host".',
-  'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Yii::beginProfile() and Yii::endProfile() be properly nested.' => 'CProfileLogRoute encontrou uma combinação errada no bloco de código "{token}". Tente chamar Yii::beginProfile() e Yii::endProfile() para ser apropriadamente aninhado.',
+  'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Mindy::beginProfile() and Mindy::endProfile() be properly nested.' => 'CProfileLogRoute encontrou uma combinação errada no bloco de código "{token}". Tente chamar Mindy::beginProfile() e Mindy::endProfile() para ser apropriadamente aninhado.',
   'CProfileLogRoute.report "{report}" is invalid. Valid values include "summary" and "callstack".' => 'CProfileLogRoute.report "{report}" é inválido. Valores válidos incluem "summary" e "callstack".',
   'CSecurityManager requires PHP mcrypt extension to be loaded in order to use data encryption feature.' => 'CSecurityManager requer a extensão PHP mcrypt para ser carregado em ordem para user propriedades de criptografia de dados.',
   'CSecurityManager.encryptionKey cannot be empty.' => 'CSecurityManager.encryptionKey não pode ser vazio.',

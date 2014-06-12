@@ -12,7 +12,7 @@
  * @date 10/06/14.06.2014 19:44
  */
 
-namespace Mindy\Base;
+namespace Mindy\Locale;
 
 /**
  * CLocalizedFormatter class file.
@@ -22,6 +22,7 @@ namespace Mindy\Base;
  * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
+use Mindy\Base\Mindy;
 
 /**
  * CLocalizedFormatter provides a set of commonly used data formatting methods based on the current locale settings.
@@ -68,8 +69,9 @@ class LocalizedFormatter extends Formatter
      */
     public function setLocale($locale)
     {
-        if (is_string($locale))
+        if (is_string($locale)) {
             $locale = Locale::getInstance($locale);
+        }
         $this->sizeFormat['decimalSeparator'] = $locale->getNumberSymbol('decimal');
         $this->_locale = $locale;
     }

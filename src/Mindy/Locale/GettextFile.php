@@ -12,16 +12,17 @@
  * @date 10/06/14.06.2014 19:31
  */
 
-namespace Mindy\Base;
+namespace Mindy\Locale;
 
 /**
-     * CGettextFile class file.
-     *
-     * @author Qiang Xue <qiang.xue@gmail.com>
-     * @link http://www.yiiframework.com/
-     * @copyright 2008-2013 Yii Software LLC
-     * @license http://www.yiiframework.com/license/
-*/
+ * CGettextFile class file.
+ *
+ * @author Qiang Xue <qiang.xue@gmail.com>
+ * @link http://www.yiiframework.com/
+ * @copyright 2008-2013 Yii Software LLC
+ * @license http://www.yiiframework.com/license/
+ */
+use Mindy\Base\Component;
 
 /**
  * CGettextFile is the base class for representing a Gettext message file.

@@ -77,7 +77,7 @@ return array (
   'CHttpSession.savePath "{path}" is not a valid directory.' => 'CHttpSession.savePath "{path}" är inte en giltig katalog.',
   'CMemCache server configuration must be an array.' => 'CMemCache serverkonfiguration måste bestå av en array.',
   'CMemCache server configuration must have "host" value.' => 'CMemCache serverkonfiguration måste innehålla ett "host"-värde.',
-  'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Yii::beginProfile() and Yii::endProfile() be properly nested.' => 'CProfileLogRoute upptäckte ett omatchat kodblock "{token}". Anropen till Yii::beginProfile() och Yii::endProfile() måste vara korrekt nästlade.',
+  'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Mindy::beginProfile() and Mindy::endProfile() be properly nested.' => 'CProfileLogRoute upptäckte ett omatchat kodblock "{token}". Anropen till Mindy::beginProfile() och Mindy::endProfile() måste vara korrekt nästlade.',
   'CProfileLogRoute.report "{report}" is invalid. Valid values include "summary" and "callstack".' => 'CProfileLogRoute.report "{report}" är ogiltig. Giltiga värden inkluderar "summary" och "callstack".',
   'CSecurityManager requires PHP mcrypt extension to be loaded in order to use data encryption feature.' => 'CSecurityManager kräver att PHP mcrypt-tillägget om datakryptering skall användas.',
   'CSecurityManager.encryptionKey cannot be empty.' => 'CSecurityManager.encryptionKey får inte vara tom.',

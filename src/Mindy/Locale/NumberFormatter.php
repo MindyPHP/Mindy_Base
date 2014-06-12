@@ -12,8 +12,6 @@
  * @date 10/06/14.06.2014 16:58
  */
 
-namespace Mindy\Base;
-
 /**
  * CNumberFormatter class file.
  *
@@ -23,6 +21,9 @@ namespace Mindy\Base;
  * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
+
+namespace Mindy\Locale;
+use Mindy\Base\Component;
 
 /**
  * CNumberFormatter provides number localization functionalities.
@@ -75,7 +76,7 @@ namespace Mindy\Base;
 class NumberFormatter extends Component
 {
     private $_locale;
-    private $_formats = array();
+    private $_formats = [];
 
     /**
      * Constructor.
@@ -83,10 +84,11 @@ class NumberFormatter extends Component
      */
     public function __construct($locale)
     {
-        if (is_string($locale))
+        if (is_string($locale)) {
             $this->_locale = Locale::getInstance($locale);
-        else
+        } else {
             $this->_locale = $locale;
+        }
     }
 
     /**
@@ -106,10 +108,11 @@ class NumberFormatter extends Component
     {
         $format = $this->parseFormat($pattern);
         $result = $this->formatNumber($format, $value);
-        if ($currency === null)
+        if ($currency === null) {
             return $result;
-        elseif (($symbol = $this->_locale->getCurrencySymbol($currency)) === null)
+        } elseif (($symbol = $this->_locale->getCurrencySymbol($currency)) === null) {
             $symbol = $currency;
+        }
         return str_replace('¤', $symbol, $result);
     }
 
@@ -181,8 +184,9 @@ class NumberFormatter extends Component
     {
         $negative = $value < 0;
         $value = abs($value * $format['multiplier']);
-        if ($format['maxDecimalDigits'] >= 0)
+        if ($format['maxDecimalDigits'] >= 0) {
             $value = number_format($value, $format['maxDecimalDigits'], '.', '');
+        }
         $value = "$value";
         if (false !== $pos = strpos($value, '.')) {
             $integer = substr($value, 0, $pos);
@@ -191,17 +195,20 @@ class NumberFormatter extends Component
             $integer = $value;
             $decimal = '';
         }
-        if ($format['decimalDigits'] > strlen($decimal))
+        if ($format['decimalDigits'] > strlen($decimal)) {
             $decimal = str_pad($decimal, $format['decimalDigits'], '0');
-        elseif ($format['decimalDigits'] < strlen($decimal)) {
+        } elseif ($format['decimalDigits'] < strlen($decimal)) {
             $decimal_temp = '';
-            for ($i = strlen($decimal) - 1; $i >= 0; $i--)
-                if ($decimal[$i] !== '0' || strlen($decimal_temp) > 0)
+            for ($i = strlen($decimal) - 1; $i >= 0; $i--) {
+                if ($decimal[$i] !== '0' || strlen($decimal_temp) > 0) {
                     $decimal_temp = $decimal[$i] . $decimal_temp;
+                }
+            }
             $decimal = $decimal_temp;
         }
-        if (strlen($decimal) > 0)
+        if (strlen($decimal) > 0) {
             $decimal = $this->_locale->getNumberSymbol('decimal') . $decimal;
+        }
 
         $integer = str_pad($integer, $format['integerDigits'], '0', STR_PAD_LEFT);
         if ($format['groupSize1'] > 0 && strlen($integer) > $format['groupSize1']) {
@@ -212,10 +219,11 @@ class NumberFormatter extends Component
             $integer = ltrim(implode($this->_locale->getNumberSymbol('group'), str_split($str1, $size))) . $this->_locale->getNumberSymbol('group') . $str2;
         }
 
-        if ($negative)
+        if ($negative) {
             $number = $format['negativePrefix'] . $integer . $decimal . $format['negativeSuffix'];
-        else
+        } else {
             $number = $format['positivePrefix'] . $integer . $decimal . $format['positiveSuffix'];
+        }
 
         return strtr($number, array('%' => $this->_locale->getNumberSymbol('percentSign'), '‰' => $this->_locale->getNumberSymbol('perMille')));
     }
@@ -228,10 +236,11 @@ class NumberFormatter extends Component
      */
     protected function parseFormat($pattern)
     {
-        if (isset($this->_formats[$pattern]))
+        if (isset($this->_formats[$pattern])) {
             return $this->_formats[$pattern];
+        }
 
-        $format = array();
+        $format = [];
 
         // find out prefix and suffix for positive and negative patterns
         $patterns = explode(';', $pattern);
@@ -241,8 +250,8 @@ class NumberFormatter extends Component
             $format['positiveSuffix'] = $matches[2];
         }
 
-        if (isset($patterns[1]) && preg_match('/^(.*?)[#,\.0]+(.*?)$/', $patterns[1], $matches)) // with a negative pattern
-        {
+        // with a negative pattern
+        if (isset($patterns[1]) && preg_match('/^(.*?)[#,\.0]+(.*?)$/', $patterns[1], $matches)) {
             $format['negativePrefix'] = $matches[1];
             $format['negativeSuffix'] = $matches[2];
         } else {
@@ -252,46 +261,53 @@ class NumberFormatter extends Component
         $pat = $patterns[0];
 
         // find out multiplier
-        if (strpos($pat, '%') !== false)
+        if (strpos($pat, '%') !== false) {
             $format['multiplier'] = 100;
-        elseif (strpos($pat, '‰') !== false)
+        } elseif (strpos($pat, '‰') !== false) {
             $format['multiplier'] = 1000;
-        else
+        } else {
             $format['multiplier'] = 1;
+        }
 
         // find out things about decimal part
         if (($pos = strpos($pat, '.')) !== false) {
-            if (($pos2 = strrpos($pat, '0')) > $pos)
+            if (($pos2 = strrpos($pat, '0')) > $pos) {
                 $format['decimalDigits'] = $pos2 - $pos;
-            else
+            } else {
                 $format['decimalDigits'] = 0;
-            if (($pos3 = strrpos($pat, '#')) >= $pos2)
+            }
+
+            if (($pos3 = strrpos($pat, '#')) >= $pos2) {
                 $format['maxDecimalDigits'] = $pos3 - $pos;
-            else
+            } else {
                 $format['maxDecimalDigits'] = $format['decimalDigits'];
+            }
             $pat = substr($pat, 0, $pos);
-        } else // no decimal part
-        {
+        } else { // no decimal part
             $format['decimalDigits'] = 0;
             $format['maxDecimalDigits'] = 0;
         }
 
         // find out things about integer part
         $p = str_replace(',', '', $pat);
-        if (($pos = strpos($p, '0')) !== false)
+        if (($pos = strpos($p, '0')) !== false) {
             $format['integerDigits'] = strrpos($p, '0') - $pos + 1;
-        else
+        } else {
             $format['integerDigits'] = 0;
+        }
+
         // find out group sizes. some patterns may have two different group sizes
         $p = str_replace('#', '0', $pat);
         if (($pos = strrpos($pat, ',')) !== false) {
             $format['groupSize1'] = strrpos($p, '0') - $pos;
-            if (($pos2 = strrpos(substr($p, 0, $pos), ',')) !== false)
+            if (($pos2 = strrpos(substr($p, 0, $pos), ',')) !== false) {
                 $format['groupSize2'] = $pos - $pos2 - 1;
-            else
+            } else {
                 $format['groupSize2'] = 0;
-        } else
+            }
+        } else {
             $format['groupSize1'] = $format['groupSize2'] = 0;
+        }
 
         return $this->_formats[$pattern] = $format;
     }

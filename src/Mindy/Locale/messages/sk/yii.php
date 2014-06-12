@@ -76,7 +76,7 @@ return array (
   'CMemCache requires PHP {extension} extension to be loaded.' => 'CMemCache vyžaduje nahraté rozšírenie PHP {extension}.',
   'CMemCache server configuration must be an array.' => 'Konfigurácia CMemCache musí byť pole.',
   'CMemCache server configuration must have "host" value.' => 'Konfigurácia CMemCache musí obsahovať hodnotu pre "host".',
-  'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Yii::beginProfile() and Yii::endProfile() be properly nested.' => 'CProfileLogRoute zistil nesprávne usporiadané bloky kódu "{token}". Ubezpečte sa, že volania Yii::beginProfile() a Yii::endProfile() sú vložené správne.',
+  'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Mindy::beginProfile() and Mindy::endProfile() be properly nested.' => 'CProfileLogRoute zistil nesprávne usporiadané bloky kódu "{token}". Ubezpečte sa, že volania Mindy::beginProfile() a Mindy::endProfile() sú vložené správne.',
   'CProfileLogRoute.report "{report}" is invalid. Valid values include "summary" and "callstack".' => 'CProfileLogRoute.report "{report}" je nesprávna. Správne hodnoty môžu byť "summary" and "callstack".',
   'CSecurityManager requires PHP mcrypt extension to be loaded in order to use data encryption feature.' => 'CSecurityManager vyžaduje prítomnosť PHP rozšírenia MCrypt pre účely využitia šifrujúcich funkcií.',
   'CSecurityManager.encryptionKey cannot be empty.' => 'CSecurityManager.encryptionKey nemôže byť prázdny.',

@@ -1,6 +1,6 @@
 <?php
 
-namespace Mindy\Base;
+namespace Mindy\Locale;
 
 /**
  * All rights reserved.
@@ -21,7 +21,9 @@ namespace Mindy\Base;
  * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
+use Mindy\Base\Component;
 use Mindy\Base\Exception\Exception;
+use Mindy\Base\Mindy;
 
 /**
  * Locale represents the data relevant to a locale.
@@ -73,10 +75,11 @@ class Locale extends Component
     public static function getInstance($id)
     {
         static $locales = array();
-        if (isset($locales[$id]))
+        if (isset($locales[$id])) {
             return $locales[$id];
-        else
+        } else {
             return $locales[$id] = new Locale($id);
+        }
     }
 
     /**
@@ -110,7 +113,7 @@ class Locale extends Component
     public function __construct($id)
     {
         $this->_id = self::getCanonicalID($id);
-        $dataPath = self::$dataPath === null ? dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Data' : self::$dataPath;
+        $dataPath = self::$dataPath === null ? dirname(__FILE__) . DIRECTORY_SEPARATOR . 'data' : self::$dataPath;
         $dataFile = $dataPath . DIRECTORY_SEPARATOR . $this->_id . '.php';
         if (is_file($dataFile)) {
             $this->_data = require($dataFile);
@@ -216,10 +219,11 @@ class Locale extends Component
      */
     public function getMonthName($month, $width = 'wide', $standAlone = false)
     {
-        if ($standAlone)
+        if ($standAlone) {
             return isset($this->_data['monthNamesSA'][$width][$month]) ? $this->_data['monthNamesSA'][$width][$month] : $this->_data['monthNames'][$width][$month];
-        else
+        } else {
             return isset($this->_data['monthNames'][$width][$month]) ? $this->_data['monthNames'][$width][$month] : $this->_data['monthNamesSA'][$width][$month];
+        }
     }
 
     /**
@@ -230,10 +234,11 @@ class Locale extends Component
      */
     public function getMonthNames($width = 'wide', $standAlone = false)
     {
-        if ($standAlone)
+        if ($standAlone) {
             return isset($this->_data['monthNamesSA'][$width]) ? $this->_data['monthNamesSA'][$width] : $this->_data['monthNames'][$width];
-        else
+        } else {
             return isset($this->_data['monthNames'][$width]) ? $this->_data['monthNames'][$width] : $this->_data['monthNamesSA'][$width];
+        }
     }
 
     /**
@@ -245,10 +250,11 @@ class Locale extends Component
     public function getWeekDayName($day, $width = 'wide', $standAlone = false)
     {
         $day = $day % 7;
-        if ($standAlone)
+        if ($standAlone) {
             return isset($this->_data['weekDayNamesSA'][$width][$day]) ? $this->_data['weekDayNamesSA'][$width][$day] : $this->_data['weekDayNames'][$width][$day];
-        else
+        } else {
             return isset($this->_data['weekDayNames'][$width][$day]) ? $this->_data['weekDayNames'][$width][$day] : $this->_data['weekDayNamesSA'][$width][$day];
+        }
     }
 
     /**
@@ -259,10 +265,11 @@ class Locale extends Component
      */
     public function getWeekDayNames($width = 'wide', $standAlone = false)
     {
-        if ($standAlone)
+        if ($standAlone) {
             return isset($this->_data['weekDayNamesSA'][$width]) ? $this->_data['weekDayNamesSA'][$width] : $this->_data['weekDayNames'][$width];
-        else
+        } else {
             return isset($this->_data['weekDayNames'][$width]) ? $this->_data['weekDayNames'][$width] : $this->_data['weekDayNamesSA'][$width];
+        }
     }
 
     /**

@@ -105,7 +105,7 @@ return array (
   '{controller} cannot find the requested view "{view}".' => '{controller} نمی تواند نمای در خواست شده "{view}" را پیدا کند',
   '{controller} contains improperly nested widget tags in its view "{view}". A {widget} widget does not have an endWidget() call.' => '{controller} شامل تگهای نادرست ویجت در قسمت نمایش آن "{view}" می باشد',
   '{controller} has an extra endWidget({id}) call in its view.' => '{controller} فراخوان زیادی برای endWidget({id}) در قسمت نمایش دارد',
-  'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Yii::beginProfile() and Yii::endProfile() be properly nested.' => 'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Yii::beginProfile() and Yii::endProfile() be properly nested.',
+  'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Mindy::beginProfile() and Mindy::endProfile() be properly nested.' => 'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Mindy::beginProfile() and Mindy::endProfile() be properly nested.',
   'CProfileLogRoute.report "{report}" is invalid. Valid values include "summary" and "callstack".' => 'CProfileLogRoute.report "{report}" نامعتبر می باشد.مقادیر معتبر شامل "summary" و "callstack" می باشد',
   'CSecurityManager.encryptionKey cannot be empty.' => 'CSecurityManager.encryptionKey نمی تواند خالی باشد',
   'CSecurityManager requires PHP mcrypt extension to be loaded in order to use data encryption feature.' => 'CSecurityManager به اکستنشن PHP mcrypt نیاز دارد که لود شود به منظور استفاده از داده های رمزگذاری شده',

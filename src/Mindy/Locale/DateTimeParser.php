@@ -12,18 +12,19 @@
  * @date 10/06/14.06.2014 16:52
  */
 
-namespace Mindy\Base;
+/**
+ * CDateTimeParser class file
+ *
+ * @author Wei Zhuo <weizhuo[at]gamil[dot]com>
+ * @author Qiang Xue <qiang.xue@gmail.com>
+ * @author Tomasz Suchanek <tomasz[dot]suchanek[at]gmail[dot]com>
+ * @link http://www.yiiframework.com/
+ * @copyright 2008-2013 Yii Software LLC
+ * @license http://www.yiiframework.com/license/
+ */
 
-    /**
-     * CDateTimeParser class file
-     *
-     * @author Wei Zhuo <weizhuo[at]gamil[dot]com>
-     * @author Qiang Xue <qiang.xue@gmail.com>
-     * @author Tomasz Suchanek <tomasz[dot]suchanek[at]gmail[dot]com>
-     * @link http://www.yiiframework.com/
-     * @copyright 2008-2013 Yii Software LLC
-     * @license http://www.yiiframework.com/license/
-     */
+namespace Mindy\Locale;
+use Mindy\Base\Mindy;
 
 /**
  * CDateTimeParser converts a date/time string to a UNIX timestamp according to the specified pattern.
@@ -92,10 +93,11 @@ class DateTimeParser
      * the current hour obtained by date('H'). This parameter has been available since version 1.1.5.
      * @return integer timestamp for the date string. False if parsing fails.
      */
-    public static function parse($value, $pattern = 'MM/dd/yyyy', $defaults = array())
+    public static function parse($value, $pattern = 'MM/dd/yyyy', $defaults = [])
     {
-        if (self::$_mbstringAvailable === null)
+        if (self::$_mbstringAvailable === null) {
             self::$_mbstringAvailable = extension_loaded('mbstring');
+        }
 
         $tokens = self::tokenize($pattern);
         $i = 0;
@@ -103,171 +105,162 @@ class DateTimeParser
         foreach ($tokens as $token) {
             switch ($token) {
                 case 'yyyy':
-                {
-                    if (($year = self::parseInteger($value, $i, 4, 4)) === false)
+                    if (($year = self::parseInteger($value, $i, 4, 4)) === false) {
                         return false;
+                    }
                     $i += 4;
                     break;
-                }
                 case 'yy':
-                {
-                    if (($year = self::parseInteger($value, $i, 1, 2)) === false)
+                    if (($year = self::parseInteger($value, $i, 1, 2)) === false) {
                         return false;
+                    }
                     $i += strlen($year);
                     break;
-                }
                 case 'MMMM':
-                {
                     $monthName = '';
-                    if (($month = self::parseMonth($value, $i, 'wide', $monthName)) === false)
+                    if (($month = self::parseMonth($value, $i, 'wide', $monthName)) === false) {
                         return false;
+                    }
                     $i += self::$_mbstringAvailable ? mb_strlen($monthName, Mindy::app()->charset) : strlen($monthName);
                     break;
-                }
                 case 'MMM':
-                {
                     $monthName = '';
-                    if (($month = self::parseMonth($value, $i, 'abbreviated', $monthName)) === false)
+                    if (($month = self::parseMonth($value, $i, 'abbreviated', $monthName)) === false) {
                         return false;
+                    }
                     $i += self::$_mbstringAvailable ? mb_strlen($monthName, Mindy::app()->charset) : strlen($monthName);
                     break;
-                }
                 case 'MM':
-                {
-                    if (($month = self::parseInteger($value, $i, 2, 2)) === false)
+                    if (($month = self::parseInteger($value, $i, 2, 2)) === false) {
                         return false;
-                    $i += 2;
-                    break;
-                }
-                case 'M':
-                {
-                    if (($month = self::parseInteger($value, $i, 1, 2)) === false)
-                        return false;
-                    $i += strlen($month);
-                    break;
-                }
-                case 'dd':
-                {
-                    if (($day = self::parseInteger($value, $i, 2, 2)) === false)
-                        return false;
-                    $i += 2;
-                    break;
-                }
-                case 'd':
-                {
-                    if (($day = self::parseInteger($value, $i, 1, 2)) === false)
-                        return false;
-                    $i += strlen($day);
-                    break;
-                }
-                case 'h':
-                case 'H':
-                {
-                    if (($hour = self::parseInteger($value, $i, 1, 2)) === false)
-                        return false;
-                    $i += strlen($hour);
-                    break;
-                }
-                case 'hh':
-                case 'HH':
-                {
-                    if (($hour = self::parseInteger($value, $i, 2, 2)) === false)
-                        return false;
-                    $i += 2;
-                    break;
-                }
-                case 'm':
-                {
-                    if (($minute = self::parseInteger($value, $i, 1, 2)) === false)
-                        return false;
-                    $i += strlen($minute);
-                    break;
-                }
-                case 'mm':
-                {
-                    if (($minute = self::parseInteger($value, $i, 2, 2)) === false)
-                        return false;
-                    $i += 2;
-                    break;
-                }
-                case 's':
-                {
-                    if (($second = self::parseInteger($value, $i, 1, 2)) === false)
-                        return false;
-                    $i += strlen($second);
-                    break;
-                }
-                case 'ss':
-                {
-                    if (($second = self::parseInteger($value, $i, 2, 2)) === false)
-                        return false;
-                    $i += 2;
-                    break;
-                }
-                case 'a':
-                {
-                    if (($ampm = self::parseAmPm($value, $i)) === false)
-                        return false;
-                    if (isset($hour)) {
-                        if ($hour == 12 && $ampm === 'am')
-                            $hour = 0;
-                        elseif ($hour < 12 && $ampm === 'pm')
-                            $hour += 12;
                     }
                     $i += 2;
                     break;
-                }
+                case 'M':
+                    if (($month = self::parseInteger($value, $i, 1, 2)) === false) {
+                        return false;
+                    }
+                    $i += strlen($month);
+                    break;
+                case 'dd':
+                    if (($day = self::parseInteger($value, $i, 2, 2)) === false) {
+                        return false;
+                    }
+                    $i += 2;
+                    break;
+                case 'd':
+                    if (($day = self::parseInteger($value, $i, 1, 2)) === false) {
+                        return false;
+                    }
+                    $i += strlen($day);
+                    break;
+                case 'h':
+                case 'H':
+                    if (($hour = self::parseInteger($value, $i, 1, 2)) === false) {
+                        return false;
+                    }
+                    $i += strlen($hour);
+                    break;
+                case 'hh':
+                case 'HH':
+                    if (($hour = self::parseInteger($value, $i, 2, 2)) === false) {
+                        return false;
+                    }
+                    $i += 2;
+                    break;
+                case 'm':
+                    if (($minute = self::parseInteger($value, $i, 1, 2)) === false) {
+                        return false;
+                    }
+                    $i += strlen($minute);
+                    break;
+                case 'mm':
+                    if (($minute = self::parseInteger($value, $i, 2, 2)) === false) {
+                        return false;
+                    }
+                    $i += 2;
+                    break;
+                case 's':
+                    if (($second = self::parseInteger($value, $i, 1, 2)) === false) {
+                        return false;
+                    }
+                    $i += strlen($second);
+                    break;
+                case 'ss':
+                    if (($second = self::parseInteger($value, $i, 2, 2)) === false) {
+                        return false;
+                    }
+                    $i += 2;
+                    break;
+                case 'a':
+                    if (($ampm = self::parseAmPm($value, $i)) === false) {
+                        return false;
+                    }
+                    if (isset($hour)) {
+                        if ($hour == 12 && $ampm === 'am') {
+                            $hour = 0;
+                        } elseif ($hour < 12 && $ampm === 'pm') {
+                            $hour += 12;
+                        }
+                    }
+                    $i += 2;
+                    break;
                 default:
-                    {
                     $tn = self::$_mbstringAvailable ? mb_strlen($token, Mindy::app()->charset) : strlen($token);
                     if ($i >= $n || ($token{0} != '?' && (self::$_mbstringAvailable ? mb_substr($value, $i, $tn, Mindy::app()->charset) : substr($value, $i, $tn)) !== $token))
                         return false;
                     $i += $tn;
                     break;
-                    }
             }
         }
-        if ($i < $n)
-            return false;
 
-        if (!isset($year))
+        if ($i < $n) {
+            return false;
+        }
+
+        if (!isset($year)) {
             $year = isset($defaults['year']) ? $defaults['year'] : date('Y');
-        if (!isset($month))
+        }
+        if (!isset($month)) {
             $month = isset($defaults['month']) ? $defaults['month'] : date('n');
-        if (!isset($day))
+        }
+        if (!isset($day)) {
             $day = isset($defaults['day']) ? $defaults['day'] : date('j');
+        }
 
         if (strlen($year) === 2) {
-            if ($year >= 70)
+            if ($year >= 70) {
                 $year += 1900;
-            else
+            } else {
                 $year += 2000;
+            }
         }
         $year = (int)$year;
         $month = (int)$month;
         $day = (int)$day;
 
-        if (
-            !isset($hour) && !isset($minute) && !isset($second)
-            && !isset($defaults['hour']) && !isset($defaults['minute']) && !isset($defaults['second'])
-        )
+        if (!isset($hour) && !isset($minute) && !isset($second) && !isset($defaults['hour']) && !isset($defaults['minute']) && !isset($defaults['second'])) {
             $hour = $minute = $second = 0;
-        else {
-            if (!isset($hour))
+        } else {
+            if (!isset($hour)) {
                 $hour = isset($defaults['hour']) ? $defaults['hour'] : date('H');
-            if (!isset($minute))
+            }
+            if (!isset($minute)) {
                 $minute = isset($defaults['minute']) ? $defaults['minute'] : date('i');
-            if (!isset($second))
+            }
+            if (!isset($second)) {
                 $second = isset($defaults['second']) ? $defaults['second'] : date('s');
+            }
             $hour = (int)$hour;
             $minute = (int)$minute;
             $second = (int)$second;
         }
 
-        if (Timestamp::isValidDate($year, $month, $day) && Timestamp::isValidTime($hour, $minute, $second))
+        if (Timestamp::isValidDate($year, $month, $day) && Timestamp::isValidTime($hour, $minute, $second)) {
             return Timestamp::getTimestamp($hour, $minute, $second, $month, $day, $year);
-        else
+        } else {
             return false;
+        }
     }
 
     /*
@@ -275,9 +268,10 @@ class DateTimeParser
      */
     private static function tokenize($pattern)
     {
-        if (!($n = self::$_mbstringAvailable ? mb_strlen($pattern, Mindy::app()->charset) : strlen($pattern)))
-            return array();
-        $tokens = array();
+        if (!($n = self::$_mbstringAvailable ? mb_strlen($pattern, Mindy::app()->charset) : strlen($pattern))) {
+            return [];
+        }
+        $tokens = [];
         $c0 = self::$_mbstringAvailable ? mb_substr($pattern, 0, 1, Mindy::app()->charset) : substr($pattern, 0, 1);
 
         for ($start = 0, $i = 1; $i < $n; ++$i) {
@@ -303,8 +297,9 @@ class DateTimeParser
     {
         for ($len = $maxLength; $len >= $minLength; --$len) {
             $v = self::$_mbstringAvailable ? mb_substr($value, $offset, $len, Mindy::app()->charset) : substr($value, $offset, $len);
-            if (ctype_digit($v) && (self::$_mbstringAvailable ? mb_strlen($v, Mindy::app()->charset) : strlen($v)) >= $minLength)
+            if (ctype_digit($v) && (self::$_mbstringAvailable ? mb_strlen($v, Mindy::app()->charset) : strlen($v)) >= $minLength) {
                 return $v;
+            }
         }
         return false;
     }
@@ -333,8 +328,7 @@ class DateTimeParser
         $valueLength = self::$_mbstringAvailable ? mb_strlen($value, Mindy::app()->charset) : strlen($value);
         for ($len = 1; $offset + $len <= $valueLength; $len++) {
             $monthName = self::$_mbstringAvailable ? mb_substr($value, $offset, $len, Mindy::app()->charset) : substr($value, $offset, $len);
-            if (!preg_match('/^[\p{L}\p{M}]+$/u', $monthName)) // unicode aware replacement for ctype_alpha($monthName)
-            {
+            if (!preg_match('/^[\p{L}\p{M}]+$/u', $monthName)) { // unicode aware replacement for ctype_alpha($monthName)
                 $monthName = self::$_mbstringAvailable ? mb_substr($monthName, 0, -1, Mindy::app()->charset) : substr($monthName, 0, -1);
                 break;
             }
@@ -342,15 +336,18 @@ class DateTimeParser
         $monthName = self::$_mbstringAvailable ? mb_strtolower($monthName, Mindy::app()->charset) : strtolower($monthName);
 
         $monthNames = Mindy::app()->getLocale()->getMonthNames($width, false);
-        foreach ($monthNames as $k => $v)
+        foreach ($monthNames as $k => $v) {
             $monthNames[$k] = rtrim(self::$_mbstringAvailable ? mb_strtolower($v, Mindy::app()->charset) : strtolower($v), '.');
+        }
 
         $monthNamesStandAlone = Mindy::app()->getLocale()->getMonthNames($width, true);
-        foreach ($monthNamesStandAlone as $k => $v)
+        foreach ($monthNamesStandAlone as $k => $v) {
             $monthNamesStandAlone[$k] = rtrim(self::$_mbstringAvailable ? mb_strtolower($v, Mindy::app()->charset) : strtolower($v), '.');
+        }
 
-        if (($v = array_search($monthName, $monthNames)) === false && ($v = array_search($monthName, $monthNamesStandAlone)) === false)
+        if (($v = array_search($monthName, $monthNames)) === false && ($v = array_search($monthName, $monthNamesStandAlone)) === false) {
             return false;
+        }
         return $v;
     }
 }

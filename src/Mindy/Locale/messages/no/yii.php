@@ -63,7 +63,7 @@ return array (
   'CMemCache server configuration must be an array.' => 'CMemCache server konfigurasjon må være et array.',
   'CMemCache server configuration must have "host" value.' => 'CMemCache server konfigurasjon må ha "host" verdi.',
   'CMultiFileUpload.name is required.' => 'CMultiFileUpload.name er påkrevd.',
-  'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Yii::beginProfile() and Yii::endProfile() be properly nested.' => 'CProfileLogRoute fant en mismatchende kodeblock "{token}". Sjekk at kallene til  Yii::beginProfile() og Yii::endProfile() er riktig nøstet.',
+  'CProfileLogRoute found a mismatching code block "{token}". Make sure the calls to Mindy::beginProfile() and Mindy::endProfile() be properly nested.' => 'CProfileLogRoute fant en mismatchende kodeblock "{token}". Sjekk at kallene til  Mindy::beginProfile() og Mindy::endProfile() er riktig nøstet.',
   'CProfileLogRoute.report "{report}" is invalid. Valid values include "summary" and "callstack".' => 'CProfileLogRoute.report "{report}" er ugyldig. Gyldige verdier inkluderer "summary" og "callstack".',
   'CSecurityManager requires PHP mcrypt extension to be loaded in order to use data encryption feature.' => 'CSecurityManager krever PHP mcrypt tillegget for å lastes for å kryptere data.',
   'CSecurityManager.encryptionKey cannot be empty.' => 'CSecurityManager.encryptionKey kan ikke være tom.',
