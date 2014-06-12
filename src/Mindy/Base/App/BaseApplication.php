@@ -27,7 +27,6 @@ use Mindy\Base\Event;
 use Mindy\Base\Exception\Exception;
 use Mindy\Base\Exception\ExceptionEvent;
 use Mindy\Base\Exception\HttpException;
-use Mindy\Base\Locale;
 use Mindy\Base\Logger;
 use Mindy\Base\Mindy;
 use Mindy\Base\Module;
@@ -86,19 +85,19 @@ use ReflectionProperty;
  * @property string $language The language that the user is using and the application should be targeted to.
  * Defaults to the {@link sourceLanguage source language}.
  * @property string $timeZone The time zone used by this application.
- * @property \Mindy\Base\Locale $locale The locale instance.
+ * @property \Mindy\Locale\Locale $locale The locale instance.
  * @property string $localeDataPath The directory that contains the locale data. It defaults to 'framework/i18n/data'.
- * @property \Mindy\Base\NumberFormatter $numberFormatter The locale-dependent number formatter.
+ * @property \Mindy\Locale\NumberFormatter $numberFormatter The locale-dependent number formatter.
  * The current {@link getLocale application locale} will be used.
- * @property \Mindy\Base\DateFormatter $dateFormatter The locale-dependent date formatter.
+ * @property \Mindy\Locale\DateFormatter $dateFormatter The locale-dependent date formatter.
  * The current {@link getLocale application locale} will be used.
  * @property \Mindy\Query\Connection $db The database connection.
  * @property \Mindy\Base\ErrorHandler $errorHandler The error handler application component.
  * @property \Mindy\Base\SecurityManager $securityManager The security manager application component.
  * @property \Mindy\Base\StatePersister $statePersister The state persister application component.
  * @property \Mindy\Base\Cache $cache The cache application component. Null if the component is not enabled.
- * @property \Mindy\Base\PhpMessageSource $coreMessages The core message translations.
- * @property \Mindy\Base\MessageSource $messages The application message translations.
+ * @property \Mindy\Locale\PhpMessageSource $coreMessages The core message translations.
+ * @property \Mindy\Locale\MessageSource $messages The application message translations.
  * @property \Mindy\Base\HttpRequest $request The request component.
  * @property \Mindy\Base\UrlManager $urlManager The URL manager component.
  * @property \Mindy\Base\Controller $controller The currently active controller. Null is returned in this base class.
@@ -127,7 +126,7 @@ abstract class BaseApplication extends Module
     /**
      * @var string the class used to get locale data. Defaults to 'CLocale'.
      */
-    public $localeClass = 'Mindy\Base\Locale';
+    public $localeClass = 'Mindy\Locale\Locale';
 
     private $_id;
     private $_basePath;
@@ -164,22 +163,20 @@ abstract class BaseApplication extends Module
         Mindy::setApplication($this);
 
         // set basePath at early as possible to avoid trouble
-        if (is_string($config))
+        if (is_string($config)) {
             $config = require($config);
+        }
+
         if (isset($config['basePath'])) {
             $this->setBasePath($config['basePath']);
             unset($config['basePath']);
-        } else
+        } else {
             $this->setBasePath('protected');
+        }
 
         Alias::set('application', $this->getBasePath());
         Alias::set('webroot', dirname($_SERVER['SCRIPT_FILENAME']));
 
-        if (isset($config['extensionPath'])) {
-            $this->setExtensionPath($config['extensionPath']);
-            unset($config['extensionPath']);
-        } else
-            Alias::set('ext', $this->getBasePath() . DIRECTORY_SEPARATOR . 'extensions');
         if (isset($config['aliases'])) {
             $this->setAliases($config['aliases']);
             unset($config['aliases']);
@@ -205,7 +202,7 @@ abstract class BaseApplication extends Module
 
             if ($this->locator->has($tmp)) {
                 return $this->locator->get($tmp);
-            } elseif($this->locator->has(lcfirst($tmp))) {
+            } elseif ($this->locator->has(lcfirst($tmp))) {
                 return $this->locator->get(lcfirst($tmp));
             }
         }
@@ -440,7 +437,7 @@ abstract class BaseApplication extends Module
     /**
      * Returns the locale instance.
      * @param string $localeID the locale ID (e.g. en_US). If null, the {@link getLanguage application language ID} will be used.
-     * @return Locale an instance of CLocale
+     * @return \Mindy\Locale\Locale an instance of CLocale
      */
     public function getLocale($localeID = null)
     {
@@ -455,6 +452,7 @@ abstract class BaseApplication extends Module
     public function getLocaleDataPath()
     {
         $vars = get_class_vars($this->localeClass);
+        // TODO
         if (empty($vars['dataPath'])) {
             return Alias::get('system.i18n.data');
         }
@@ -473,7 +471,7 @@ abstract class BaseApplication extends Module
     }
 
     /**
-     * @return NumberFormatter the locale-dependent number formatter.
+     * @return \Mindy\Locale\NumberFormatter the locale-dependent number formatter.
      * The current {@link getLocale application locale} will be used.
      */
     public function getNumberFormatter()
@@ -483,7 +481,7 @@ abstract class BaseApplication extends Module
 
     /**
      * Returns the locale-dependent date formatter.
-     * @return DateFormatter the locale-dependent date formatter.
+     * @return \Mindy\Locale\DateFormatter the locale-dependent date formatter.
      * The current {@link getLocale application locale} will be used.
      */
     public function getDateFormatter()
@@ -697,10 +695,11 @@ abstract class BaseApplication extends Module
             $this->onException($event);
             if (!$event->handled) {
                 // try an error handler
-                if (($handler = $this->getErrorHandler()) !== null)
+                if (($handler = $this->getErrorHandler()) !== null) {
                     $handler->handle($event);
-                else
+                } else {
                     $this->displayException($exception);
+                }
             }
         } catch (Exception $e) {
             $this->displayException($e);
@@ -762,8 +761,9 @@ abstract class BaseApplication extends Module
                     $log .= get_class($t['object']) . '->';
                 $log .= "{$t['function']}()\n";
             }
-            if (isset($_SERVER['REQUEST_URI']))
+            if (isset($_SERVER['REQUEST_URI'])) {
                 $log .= 'REQUEST_URI=' . $_SERVER['REQUEST_URI'];
+            }
             Mindy::log($log, Logger::LEVEL_ERROR, 'php');
 
             try {
@@ -771,10 +771,11 @@ abstract class BaseApplication extends Module
                 $this->onError($event);
                 if (!$event->handled) {
                     // try an error handler
-                    if (($handler = $this->getErrorHandler()) !== null)
+                    if (($handler = $this->getErrorHandler()) !== null) {
                         $handler->handle($event);
-                    else
+                    } else {
                         $this->displayError($code, $message, $file, $line);
+                    }
                 }
             } catch (Exception $e) {
                 $this->displayException($e);
@@ -888,10 +889,12 @@ abstract class BaseApplication extends Module
      */
     protected function initSystemHandlers()
     {
-        if (YII_ENABLE_EXCEPTION_HANDLER)
+        if (YII_ENABLE_EXCEPTION_HANDLER) {
             set_exception_handler(array($this, 'handleException'));
-        if (YII_ENABLE_ERROR_HANDLER)
+        }
+        if (YII_ENABLE_ERROR_HANDLER) {
             set_error_handler(array($this, 'handleError'), error_reporting());
+        }
     }
 
     /**
@@ -900,40 +903,81 @@ abstract class BaseApplication extends Module
      */
     protected function registerCoreComponents()
     {
-        $components = array(
-            'coreMessages' => array(
-                'class' => '\Mindy\Base\PhpMessageSource',
+        $components = [
+            'coreMessages' => [
+                'class' => '\Mindy\Locale\PhpMessageSource',
                 'language' => 'en_us',
-                'basePath' => YII_PATH . DIRECTORY_SEPARATOR . 'messages',
-            ),
-            'messages' => array(
-                'class' => '\Mindy\Base\PhpMessageSource',
-            ),
-            'errorHandler' => array(
+            ],
+            'messages' => [
+                'class' => '\Mindy\Locale\PhpMessageSource',
+            ],
+            'errorHandler' => [
                 'class' => '\Mindy\Base\ErrorHandler',
-            ),
-            'securityManager' => array(
+            ],
+            'securityManager' => [
                 'class' => '\Mindy\Base\SecurityManager',
-            ),
+            ],
             'statePersister' => [
                 'class' => '\Mindy\Base\StatePersister',
             ],
-            'urlManager' => array(
+            'urlManager' => [
                 'class' => '\Mindy\Base\UrlManager',
-            ),
-            'request' => array(
+            ],
+            'request' => [
                 'class' => '\Mindy\Base\HttpRequest',
-            ),
-            'format' => array(
-                'class' => '\Mindy\Base\Formatter',
-            ),
+            ],
+            'format' => [
+                'class' => '\Mindy\Locale\Formatter',
+            ],
             'session' => [
                 'class' => '\Mindy\Base\HttpSession',
             ],
             'widgetFactory' => [
-                'class' => 'CWidgetFactory',
+                'class' => '\Mindy\Base\WidgetFactory',
             ],
-        );
+            'logger' => [
+                'class' => '\Mindy\Logger\LoggerManager',
+                'handlers' => [
+                    'hichat' => [
+                        'class' => '\Mindy\Logger\Handler\HiChatHandler',
+                        'token' => 'Z23QbMBVhllSgUsgnVNPEh3vOiiGXlcOr2JQ7VQM',
+                        'room' => 'Студия 107',
+                        'level' => 'ERROR'
+                    ],
+                    'null' => [
+                        'class' => '\Mindy\Logger\Handler\NullHandler',
+                        'level' => 'ERROR'
+                    ],
+                    'console' => [
+                        'class' => '\Mindy\Logger\Handler\StreamHandler',
+                        // 'stream' => '...',
+                    ],
+                    'mail_admins' => [
+                        'class' => '\Mindy\Logger\Handler\SwiftMailerHandler',
+                    ],
+                ],
+                'formatters' => [
+                    'default' => [
+                        'class' => '\Monolog\Formatters\LineFormatter',
+                        'format' => '[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n'
+                    ]
+                ],
+                'loggers' => [
+                    'django' => [
+                        'class' => '\Monolog\Logger',
+                        'handlers' => ['null'],
+                    ],
+                    'django.request' => [
+                        'class' => '\Monolog\Logger',
+                        'handlers' => ['mail_admins'],
+                    ],
+                    'myproject.custom' => [
+                        'class' => '\Monolog\Logger',
+                        'handlers' => ['console', 'mail_admins'],
+                    ]
+                ]
+            ],
+        ];
 
         $this->setComponents($components);
     }
