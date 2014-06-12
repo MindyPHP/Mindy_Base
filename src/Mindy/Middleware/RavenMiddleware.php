@@ -1,4 +1,5 @@
 <?php
+use Mindy\Base\Mindy;
 
 /**
  *
@@ -14,33 +15,10 @@
  */
 class RavenMiddleware extends Middleware
 {
-    public $dsn;
-
-    private $_client;
+    public $loggerName = 'raven';
 
     public function processException(Exception $exception)
     {
-        if (!$this->dsn) {
-            return;
-        }
-
-        if (!$this->_client) {
-            // Instantiate a new client with a compatible DSN
-            $this->_client = new Raven_Client($this->dsn);
-        }
-
-        // Capture exception
-        $this->_client->captureException($exception, [
-            'extra' => [
-                'php_version' => phpversion(),
-                'mindy_version' => Mindy::getVersion()
-            ],
-        ]);
-
-        // Install error handlers and shutdown function to catch fatal errors
-        $error_handler = new Raven_ErrorHandler($this->_client);
-        $error_handler->registerExceptionHandler();
-        $error_handler->registerErrorHandler();
-        $error_handler->registerShutdownFunction();
+        Mindy::app()->logger->error($exception, $this->loggerName);
     }
 }
