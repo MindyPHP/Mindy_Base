@@ -110,6 +110,10 @@ class HttpRequest extends ApplicationComponent
      * @var bool
      */
     public $is_ajax;
+    /**
+     * @var array of routes for backward compatability
+     */
+    public $rulesCsrfExcluded = [];
 
     private $_requestUri;
     private $_pathInfo;
@@ -161,8 +165,10 @@ class HttpRequest extends ApplicationComponent
         if ($this->enableCsrfValidation) {
             if(Mindy::app()->locator->has('urlManager')) {
                 $urlManager = Mindy::app()->urlManager;
-                if ($this->enableCsrfValidation && array_search($urlManager->parseUrl($this), $urlManager->rulesCsrfExcluded) === false) {
-                    Mindy::app()->attachEventHandler('onBeginRequest', array($this, 'validateCsrfToken'));
+                if(!empty($this->rulesCsrfExcluded)) {
+                    if ($this->enableCsrfValidation && array_search($urlManager->parseUrl($this), $this->rulesCsrfExcluded) === false) {
+                        Mindy::app()->attachEventHandler('onBeginRequest', array($this, 'validateCsrfToken'));
+                    }
                 }
             } else {
                 Mindy::app()->attachEventHandler('onBeginRequest', array($this, 'validateCsrfToken'));

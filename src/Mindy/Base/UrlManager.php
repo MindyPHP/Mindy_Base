@@ -11,11 +11,6 @@ class UrlManager extends AuraMap
 {
     public $urlsAlias = 'application.config.urls';
 
-    /**
-     * @var array of routes for backward compatability
-     */
-    public $rulesCsrfExcluded = [];
-
     public $trailingSlash = true;
 
     public function __construct()

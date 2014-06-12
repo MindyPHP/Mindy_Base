@@ -39,7 +39,7 @@ class CCookieCollectionTest extends CTestCase
     public function testConstructorCookieBuilding()
     {
         $this->assertTrue($this->cookies->contains('testGlobal'));
-        $this->assertTrue($this->cookies['testGlobal'] instanceof HttpCookie);
+        $this->assertInstanceOf('\Mindy\Base\HttpCookie', $this->cookies['testGlobal']);
         $this->assertEquals($_COOKIE['testGlobal'], $this->cookies['testGlobal']->value);
     }
 
