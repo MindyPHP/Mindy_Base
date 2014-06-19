@@ -1,4 +1,8 @@
 <?php
+
+namespace Mindy\Middleware;
+
+use Exception;
 use Mindy\Base\Mindy;
 
 /**

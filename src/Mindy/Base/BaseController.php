@@ -12,6 +12,7 @@ namespace Mindy\Base;
  */
 use Mindy\Base\Exception\Exception;
 use Mindy\Base\Exception\HttpException;
+use Mindy\Helper\Creator;
 
 
 /**
@@ -364,7 +365,7 @@ class BaseController extends CBaseController
     {
         if (($pos = strpos($actionID, '.')) === false && isset($actionMap[$actionID])) {
             $baseConfig = is_array($actionMap[$actionID]) ? $actionMap[$actionID] : array('class' => $actionMap[$actionID]);
-            return Mindy::createComponent(empty($config) ? $baseConfig : array_merge($baseConfig, $config), $this, $requestActionID);
+            return Creator::createObject(empty($config) ? $baseConfig : array_merge($baseConfig, $config), $this, $requestActionID);
         } elseif ($pos === false)
             return null;
 

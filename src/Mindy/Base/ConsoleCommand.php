@@ -117,6 +117,11 @@ abstract class ConsoleCommand extends Component
         $this->attachBehaviors($this->behaviors());
     }
 
+    public static function className()
+    {
+        return get_called_class();
+    }
+
     /**
      * Initializes the command object.
      * This method is invoked after a command object is created and initialized with configurations.
@@ -646,17 +651,17 @@ abstract class ConsoleCommand extends Component
     }
 
     // Returns colored string
-    public function color($string, $foreground_color = null, $background_color = null)
+    public function color($string, $foregroundColor = null, $backgroundColor = null)
     {
         $colored_string = "";
 
         // Check if given foreground color found
-        if (isset($this->foregroundColors[$foreground_color])) {
-            $colored_string .= "\033[" . $this->foregroundColors[$foreground_color] . "m";
+        if (isset($this->foregroundColors[$foregroundColor])) {
+            $colored_string .= "\033[" . $this->foregroundColors[$foregroundColor] . "m";
         }
         // Check if given background color found
-        if (isset($this->backgroundColors[$background_color])) {
-            $colored_string .= "\033[" . $this->backgroundColors[$background_color] . "m";
+        if (isset($this->backgroundColors[$backgroundColor])) {
+            $colored_string .= "\033[" . $this->backgroundColors[$backgroundColor] . "m";
         }
 
         // Add string and end coloring

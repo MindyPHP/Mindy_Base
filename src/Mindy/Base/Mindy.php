@@ -6,22 +6,11 @@ use Mindy\Helper\Alias;
 use Mindy\Helper\Console;
 use Mindy\Helper\Dumper;
 
-Alias::set('mindy', __DIR__);
-
-function d()
-{
-    $debug = debug_backtrace();
-    $args = func_get_args();
-    $data = array(
-        'data' => $args,
-        'debug' => array(
-            'file' => $debug[0]['file'],
-            'line' => $debug[0]['line'],
-        )
-    );
-    Dumper::dump($data);
-    die();
+if(!function_exists('d')) {
+    require_once __DIR__ . '/m.php';
 }
+
+Alias::set('mindy', __DIR__);
 
 class Mindy extends MindyBase
 {

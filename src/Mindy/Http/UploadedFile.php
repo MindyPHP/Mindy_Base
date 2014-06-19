@@ -12,7 +12,7 @@
  * @date 10/06/14.06.2014 13:52
  */
 
-namespace Mindy\Base;
+namespace Mindy\Http;
 
     /**
      * UploadedFile class file.
@@ -22,6 +22,7 @@ namespace Mindy\Base;
      * @copyright 2008-2013 Yii Software LLC
      * @license http://www.yiiframework.com/license/
      */
+use Mindy\Base\Component;
 
 /**
  * UploadedFile represents the information for an uploaded file.
@@ -59,32 +60,6 @@ class UploadedFile extends Component
     private $_type;
     private $_size;
     private $_error;
-
-    /**
-     * Returns an instance of the specified uploaded file.
-     * The file should be uploaded using {@link CHtml::activeFileField}.
-     * @param CModel $model the model instance
-     * @param string $attribute the attribute name. For tabular file uploading, this can be in the format of "[$i]attributeName", where $i stands for an integer index.
-     * @return UploadedFile the instance of the uploaded file.
-     * Null is returned if no file is uploaded for the specified model attribute.
-     * @see getInstanceByName
-     */
-    public static function getInstance($model, $attribute)
-    {
-        return self::getInstanceByName(CHtml::resolveName($model, $attribute));
-    }
-
-    /**
-     * Returns all uploaded files for the given model attribute.
-     * @param CModel $model the model instance
-     * @param string $attribute the attribute name. For tabular file uploading, this can be in the format of "[$i]attributeName", where $i stands for an integer index.
-     * @return UploadedFile[] array of UploadedFile objects.
-     * Empty array is returned if no available file was found for the given attribute.
-     */
-    public static function getInstances($model, $attribute)
-    {
-        return self::getInstancesByName(CHtml::resolveName($model, $attribute));
-    }
 
     /**
      * Returns an instance of the specified uploaded file.

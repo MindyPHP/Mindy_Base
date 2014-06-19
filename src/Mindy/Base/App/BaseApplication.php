@@ -688,7 +688,7 @@ abstract class BaseApplication extends Module
         if (isset($_SERVER['HTTP_REFERER']))
             $message .= "\nHTTP_REFERER=" . $_SERVER['HTTP_REFERER'];
         $message .= "\n---";
-        Mindy::log($message, Logger::LEVEL_ERROR, $category);
+        Mindy::app()->logger->error($message, 'default', ['category' => $category]);
 
         try {
             $event = new ExceptionEvent($this, $exception);
@@ -764,7 +764,7 @@ abstract class BaseApplication extends Module
             if (isset($_SERVER['REQUEST_URI'])) {
                 $log .= 'REQUEST_URI=' . $_SERVER['REQUEST_URI'];
             }
-            Mindy::log($log, Logger::LEVEL_ERROR, 'php');
+            Mindy::app()->logger->error($log, 'default', ['category' => 'php']);
 
             try {
                 $event = new ErrorEvent($this, $code, $message, $file, $line);

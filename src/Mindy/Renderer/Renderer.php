@@ -1,5 +1,20 @@
 <?php
+
+namespace Mindy\Renderer;
+use Mindy\Base\ApplicationComponent;
+use Mindy\Base\Exception\Exception;
+use Mindy\Base\Mindy;
+use Mindy\Core\Object;
+use Mindy\Form\Form;
+use Mindy\Form\Renderer\MindyRenderer;
 use Mindy\Helper\Console;
+use ReflectionClass;
+use Twig_Environment;
+use Twig_Function_Function;
+use Twig_Lexer;
+use Twig_Loader_Chain;
+use Twig_Loader_Filesystem;
+use Twig_Loader_String;
 
 /**
  * Twig view renderer
@@ -11,12 +26,8 @@ use Mindy\Helper\Console;
  *
  * @version 1.1.2
  */
-class MRenderer extends CApplicationComponent
+class Renderer extends Object
 {
-    /**
-     * @var string Path alias to Twig
-     */
-    public $twigPathAlias = 'mindy.vendors.Twig';
     /**
      * @var string Twig template files extension
      */
@@ -25,7 +36,9 @@ class MRenderer extends CApplicationComponent
      * @var array Twig environment options
      * @see http://twig.sensiolabs.org/doc/api.html#environment-options
      */
-    public $options = [];
+    public $options = [
+        'autoescape' => true
+    ];
     /**
      * @var array Objects or static classes
      * Keys of array are names to call in template, values - objects or names of static class as string
@@ -115,17 +128,16 @@ class MRenderer extends CApplicationComponent
         $this->addFunctions([
             'can' => 'Mindy::app()->user->can',
             'access' => 'Mindy::app()->user->checkAccess',
-            't' => 'YiiUtils::t',
-            'url' => 'YiiUtils::createUrl',
+            't' => '\Mindy\Base\YiiUtils::t',
+            'url' => '\Mindy\Base\YiiUtils::createUrl',
             'breadcrumbs' => 'Mindy::app()->controller->setBreadcrumbs',
             'dump' => 'd',
             'get_version' => 'Mindy::getVersion',
-            'csrf' => 'YiiUtils::csrf',
+            'csrf' => '\Mindy\Base\YiiUtils::csrf',
             'get_class' => 'get_class',
             'time' => 'time',
             'date' => 'date',
             'is_file' => 'is_file',
-            'debug_panel' => 'DebugPanel::render'
         ]);
 
         $this->addFilters([
@@ -135,7 +147,7 @@ class MRenderer extends CApplicationComponent
             'typograph' => 'TextHelper::typograph',
             'is_array' => 'is_array',
             'is_integer' => 'is_integer',
-            'mdate' => 'YiiUtils::mdate',
+            'mdate' => '\Mindy\Base\YiiUtils::mdate',
         ]);
 
         // Adding global 'void' function (usage: {{void(App.clientScript.registerScriptFile(...))}})
@@ -163,7 +175,9 @@ class MRenderer extends CApplicationComponent
             $this->setLexerOptions($this->lexerOptions);
         }
 
-        return parent::init();
+        Form::setRenderer(new MindyRenderer());
+
+        parent::init();
     }
 
     protected function getStringLoader()
@@ -250,7 +264,7 @@ class MRenderer extends CApplicationComponent
      * Adds custom function or filter
      * @param string $classType 'Function' or 'Filter'
      * @param array $elements Parameters of elements to add
-     * @throws CException
+     * @throws Exception
      */
     private function _addCustom($classType, $elements)
     {
@@ -273,77 +287,12 @@ class MRenderer extends CApplicationComponent
             if ($twigElement !== null) {
                 $this->_twig->{'add' . $classType}($name, $twigElement);
             } else {
-                throw new CException(Mindy::t('yiiext',
+                throw new Exception(Mindy::t('yiiext',
                     'Incorrect options for "{classType}" [{name}]',
                     array('{classType}' => $classType, '{name}' => $name)));
             }
         }
     }
-}
-
-/**
- * Class-proxy for static classes
- * Needed because you can't pass static class to Twig other way
- *
- * @author Leonid Svyatov <leonid@svyatov.ru>
- * @version 1.0.0
- */
-class ETwigViewRendererStaticClassProxy
-{
-    private $_staticClassName;
-
-    public function __construct($staticClassName)
-    {
-        $this->_staticClassName = $staticClassName;
-    }
-
-    public function __get($property)
-    {
-        $class = new ReflectionClass($this->_staticClassName);
-        return $class->getStaticPropertyValue($property);
-    }
-
-    public function __set($property, $value)
-    {
-        $class = new ReflectionClass($this->_staticClassName);
-        $class->setStaticPropertyValue($property, $value);
-        return $value;
-    }
-
-    public function __call($method, $arguments)
-    {
-        if(!is_callable($this->_staticClassName)) {
-            return null;
-        } else {
-            return call_user_func_array(array($this->_staticClassName, $method), $arguments);
-        }
-    }
-}
-
-/**
- * Class-proxy for Yii core static classes
- *
- * @author Leonid Svyatov <leonid@svyatov.ru>
- * @version 1.0.0
- */
-class ETwigViewRendererYiiCoreStaticClassesProxy
-{
-    private $_classes = [];
-
-    function __isset($className)
-    {
-        return (isset($_classes[$className]) || class_exists('C' . $className));
-    }
-
-    function __get($className)
-    {
-        if (!isset($this->_classes[$className])) {
-            $this->_classes[$className] = new ETwigViewRendererStaticClassProxy('C' . $className);
-        }
-
-        return $this->_classes[$className];
-    }
-
 }
 
 /**

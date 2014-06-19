@@ -59,6 +59,7 @@ abstract class ApplicationComponent extends Component implements IApplicationCom
      */
     public function init()
     {
+        parent::init();
         $this->attachBehaviors($this->behaviors);
         $this->_initialized=true;
     }

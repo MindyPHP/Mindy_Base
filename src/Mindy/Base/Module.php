@@ -2,20 +2,22 @@
 
 namespace Mindy\Base;
 
-    /**
-     * CModule class file.
-     *
-     * @author Qiang Xue <qiang.xue@gmail.com>
-     * @link http://www.yiiframework.com/
-     * @copyright 2008-2013 Yii Software LLC
-     * @license http://www.yiiframework.com/license/
-     */
+/**
+ * CModule class file.
+ *
+ * @author Qiang Xue <qiang.xue@gmail.com>
+ * @link http://www.yiiframework.com/
+ * @copyright 2008-2013 Yii Software LLC
+ * @license http://www.yiiframework.com/license/
+ */
 use Mindy\Base\Exception\Exception;
 use Mindy\Base\Interfaces\IApplicationComponent;
 use Mindy\Base\Interfaces\IModule;
 use Mindy\Di\ServiceLocator;
 use Mindy\Helper\Alias;
+use Mindy\Helper\Collection;
 use Mindy\Helper\Creator;
+use Mindy\Helper\Map;
 use ReflectionClass;
 
 /**
@@ -106,6 +108,11 @@ abstract class Module extends Component implements IModule
     public function initDi()
     {
         $this->locator = new ServiceLocator();
+    }
+
+    public function getVersion()
+    {
+        return '1.0';
     }
 
     /**
@@ -252,7 +259,7 @@ abstract class Module extends Component implements IModule
     public function setAliases($mappings)
     {
         foreach ($mappings as $name => $alias) {
-            if(($path = Alias::get($alias)) !== false) {
+            if (($path = Alias::get($alias)) !== false) {
                 Alias::set($name, $path);
             } else {
                 Alias::set($name, $alias);
@@ -278,18 +285,18 @@ abstract class Module extends Component implements IModule
      */
     public function getModule($id)
     {
-        if (isset($this->_modules[$id]) || array_key_exists($id, $this->_modules))
+        if (isset($this->_modules[$id]) || array_key_exists($id, $this->_modules)) {
             return $this->_modules[$id];
-        elseif (isset($this->_moduleConfig[$id])) {
+        } elseif (isset($this->_moduleConfig[$id])) {
             $config = $this->_moduleConfig[$id];
             if (!isset($config['enabled']) || $config['enabled']) {
                 Mindy::app()->logger->info("Loading \"$id\" module", 'system.base.CModule');
                 $class = $config['class'];
                 unset($config['class'], $config['enabled']);
                 if ($this === Mindy::app()) {
-                    $module = Mindy::createComponent($class, $id, null, $config);
+                    $module = Creator::createObject($class, $id, null, $config);
                 } else {
-                    $module = Mindy::createComponent($class, $this->getId() . '/' . $id, $this, $config);
+                    $module = Creator::createObject($class, $this->getId() . '/' . $id, $this, $config);
                 }
                 return $this->_modules[$id] = $module;
             }
@@ -351,11 +358,11 @@ abstract class Module extends Component implements IModule
             }
             if (!isset($module['class'])) {
                 Mindy::setPathOfAlias($id, $this->getModulePath() . DIRECTORY_SEPARATOR . $id);
-                $module['class'] = $id . '.' . ucfirst($id) . 'Module';
+                $module['class'] = '\\Modules\\' . ucfirst($id) . '\\' . ucfirst($id) . 'Module';
             }
 
             if (isset($this->_moduleConfig[$id])) {
-                $this->_moduleConfig[$id] = Map::mergeArray($this->_moduleConfig[$id], $module);
+                $this->_moduleConfig[$id] = Collection::mergeArray($this->_moduleConfig[$id], $module);
             } else {
                 $this->_moduleConfig[$id] = $module;
             }
@@ -369,7 +376,7 @@ abstract class Module extends Component implements IModule
      */
     public function hasComponent($id)
     {
-        if(!is_string($id)) {
+        if (!is_string($id)) {
             $id = array_shift($id);
         }
         return $this->locator->has($id);
@@ -386,8 +393,7 @@ abstract class Module extends Component implements IModule
     {
         if ($this->hasComponent($id)) {
             return $this->locator->get($id);
-        }
-        elseif (isset($this->_componentConfig[$id]) && $createIfNull) {
+        } elseif (isset($this->_componentConfig[$id]) && $createIfNull) {
             $config = $this->_componentConfig[$id];
             if (!isset($config['enabled']) || $config['enabled']) {
                 Mindy::trace("Loading \"$id\" application component", 'system.CModule');
@@ -488,10 +494,10 @@ abstract class Module extends Component implements IModule
      */
     public function setComponents($components, $merge = true)
     {
-        if($merge) {
+        if ($merge) {
             $components = array_merge($this->locator->getComponents(), $components);
         }
-        foreach($components as $id => $obj) {
+        foreach ($components as $id => $obj) {
             $this->locator->set($id, is_object($obj) ? $obj : Creator::createObject($obj));
         }
     }

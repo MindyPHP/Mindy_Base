@@ -66,9 +66,10 @@ abstract class MindyBase
 {
     use CompatabilityLayer;
 
+    /**
+     * @var \Mindy\Base\App\Application
+     */
     private static $_app;
-
-    private static $_logger;
 
     /**
      * Returns the application singleton or null if the singleton has not been created yet.
@@ -100,25 +101,25 @@ abstract class MindyBase
 
     /**
      * Translates a message to the specified language.
-     * This method supports choice format (see {@link CChoiceFormat}),
+     * This method supports choice format (see {@link ChoiceFormat}),
      * i.e., the message returned will be chosen from a few candidates according to the given
      * number value. This feature is mainly used to solve plural format issue in case
      * a message has different plural forms in some languages.
      * @param string $category message category. Please use only word letters. Note, category 'yii' is
-     * reserved for Yii framework core code use. See {@link CPhpMessageSource} for
+     * reserved for Yii framework core code use. See {@link PhpMessageSource} for
      * more interpretation about message category.
      * @param string $message the original message
      * @param array $params parameters to be applied to the message using <code>strtr</code>.
      * The first parameter can be a number without key.
-     * And in this case, the method will call {@link CChoiceFormat::format} to choose
+     * And in this case, the method will call {@link ChoiceFormat::format} to choose
      * an appropriate message translation.
-     * Starting from version 1.1.6 you can pass parameter for {@link CChoiceFormat::format}
+     * Starting from version 1.1.6 you can pass parameter for {@link ChoiceFormat::format}
      * or plural forms format without wrapping it with array.
      * This parameter is then available as <code>{n}</code> in the message translation string.
      * @param string $source which message source application component to use.
      * Defaults to null, meaning using 'coreMessages' for messages belonging to
      * the 'yii' category and using 'messages' for the rest messages.
-     * @param string $language the target language. If null (default), the {@link CApplication::getLanguage application language} will be used.
+     * @param string $language the target language. If null (default), the {@link Application::getLanguage application language} will be used.
      * @return string the translated message
      * @see CMessageSource
      */
@@ -130,7 +131,7 @@ abstract class MindyBase
             }
 
             if (($source = self::$_app->getComponent($source)) !== null) {
-                /* @var $source \Mindy\Base\MessageSource */
+                /* @var $source \Mindy\Locale\MessageSource */
                 $message = $source->translate($category, $message, $language);
             }
         }
@@ -194,23 +195,6 @@ abstract class MindyBase
             Alias::set($name, $path);
         }
 
-        $app = self::createApplication($className, $config);
-        if (Console::isCli()) {
-            // fix for fcgi
-            defined('STDIN') or define('STDIN', fopen('php://stdin', 'r'));
-            $app->commandRunner->addCommands(YII_PATH . '/cli/commands');
-
-            $env = @getenv('YII_CONSOLE_COMMANDS');
-            if (!empty($env)) {
-                $app->commandRunner->addCommands($env);
-            }
-
-            foreach ($app->modules as $name => $settings) {
-                if ($modulePath = Alias::get("application.modules." . $name)) {
-                    $app->commandRunner->addCommands($modulePath . DIRECTORY_SEPARATOR . 'commands');
-                }
-            }
-        }
-        return $app;
+        return self::createApplication($className, $config);
     }
 }

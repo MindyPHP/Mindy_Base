@@ -1,5 +1,7 @@
 <?php
 
+namespace Mindy\Base;
+
 /**
  *
  *
@@ -14,28 +16,29 @@
  */
 class YiiUtils
 {
-    public static function t($text, $category, $params = array())
+    public static function t($text, $category, $params = [])
     {
-        if ($category !== 'app') {
-            if (!strpos($category, '.'))
-                $category .= '.main';
-
+        if ($category !== 'app' && !strpos($category, '.')) {
+            $category .= '.main';
         }
         $findCategory = explode('.', $category);
-        if (Yii::app()->hasModule($findCategory[0]))
-            return Yii::t(ucFirst($findCategory[0]) . 'Module.' . $findCategory[1], $text, $params);
-        else
+        if(Mindy::app()->hasModule($findCategory[0])) {
+            $module = Mindy::app()->getModule($findCategory[0]);
+            $moduleName = get_class($module) . '.' . $findCategory[1];
+            return Mindy::t($moduleName, $text, $params);
+        } else {
             return $text;
+        }
     }
 
     public static function createUrl($route, $data = null)
     {
-        return Yii::app()->urlManager->createUrl($route, $data);
+        return Mindy::app()->urlManager->createUrl($route, $data);
     }
 
     public static function csrf()
     {
-        $request = Yii::app()->request;
+        $request = Mindy::app()->request;
         return '<input type="hidden" value="' . $request->getCsrfToken() . '" name="' . $request->csrfTokenName . '" />';
     }
 
@@ -45,6 +48,6 @@ class YiiUtils
             $date = strtotime($date);
         }
 
-        return Yii::app()->dateFormatter->format($format, $date);
+        return Mindy::app()->dateFormatter->format($format, $date);
     }
 }

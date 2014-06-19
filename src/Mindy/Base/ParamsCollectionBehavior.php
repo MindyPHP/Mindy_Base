@@ -1,14 +1,25 @@
 <?php
 
+namespace Mindy\Base;
+
+use Mindy\Helper\Alias;
 use Mindy\Helper\Params;
 
-class ParamsCollectionBehavior extends CBehavior
+class ParamsCollectionBehavior extends Behavior
 {
-    public $modulesDir = 'application.modules';
+    public $modulesDirs = [
+        'Contrib',
+        'Modules',
+    ];
 
     public function attach($owner)
     {
         parent::attach($owner);
-        Params::collect(Yii::getPathOfAlias($this->modulesDir));
+
+        $paths = [];
+        foreach($this->modulesDirs as $alias) {
+            $paths[] = Alias::get($alias);
+        }
+        Params::collect($paths);
     }
 }

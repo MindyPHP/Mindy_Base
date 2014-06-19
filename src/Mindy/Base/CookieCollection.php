@@ -14,6 +14,7 @@
 
 namespace Mindy\Base;
 use Mindy\Base\Exception\Exception;
+use Mindy\Helper\Collection;
 
 
 /**
@@ -33,7 +34,7 @@ use Mindy\Base\Exception\Exception;
  * @package system.web
  * @since 1.0
  */
-class CookieCollection extends Map
+class CookieCollection extends Collection
 {
     private $_request;
     private $_initialized = false;
@@ -64,7 +65,7 @@ class CookieCollection extends Map
     {
         $cookies = array();
         if ($this->_request->enableCookieValidation) {
-            $sm = Mindy::app()->getSecurityManager();
+            $sm = Mindy::app()->securityManager;
             foreach ($_COOKIE as $name => $value) {
                 if (is_string($value) && ($value = $sm->validateData($value)) !== false) {
                     $cookies[$name] = new HttpCookie($name, @unserialize($value));
@@ -91,10 +92,12 @@ class CookieCollection extends Map
         if ($cookie instanceof HttpCookie) {
             $this->remove($name);
             parent::add($name, $cookie);
-            if ($this->_initialized)
+            if ($this->_initialized) {
                 $this->addCookie($cookie);
-        } else
+            }
+        } else {
             throw new Exception(Mindy::t('yii', 'HttpCookieCollection can only hold HttpCookie objects.'));
+        }
     }
 
     /**
@@ -134,12 +137,11 @@ class CookieCollection extends Map
     protected function addCookie($cookie)
     {
         $value = $cookie->value;
-        if ($this->_request->enableCookieValidation)
-            $value = Mindy::app()->getSecurityManager()->hashData(serialize($value));
-        if (version_compare(PHP_VERSION, '5.2.0', '>='))
-            setcookie($cookie->name, $value, $cookie->expire, $cookie->path, $cookie->domain, $cookie->secure, $cookie->httpOnly);
-        else
-            setcookie($cookie->name, $value, $cookie->expire, $cookie->path, $cookie->domain, $cookie->secure);
+        if ($this->_request->enableCookieValidation) {
+            $value = Mindy::app()->securityManager->hashData(serialize($value));
+        }
+
+        setcookie($cookie->name, $value, $cookie->expire, $cookie->path, $cookie->domain, $cookie->secure, $cookie->httpOnly);
     }
 
     /**
@@ -148,10 +150,6 @@ class CookieCollection extends Map
      */
     protected function removeCookie($cookie)
     {
-        if (version_compare(PHP_VERSION, '5.2.0', '>=')) {
-            setcookie($cookie->name, '', 0, $cookie->path, $cookie->domain, $cookie->secure, $cookie->httpOnly);
-        } else {
-            setcookie($cookie->name, '', 0, $cookie->path, $cookie->domain, $cookie->secure);
-        }
+        setcookie($cookie->name, '', 0, $cookie->path, $cookie->domain, $cookie->secure, $cookie->httpOnly);
     }
 }

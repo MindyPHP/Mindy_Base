@@ -3,7 +3,7 @@
 namespace Mindy\Base;
 
 use Mindy\Utils\RenderTrait;
-use Mindy\Utils\TitleBreadcrumbsTrait;
+use Modules\Meta\Components\MetaTrait;
 
 
 /**
@@ -18,7 +18,7 @@ use Mindy\Utils\TitleBreadcrumbsTrait;
  */
 class Controller extends BaseController
 {
-    use RenderTrait, TitleBreadcrumbsTrait, ApplicationList;
+    use RenderTrait, ApplicationList, MetaTrait;
 
     public function render($view, array $data = [])
     {
@@ -41,11 +41,11 @@ class Controller extends BaseController
      * and the widget object will be returned. This parameter is available since version 1.1.2.
      * @return mixed the widget instance when $captureOutput is false, or the widget output when $captureOutput is true.
      */
-    public function widget($className,$properties=array(),$captureOutput=false)
+    public function widget($className, $properties = array(), $captureOutput = false)
     {
         ob_start();
         ob_implicit_flush(false);
-        $widget=$this->createWidget($className,$properties);
+        $widget = $this->createWidget($className, $properties);
         $widget->run();
         return ob_get_clean();
     }

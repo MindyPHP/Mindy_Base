@@ -1,5 +1,9 @@
 <?php
 
+namespace Mindy\Middleware;
+use Exception;
+use Mindy\Http\Request;
+
 /**
  *
  *
@@ -14,7 +18,7 @@
  */
 abstract class Middleware implements IMiddleware
 {
-    public function processRequest()
+    public function processRequest(Request $request)
     {
 
     }

@@ -14,6 +14,7 @@
         "mindy/helper": "dev-master",
         "mindy/core": "dev-master",
         "mindy/exception": "dev-master",
+        "mindy/di": "dev-master",
         "aura/autoload": "1.0.3",
         "mindy/utils": "dev-master",
         "monolog/monolog": "*",

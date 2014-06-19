@@ -23,50 +23,50 @@ use Mindy\Base\ConsoleCommand;
  */
 class HelpCommand extends ConsoleCommand
 {
-	/**
-	 * Execute the action.
-	 * @param array $args command line parameters specific for this command
-	 * @return integer non zero application exit code for help
-	 */
-	public function run($args)
-	{
-		$runner=$this->getCommandRunner();
-		$commands=$runner->commands;
-		if(isset($args[0]))
-			$name=strtolower($args[0]);
-		if(!isset($args[0]) || !isset($commands[$name]))
-		{
-			echo <<<EOD
+    /**
+     * Execute the action.
+     * @param array $args command line parameters specific for this command
+     * @return integer non zero application exit code for help
+     */
+    public function run($args)
+    {
+        $runner = $this->getCommandRunner();
+        $commands = $runner->commands;
+        if (isset($args[0])) {
+            $name = strtolower($args[0]);
+        }
+
+        if (!isset($args[0]) || !isset($commands[$name])) {
+            echo <<<EOD
 At the prompt, you may enter a PHP statement or one of the following commands:
 
 EOD;
-			$commandNames=array_keys($commands);
-			sort($commandNames);
-			echo ' - '.implode("\n - ",$commandNames);
-			echo <<<EOD
+            $commandNames = array_keys($commands);
+            sort($commandNames);
+            echo ' - ' . implode("\n - ", $commandNames);
+            echo <<<EOD
 
 
 Type 'help <command-name>' for details about a command.
 
 To expand the above command list, place your command class files
 under 'protected/commands/shell', or a directory specified
-by the 'YIIC_SHELL_COMMAND_PATH' environment variable. The command class
-must extend from CConsoleCommand.
+by the 'SHELL_COMMAND_PATH' environment variable. The command class
+must extend from ConsoleCommand.
 
 EOD;
-		}
-		else
-			echo $runner->createCommand($name)->getHelp();
-		return 1;
-	}
+        } else
+            echo $runner->createCommand($name)->getHelp();
+        return 1;
+    }
 
-	/**
-	 * Provides the command description.
-	 * @return string the command description.
-	 */
-	public function getHelp()
-	{
-		return <<<EOD
+    /**
+     * Provides the command description.
+     * @return string the command description.
+     */
+    public function getHelp()
+    {
+        return <<<EOD
 USAGE
   help [command-name]
 
@@ -78,5 +78,5 @@ PARAMETERS
  * command-name: optional, the name of the command to show help information.
 
 EOD;
-	}
+    }
 }

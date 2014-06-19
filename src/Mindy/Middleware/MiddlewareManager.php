@@ -1,5 +1,11 @@
 <?php
 
+namespace Mindy\Middleware;
+use Exception;
+use Mindy\Base\ApplicationComponent;
+use Mindy\Helper\Creator;
+use Mindy\Http\Request;
+
 /**
  *
  *
@@ -12,7 +18,7 @@
  * @site http://studio107.ru
  * @date 11/04/14.04.2014 16:47
  */
-class MiddlewareManager extends CApplicationComponent implements IMiddleware
+class MiddlewareManager extends ApplicationComponent implements IMiddleware
 {
     /**
      * @var Middleware[]
@@ -27,7 +33,7 @@ class MiddlewareManager extends CApplicationComponent implements IMiddleware
     public function init()
     {
         foreach ($this->middleware as $middleware) {
-            $this->_middleware[] = Yii::createComponent($middleware);
+            $this->_middleware[] = Creator::createObject($middleware);
         }
     }
 
@@ -39,10 +45,10 @@ class MiddlewareManager extends CApplicationComponent implements IMiddleware
         return $output;
     }
 
-    public function processRequest()
+    public function processRequest(Request $request)
     {
         foreach ($this->_middleware as $middleware) {
-            $middleware->processRequest();
+            $middleware->processRequest($request);
         }
     }
 

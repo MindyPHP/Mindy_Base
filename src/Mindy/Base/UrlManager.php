@@ -19,6 +19,7 @@ class UrlManager extends AuraMap
         $patterns->setTrailingSlash($this->trailingSlash);
 
         parent::__construct(new DefinitionFactory, new RouteFactory, $patterns->getRoutes());
+        $this->init();
     }
 
     public function init()

@@ -474,7 +474,7 @@ class HttpRequest extends ApplicationComponent
      * Note, the returned pathinfo is decoded starting from 1.1.4.
      * Prior to 1.1.4, whether it is decoded or not depends on the server configuration
      * (in most cases it is not decoded).
-     * @throws CException if the request URI cannot be determined due to improper server configuration
+     * @throws HttpException if the request URI cannot be determined due to improper server configuration
      */
     public function getPathInfo()
     {
@@ -495,7 +495,7 @@ class HttpRequest extends ApplicationComponent
             elseif (strpos($_SERVER['PHP_SELF'], $scriptUrl) === 0)
                 $pathInfo = substr($_SERVER['PHP_SELF'], strlen($scriptUrl));
             else
-                throw new CException(Mindy::t('yii', 'CHttpRequest is unable to determine the path info of the request.'));
+                throw new HttpException(Mindy::t('yii', 'CHttpRequest is unable to determine the path info of the request.'));
 
             if ($pathInfo === '/')
                 $pathInfo = '';
@@ -547,7 +547,7 @@ class HttpRequest extends ApplicationComponent
      * It includes the {@link queryString query string} part if any.
      * The implementation of this method referenced Zend_Controller_Request_Http in Zend Framework.
      * @return string the request URI portion for the currently requested URL.
-     * @throws CException if the request URI cannot be determined due to improper server configuration
+     * @throws HttpException if the request URI cannot be determined due to improper server configuration
      */
     public function getRequestUri()
     {
@@ -569,7 +569,7 @@ class HttpRequest extends ApplicationComponent
                     $this->_requestUri .= '?' . $_SERVER['QUERY_STRING'];
                 }
             } else {
-                throw new Exception(Mindy::t('yii', 'HttpRequest is unable to determine the request URI.'));
+                throw new HttpException(Mindy::t('yii', 'HttpRequest is unable to determine the request URI.'));
             }
         }
 
@@ -1330,5 +1330,10 @@ class HttpRequest extends ApplicationComponent
             }
             return $headers;
         }
+    }
+
+    public function getPath()
+    {
+        return $this->getPathInfo();
     }
 }

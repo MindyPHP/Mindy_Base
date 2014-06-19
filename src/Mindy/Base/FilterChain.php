@@ -24,6 +24,7 @@ namespace Mindy\Base;
      */
 use Mindy\Base\Exception\Exception;
 use Mindy\Base\Interfaces\IFilter;
+use Mindy\Helper\Creator;
 
 
 /**
@@ -100,7 +101,7 @@ class FilterChain extends BaseList
                         continue;
                 }
                 $filter['class'] = $filterClass;
-                $filter = Mindy::createComponent($filter);
+                $filter = Creator::createObject($filter);
             }
 
             if (is_object($filter)) {

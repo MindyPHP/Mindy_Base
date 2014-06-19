@@ -7,7 +7,9 @@ use Mindy\Base\Exception\Exception;
 use Mindy\Base\Exception\HttpException;
 use Mindy\Base\Mindy;
 use Mindy\Di\ServiceLocator;
+use Mindy\Helper\Alias;
 use Mindy\Helper\Console;
+use Mindy\Helper\Creator;
 
 /**
  * All rights reserved.
@@ -21,10 +23,6 @@ use Mindy\Helper\Console;
  */
 class Application extends BaseApplication
 {
-    /**
-     * @return string the route of the default controller, action or module. Defaults to 'site'.
-     */
-    public $defaultController = 'site';
     /**
      * @var mixed the application-wide layout. Defaults to 'main' (relative to {@link getLayoutPath layoutPath}).
      * If this is false, then no layout will be used.
@@ -80,8 +78,6 @@ class Application extends BaseApplication
     public $controllerNamespace;
 
     private $_controllerPath;
-    private $_viewPath;
-    private $_systemViewPath;
     private $_controller;
 
     public $baseController = 'CBaseController';
@@ -205,9 +201,11 @@ class Application extends BaseApplication
             $controller->init();
             $controller->run($actionID);
             $this->_controller = $oldController;
-        } else
-            throw new HttpException(404, Mindy::t('yii', 'Unable to resolve the request "{route}".',
-                array('{route}' => $route === '' ? $this->defaultController : $route)));
+        } else {
+            throw new HttpException(404, Mindy::t('yii', 'Unable to resolve the request "{route}".', [
+                '{route}' => $route
+            ]));
+        }
     }
 
     /**
@@ -226,7 +224,7 @@ class Application extends BaseApplication
      * then the controller will be created using the class file "protected/controllers/admin/UserController.php".</li>
      * </ol>
      * @param \Aura\Router\Route $route the route of the request.
-     * @param Module $owner the module that the new controller will belong to. Defaults to null, meaning the application
+     * @param \Mindy\Base\Module $owner the module that the new controller will belong to. Defaults to null, meaning the application
      * instance is the owner.
      * @return array the controller instance and the action ID. Null if the controller class does not exist or the route is invalid.
      */
@@ -238,7 +236,7 @@ class Application extends BaseApplication
 
         if ($route) {
             $className = $route->values['controller'];
-            $controller = new $className(time(), $owner === $this ? null : $owner);
+            $controller = Creator::createObject($className, time(), $owner === $this ? null : $owner);
             return [$controller, $route->values['action']];
         }
 
@@ -257,12 +255,13 @@ class Application extends BaseApplication
             $manager->parsePathInfo((string)substr($pathInfo, $pos + 1));
             $actionID = substr($pathInfo, 0, $pos);
             return $manager->caseSensitive ? $actionID : strtolower($actionID);
-        } else
+        } else {
             return $pathInfo;
+        }
     }
 
     /**
-     * @return CController the currently active controller
+     * @return \Mindy\Base\Controller the currently active controller
      */
     public function getController()
     {
@@ -270,7 +269,7 @@ class Application extends BaseApplication
     }
 
     /**
-     * @param CController $value the currently active controller
+     * @param \Mindy\Base\Controller $value the currently active controller
      */
     public function setController($value)
     {
@@ -282,10 +281,11 @@ class Application extends BaseApplication
      */
     public function getControllerPath()
     {
-        if ($this->_controllerPath !== null)
+        if ($this->_controllerPath !== null) {
             return $this->_controllerPath;
-        else
+        } else {
             return $this->_controllerPath = $this->getBasePath() . DIRECTORY_SEPARATOR . 'controllers';
+        }
     }
 
     /**
@@ -294,53 +294,9 @@ class Application extends BaseApplication
      */
     public function setControllerPath($value)
     {
-        if (($this->_controllerPath = realpath($value)) === false || !is_dir($this->_controllerPath))
-            throw new Exception(Mindy::t('yii', 'The controller path "{path}" is not a valid directory.',
-                array('{path}' => $value)));
-    }
-
-    /**
-     * @return string the root directory of view files. Defaults to 'protected/views'.
-     */
-    public function getViewPath()
-    {
-        if ($this->_viewPath !== null)
-            return $this->_viewPath;
-        else
-            return $this->_viewPath = $this->getBasePath() . DIRECTORY_SEPARATOR . 'views';
-    }
-
-    /**
-     * @param string $path the root directory of view files.
-     * @throws Exception if the directory does not exist.
-     */
-    public function setViewPath($path)
-    {
-        if (($this->_viewPath = realpath($path)) === false || !is_dir($this->_viewPath))
-            throw new Exception(Mindy::t('yii', 'The view path "{path}" is not a valid directory.',
-                array('{path}' => $path)));
-    }
-
-    /**
-     * @return string the root directory of system view files. Defaults to 'protected/views/system'.
-     */
-    public function getSystemViewPath()
-    {
-        if ($this->_systemViewPath !== null)
-            return $this->_systemViewPath;
-        else
-            return $this->_systemViewPath = $this->getViewPath() . DIRECTORY_SEPARATOR . 'system';
-    }
-
-    /**
-     * @param string $path the root directory of system view files.
-     * @throws Exception if the directory does not exist.
-     */
-    public function setSystemViewPath($path)
-    {
-        if (($this->_systemViewPath = realpath($path)) === false || !is_dir($this->_systemViewPath))
-            throw new Exception(Mindy::t('yii', 'The system view path "{path}" is not a valid directory.',
-                array('{path}' => $path)));
+        if (($this->_controllerPath = realpath($value)) === false || !is_dir($this->_controllerPath)) {
+            throw new Exception(Mindy::t('yii', 'The controller path "{path}" is not a valid directory.', ['{path}' => $value]));
+        }
     }
 
     /**
@@ -348,8 +304,8 @@ class Application extends BaseApplication
      * This method is invoked before the currently requested controller action and all its filters
      * are executed. You may override this method with logic that needs to be done
      * before all controller actions.
-     * @param CController $controller the controller
-     * @param CAction $action the action
+     * @param \Mindy\Base\Controller $controller the controller
+     * @param \Mindy\Base\Action $action the action
      * @return boolean whether the action should be executed.
      */
     public function beforeControllerAction($controller, $action)
@@ -362,8 +318,8 @@ class Application extends BaseApplication
      * This method is invoked after the currently requested controller action and all its filters
      * are executed. You may override this method with logic that needs to be done
      * after all controller actions.
-     * @param CController $controller the controller
-     * @param CAction $action the action
+     * @param \Mindy\Base\Controller $controller the controller
+     * @param \Mindy\Base\Action $action the action
      */
     public function afterControllerAction($controller, $action)
     {
@@ -372,25 +328,27 @@ class Application extends BaseApplication
     /**
      * Do not call this method. This method is used internally to search for a module by its ID.
      * @param string $id module ID
-     * @return CWebModule the module that has the specified ID. Null if no module is found.
+     * @return \Mindy\Base\Module the module that has the specified ID. Null if no module is found.
      */
     public function findModule($id)
     {
         if (($controller = $this->getController()) !== null && ($module = $controller->getModule()) !== null) {
             do {
-                if (($m = $module->getModule($id)) !== null)
+                if (($m = $module->getModule($id)) !== null) {
                     return $m;
+                }
             } while (($module = $module->getParentModule()) !== null);
         }
-        if (($m = $this->getModule($id)) !== null)
+        if (($m = $this->getModule($id)) !== null) {
             return $m;
+        }
     }
 
     /**
      * Creates the command runner instance.
-     * @return CConsoleCommandRunner the command runner
+     * @return ConsoleCommandRunner the command runner
      */
-    protected function createCommandRunner()
+    public function createCommandRunner()
     {
         return new ConsoleCommandRunner;
     }
@@ -442,9 +400,10 @@ class Application extends BaseApplication
      */
     public function getCommandPath()
     {
-        $applicationCommandPath = $this->getBasePath() . DIRECTORY_SEPARATOR . 'commands';
-        if ($this->_commandPath === null && file_exists($applicationCommandPath))
+        $applicationCommandPath = $this->getBasePath() . DIRECTORY_SEPARATOR . 'Commands';
+        if ($this->_commandPath === null && file_exists($applicationCommandPath)) {
             $this->setCommandPath($applicationCommandPath);
+        }
         return $this->_commandPath;
     }
 
@@ -461,7 +420,7 @@ class Application extends BaseApplication
 
     /**
      * Returns the command runner.
-     * @return CConsoleCommandRunner the command runner.
+     * @return ConsoleCommandRunner the command runner.
      */
     public function getCommandRunner()
     {
@@ -471,7 +430,7 @@ class Application extends BaseApplication
     /**
      * Returns the currently running command.
      * This is shortcut method for {@link CConsoleCommandRunner::getCommand()}.
-     * @return CConsoleCommand|null the currently active command.
+     * @return \Mindy\Base\ConsoleCommand|null the currently active command.
      * @since 1.1.14
      */
     public function getCommand()
@@ -481,7 +440,7 @@ class Application extends BaseApplication
 
     /**
      * This is shortcut method for {@link CConsoleCommandRunner::setCommand()}.
-     * @param CConsoleCommand $value the currently active command.
+     * @param \Mindy\Base\ConsoleCommand $value the currently active command.
      * @since 1.1.14
      */
     public function setCommand($value)
@@ -496,16 +455,36 @@ class Application extends BaseApplication
     protected function init()
     {
         parent::init();
+
         if (Console::isCli()) {
+            // fix for fcgi
+            defined('STDIN') or define('STDIN', fopen('php://stdin', 'r'));
+
             if (!isset($_SERVER['argv'])) {
                 die('This script must be run from the command line.');
             }
             $this->_runner = $this->createCommandRunner();
             $this->_runner->commands = $this->commandMap;
             $this->_runner->addCommands($this->getCommandPath());
+
+            $this->_runner->addCommands(__DIR__ . '/../Commands');
+
+            $env = @getenv('CONSOLE_COMMANDS');
+            if (!empty($env)) {
+                $this->_runner->addCommands($env);
+            }
+
+            foreach ($this->modules as $name => $settings) {
+                if ($modulePath = Alias::get("application.modules." . $name)) {
+                    $this->_runner->addCommands($modulePath . DIRECTORY_SEPARATOR . 'Commands');
+                }
+            }
         } else {
             // preload 'request' so that it has chance to respond to onBeginRequest event.
-            $this->getRequest();
+            $this->request;
+
+            // preload 'db' for Orm
+            $this->db;
         }
     }
 }

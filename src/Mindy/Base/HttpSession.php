@@ -147,8 +147,9 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
      */
     public function close()
     {
-        if (session_id() !== '')
-            @session_write_close();
+        if (session_id() !== '') {
+            session_write_close();
+        }
     }
 
     /**
@@ -157,8 +158,8 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
     public function destroy()
     {
         if (session_id() !== '') {
-            @session_unset();
-            @session_destroy();
+            session_unset();
+            session_destroy();
         }
     }
 
@@ -312,8 +313,7 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
             ini_set('session.gc_probability', floor($value * 21474836.47));
             ini_set('session.gc_divisor', 2147483647);
         } else
-            throw new Exception(Mindy::t('yii', 'CHttpSession.gcProbability "{value}" is invalid. It must be a float between 0 and 100.',
-                array('{value}' => $value)));
+            throw new Exception(Mindy::t('yii', 'CHttpSession.gcProbability "{value}" is invalid. It must be a float between 0 and 100.', ['{value}' => $value]));
     }
 
     /**
