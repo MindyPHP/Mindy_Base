@@ -17,6 +17,10 @@
         "mindy/di": "dev-master",
         "aura/autoload": "1.0.3",
         "mindy/utils": "dev-master",
+        "mindy/http": "dev-master",
+        "mindy/middleware": "dev-master",
+        "mindy/logger": "dev-master",
+        "mindy/locale": "dev-master",
         "mindy/router": "dev-master"
     },
     "require-dev": {
