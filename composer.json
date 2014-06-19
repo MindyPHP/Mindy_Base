@@ -17,8 +17,6 @@
         "mindy/di": "dev-master",
         "aura/autoload": "1.0.3",
         "mindy/utils": "dev-master",
-        "monolog/monolog": "*",
-        "raven/raven": "0.9.0",
         "mindy/router": "dev-master"
     },
     "require-dev": {
