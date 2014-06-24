@@ -485,10 +485,10 @@ class Application extends BaseApplication
         } else {
             // preload 'request' so that it has chance to respond to onBeginRequest event.
             $this->request;
-
-            // preload 'db' for Orm
-            $this->db;
         }
+
+        // preload 'db' for Orm
+        $this->db;
     }
 }
 

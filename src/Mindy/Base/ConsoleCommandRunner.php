@@ -76,8 +76,9 @@ class ConsoleCommandRunner extends Component
         if (isset($args[0])) {
             $name = $args[0];
             array_shift($args);
-        } else
+        } else {
             $name = 'help';
+        }
 
         $oldCommand = $this->_command;
         if (($command = $this->createCommand($name)) === null) {
