@@ -475,7 +475,10 @@ class Application extends BaseApplication
             }
 
             foreach ($this->modules as $name => $settings) {
-                if ($modulePath = Alias::get("application.modules." . $name)) {
+                if ($modulePath = Alias::get("Contrib." . $name)) {
+                    $this->_runner->addCommands($modulePath . DIRECTORY_SEPARATOR . 'Commands');
+                }
+                if ($modulePath = Alias::get("Modules." . $name)) {
                     $this->_runner->addCommands($modulePath . DIRECTORY_SEPARATOR . 'Commands');
                 }
             }
