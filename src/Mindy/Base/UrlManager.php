@@ -11,7 +11,7 @@ class UrlManager extends AuraMap
 {
     public $urlsAlias = 'application.config.urls';
 
-    public $trailingSlash = true;
+    public $trailingSlash = false;
 
     public function __construct()
     {
@@ -40,32 +40,31 @@ class UrlManager extends AuraMap
      */
     public function match($path, array $server)
     {
-        $path = strtok($path, '?');
+        $url = strtok($path, '?');
 
         // reset the log
         $this->log = [];
-
         // look through existing route objects
-        foreach ($this->routes as $route) {
+        foreach ($this->getRoutes() as $route) {
             $this->logRoute($route);
-            if ($route->isMatch($path, $server)) {
+	        if ($route->isMatch($url, $server)) {
                 return $route;
             } else {
-                if($this->trailingSlash) {
-                    if(substr($path, -1) === '/' && $route->isMatch(rtrim($path, '/'), $server)) {
-                        $this->trailingSlashCallback(rtrim($path, '/'));
-                    } else if($route->isMatch($path . '/', $server)) {
-                        $this->trailingSlashCallback($path . '/');
-                    }
-                }
-            }
+		        if($this->trailingSlash === true && substr($url, -1) !== '/') {
+			        $newUrl = $path . '/' . str_replace($url, '', $path);
+			        $route = $this->match($newUrl, $server);
+			        if($route && substr($route->path, -1) === '/') {
+				        $this->trailingSlashCallback($newUrl);
+			        }
+		        }
+	        }
         }
 
-        // convert remaining definitions as needed
+	    // convert remaining definitions as needed
         while ($this->attach_routes || $this->definitions) {
             $route = $this->createNextRoute();
             $this->logRoute($route);
-            if ($route->isMatch($path, $server)) {
+            if ($route->isMatch($url, $server)) {
                 return $route;
             }
         }
@@ -74,9 +73,13 @@ class UrlManager extends AuraMap
         return false;
     }
 
-    public function trailingSlashCallback($path)
+	/**
+	 * @param $path
+	 * @void
+	 */
+	public function trailingSlashCallback($path)
     {
-        return Yii::app()->request->redirect($path);
+        Mindy::app()->request->redirect($path);
     }
 
     public function createUrl($name, $data = null)
