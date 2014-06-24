@@ -87,12 +87,15 @@ abstract class Module extends Component implements IModule
         $this->_parentModule = $parent;
 
         // set basePath at early as possible to avoid trouble
-        if (is_string($config))
+        if (is_string($config)) {
             $config = require($config);
+        }
+
         if (isset($config['basePath'])) {
             $this->setBasePath($config['basePath']);
             unset($config['basePath']);
         }
+
         Mindy::setPathOfAlias($id, $this->getBasePath());
 
         $this->preinit();
@@ -442,7 +445,7 @@ abstract class Module extends Component implements IModule
         }
 
         if (isset($this->_componentConfig[$id]) && $merge) {
-            $this->_componentConfig[$id] = Map::mergeArray($this->_componentConfig[$id], $component);
+            $this->_componentConfig[$id] = Collection::mergeArray($this->_componentConfig[$id], $component);
         } else {
             $this->_componentConfig[$id] = $component;
         }
@@ -458,7 +461,7 @@ abstract class Module extends Component implements IModule
      */
     public function getComponents($loadedOnly = true)
     {
-        return $this->locator->getComponents($loadedOnly);
+        return $this->locator->getComponents(!$loadedOnly);
     }
 
     /**

@@ -126,7 +126,6 @@ class Application extends BaseApplication
         Mindy::setPathOfAlias('ext', $this->getBasePath() . DIRECTORY_SEPARATOR . 'extensions');
 
         $this->preinit();
-
         $this->initSystemHandlers();
         $this->initDi();
         $this->registerCoreComponents();
@@ -171,7 +170,8 @@ class Application extends BaseApplication
     }
 
     /**
-     * @return BaseUser instance the user session information
+     * @throws \Mindy\Base\Exception\Exception
+     * @return \Modules\User\Models\User instance the user session information
      */
     public function getUser()
     {
