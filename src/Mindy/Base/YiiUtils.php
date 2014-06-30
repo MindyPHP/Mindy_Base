@@ -22,8 +22,9 @@ class YiiUtils
             $category .= '.main';
         }
         $findCategory = explode('.', $category);
-        if(Mindy::app()->hasModule($findCategory[0])) {
-            $module = Mindy::app()->getModule($findCategory[0]);
+        $moduleNameRaw = ucfirst($findCategory[0]);
+        if(Mindy::app()->hasModule($moduleNameRaw)) {
+            $module = Mindy::app()->getModule($moduleNameRaw);
             $moduleName = get_class($module) . '.' . $findCategory[1];
             return Mindy::t($moduleName, $text, $params);
         } else {
