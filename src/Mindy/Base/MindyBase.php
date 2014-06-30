@@ -6,6 +6,7 @@ use Mindy\Base\Compatability\CompatabilityLayer;
 use Mindy\Base\Exception\Exception;
 use Mindy\Helper\Alias;
 use Mindy\Helper\Console;
+use ReflectionClass;
 
 
 /**

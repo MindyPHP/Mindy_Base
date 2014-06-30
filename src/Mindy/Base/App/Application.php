@@ -121,9 +121,18 @@ class Application extends BaseApplication
             $this->setBasePath('protected');
         }
 
+        if (isset($config['webPath'])) {
+            $path = realpath($config['webPath']);
+            if(!is_dir($path)) {
+                throw new Exception("Incorrent web path " . $config['webPath']);
+            }
+            Alias::set('www', $path);
+            unset($config['webPath']);
+        } else {
+            Alias::set('www', dirname($_SERVER['SCRIPT_FILENAME']));
+        }
+
         Mindy::setPathOfAlias('application', $this->getBasePath());
-        Mindy::setPathOfAlias('webroot', dirname($_SERVER['SCRIPT_FILENAME']));
-        Mindy::setPathOfAlias('ext', $this->getBasePath() . DIRECTORY_SEPARATOR . 'extensions');
 
         $this->preinit();
         $this->initSystemHandlers();
