@@ -158,9 +158,11 @@ class ErrorHandler extends ApplicationComponent
      */
     protected function handleException($exception)
     {
-        Mindy::app()->middleware->processException($exception);
-
         $app = Mindy::app();
+        if($app->hasComponent('middleware')) {
+            $app->middleware->processException($exception);
+        }
+
         if ($app instanceof Application) {
             if (($trace = $this->getExactTrace($exception)) === null) {
                 $fileName = $exception->getFile();

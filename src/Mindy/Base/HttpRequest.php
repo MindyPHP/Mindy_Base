@@ -164,7 +164,7 @@ class HttpRequest extends ApplicationComponent
 
         if ($this->enableCsrfValidation) {
             if(Mindy::app()->locator->has('urlManager')) {
-                $urlManager = Mindy::app()->urlManager;
+                $urlManager = Mindy::app()->getComponent('urlManager');
                 if(!empty($this->rulesCsrfExcluded)) {
                     if ($this->enableCsrfValidation && array_search($urlManager->parseUrl($this), $this->rulesCsrfExcluded) === false) {
                         Mindy::app()->attachEventHandler('onBeginRequest', array($this, 'validateCsrfToken'));

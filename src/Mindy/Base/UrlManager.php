@@ -47,20 +47,20 @@ class UrlManager extends AuraMap
         // look through existing route objects
         foreach ($this->getRoutes() as $route) {
             $this->logRoute($route);
-	        if ($route->isMatch($url, $server)) {
+            if ($route->isMatch($url, $server)) {
                 return $route;
             } else {
-		        if($this->trailingSlash === true && substr($url, -1) !== '/') {
-			        $newUrl = $path . '/' . str_replace($url, '', $path);
-			        $route = $this->match($newUrl, $server);
-			        if($route && substr($route->path, -1) === '/') {
-				        $this->trailingSlashCallback($newUrl);
-			        }
-		        }
-	        }
+                if ($this->trailingSlash === true && substr($url, -1) !== '/') {
+                    $newUrl = $path . '/' . str_replace($url, '', $path);
+                    $route = $this->match($newUrl, $server);
+                    if ($route && substr($route->path, -1) === '/') {
+                        $this->trailingSlashCallback($newUrl);
+                    }
+                }
+            }
         }
 
-	    // convert remaining definitions as needed
+        // convert remaining definitions as needed
         while ($this->attach_routes || $this->definitions) {
             $route = $this->createNextRoute();
             $this->logRoute($route);
@@ -73,11 +73,11 @@ class UrlManager extends AuraMap
         return false;
     }
 
-	/**
-	 * @param $path
-	 * @void
-	 */
-	public function trailingSlashCallback($path)
+    /**
+     * @param $path
+     * @void
+     */
+    public function trailingSlashCallback($path)
     {
         Mindy::app()->request->redirect($path);
     }
