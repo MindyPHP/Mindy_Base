@@ -572,13 +572,13 @@ class BaseController extends CBaseController
      * @param integer $statusCode the HTTP status code. Defaults to 302. See {@link http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html}
      * for details about HTTP status code.
      */
-    public function redirect($url, $terminate = true, $statusCode = 302)
+    public function redirect($url, $data = null, $terminate = true, $statusCode = 302)
     {
         if (is_array($url)) {
             $route = isset($url[0]) ? $url[0] : '';
             $url = $this->createUrl($route, array_splice($url, 1));
         }
-        Mindy::app()->getRequest()->redirect($url, $terminate, $statusCode);
+        Mindy::app()->getRequest()->redirect($url, $data, $terminate, $statusCode);
     }
 
     /**

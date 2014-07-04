@@ -4,8 +4,8 @@ namespace Mindy\Base;
 
 use Aura\Router\DefinitionFactory;
 use Aura\Router\Map as AuraMap;
-use Aura\Router\RouteFactory;
 use Mindy\Router\Patterns;
+use Mindy\Router\RouteFactory;
 
 class UrlManager extends AuraMap
 {
@@ -34,7 +34,7 @@ class UrlManager extends AuraMap
      *
      * @param array $server An array copy of $_SERVER.
      *
-     * @return Route|false Returns a Route object when it finds a match, or
+     * @return \Aura\Router\Route|false Returns a Route object when it finds a match, or
      * boolean false if there is no match.
      *
      */
@@ -92,6 +92,10 @@ class UrlManager extends AuraMap
         return $this->generate($name, $data);
     }
 
+    /**
+     * @param $request \Mindy\Base\HttpRequest
+     * @return \Aura\Router\Route|false
+     */
     public function parseUrl($request)
     {
         $uri = $request->getRequestUri();

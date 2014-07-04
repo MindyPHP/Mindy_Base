@@ -546,11 +546,7 @@ abstract class BaseApplication extends Module
     public function getHomeUrl()
     {
         if ($this->_homeUrl === null) {
-            if ($this->getUrlManager()->showScriptName) {
-                return $this->getRequest()->getScriptUrl();
-            } else {
-                return $this->getRequest()->getBaseUrl() . '/';
-            }
+            return $this->getRequest()->getBaseUrl() . '/';
         } else {
             return $this->_homeUrl;
         }
