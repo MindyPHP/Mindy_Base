@@ -6,7 +6,6 @@ use Mindy\Base\ConsoleCommandRunner;
 use Mindy\Base\Exception\Exception;
 use Mindy\Base\Exception\HttpException;
 use Mindy\Base\Mindy;
-use Mindy\Di\ServiceLocator;
 use Mindy\Helper\Alias;
 use Mindy\Helper\Console;
 use Mindy\Helper\Creator;
@@ -123,7 +122,7 @@ class Application extends BaseApplication
 
         if (isset($config['webPath'])) {
             $path = realpath($config['webPath']);
-            if(!is_dir($path)) {
+            if (!is_dir($path)) {
                 throw new Exception("Incorrent web path " . $config['webPath']);
             }
             Alias::set('www', $path);
@@ -212,7 +211,7 @@ class Application extends BaseApplication
             $this->_controller = $oldController;
         } else {
             throw new HttpException(404, Mindy::t('yii', 'Unable to resolve the request "{route}".', [
-                '{route}' => $route
+                '{route}' => $this->request->getRequestUri()
             ]));
         }
     }

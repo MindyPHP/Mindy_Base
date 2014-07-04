@@ -288,6 +288,7 @@ abstract class Module extends Component implements IModule
      */
     public function getModule($id)
     {
+        $id = ucfirst($id);
         if (isset($this->_modules[$id]) || array_key_exists($id, $this->_modules)) {
             return $this->_modules[$id];
         } elseif (isset($this->_moduleConfig[$id])) {
