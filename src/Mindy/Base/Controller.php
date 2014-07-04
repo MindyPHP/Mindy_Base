@@ -2,6 +2,7 @@
 
 namespace Mindy\Base;
 
+use Mindy\Helper\Json;
 use Mindy\Utils\RenderTrait;
 use Modules\Meta\Components\MetaTrait;
 
@@ -28,7 +29,7 @@ class Controller extends BaseController
     public function json(array $data = [])
     {
         header('Content-Type: application/json');
-        echo CJSON::encode($data);
+        echo JSON::encode($data);
         die();
     }
 
