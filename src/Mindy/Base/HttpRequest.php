@@ -1243,7 +1243,7 @@ class HttpRequest extends ApplicationComponent
     public function getCsrfToken()
     {
         if ($this->_csrfToken === null) {
-            $cookie = $this->getCookies()->itemAt($this->csrfTokenName);
+            $cookie = $this->getCookies()->get($this->csrfTokenName);
             if (!$cookie || ($this->_csrfToken = $cookie->value) == null) {
                 $cookie = $this->createCsrfCookie();
                 $this->_csrfToken = $cookie->value;
@@ -1300,9 +1300,8 @@ class HttpRequest extends ApplicationComponent
             if(empty($userToken)) {
                 $userToken = $this->getHeaderValue($this->csrfTokenName);
             }
-
             if (!empty($userToken) && $cookies->contains($this->csrfTokenName)) {
-                $cookieToken = $cookies->itemAt($this->csrfTokenName)->value;
+                $cookieToken = $cookies->get($this->csrfTokenName)->value;
                 $valid = $cookieToken === $userToken;
             } else {
                 $valid = false;
@@ -1316,7 +1315,7 @@ class HttpRequest extends ApplicationComponent
 
     public function getHeaderValue($name)
     {
-        $this->getHeaderValues();
+        $headers = $this->getHeaderValues();
         return isset($headers[$name]) ? $headers[$name] : null;
     }
 
