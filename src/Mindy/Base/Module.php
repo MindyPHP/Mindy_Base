@@ -230,7 +230,7 @@ abstract class Module extends Component implements IModule
         if ($this->_modulePath !== null) {
             return $this->_modulePath;
         } else {
-            return $this->_modulePath = $this->getBasePath() . DIRECTORY_SEPARATOR . 'modules';
+            return $this->_modulePath = $this->getBasePath() . DIRECTORY_SEPARATOR . 'Modules';
         }
     }
 
@@ -361,7 +361,7 @@ abstract class Module extends Component implements IModule
                 $module = [];
             }
             if (!isset($module['class'])) {
-                Mindy::setPathOfAlias($id, $this->getModulePath() . DIRECTORY_SEPARATOR . $id);
+                Alias::set($id, $this->getModulePath() . DIRECTORY_SEPARATOR . $id);
                 $module['class'] = '\\Modules\\' . ucfirst($id) . '\\' . ucfirst($id) . 'Module';
             }
 

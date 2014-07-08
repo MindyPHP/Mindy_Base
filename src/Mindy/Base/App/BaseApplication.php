@@ -27,7 +27,6 @@ use Mindy\Base\Event;
 use Mindy\Base\Exception\Exception;
 use Mindy\Base\Exception\ExceptionEvent;
 use Mindy\Base\Exception\HttpException;
-use Mindy\Base\Logger;
 use Mindy\Base\Mindy;
 use Mindy\Base\Module;
 use Mindy\Di\ServiceLocator;

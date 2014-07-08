@@ -111,6 +111,10 @@ class HttpRequest extends ApplicationComponent
      */
     public $is_ajax;
     /**
+     * @var string
+     */
+    public $path;
+    /**
      * @var array of routes for backward compatability
      */
     public $rulesCsrfExcluded = [];
@@ -137,6 +141,7 @@ class HttpRequest extends ApplicationComponent
         parent::init();
         $this->normalizeRequest();
         $this->is_ajax = $this->getIsAjaxRequest();
+        $this->path = $this->getRequestUri();
     }
 
     /**

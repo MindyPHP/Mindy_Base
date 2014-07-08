@@ -93,7 +93,7 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
     /**
      * @var boolean whether the session should be automatically started when the session application component is initialized, defaults to true.
      */
-    public $autoStart = true;
+    public $autoStart = false;
 
     /**
      * Initializes the application component.
@@ -103,8 +103,9 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
     {
         parent::init();
 
-        if ($this->autoStart)
+        if ($this->autoStart) {
             $this->open();
+        }
         register_shutdown_function(array($this, 'close'));
     }
 
@@ -138,7 +139,7 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
                 if (isset($error['message']))
                     $message = $error['message'];
             }
-            Mindy::log($message, Logger::LEVEL_WARNING, 'system.web.CHttpSession');
+            Mindy::app()->log->warning($message, 'system.web.CHttpSession');
         }
     }
 
@@ -228,11 +229,13 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
      */
     public function setSavePath($value)
     {
-        if (is_dir($value))
+        if (is_dir($value)) {
             session_save_path($value);
-        else
-            throw new Exception(Mindy::t('yii', 'CHttpSession.savePath "{path}" is not a valid directory.',
-                array('{path}' => $value)));
+        } else {
+            throw new Exception(Mindy::t('yii', 'CHttpSession.savePath "{path}" is not a valid directory.', [
+                '{path}' => $value
+            ]));
+        }
     }
 
     /**
@@ -257,10 +260,11 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
         $data = session_get_cookie_params();
         extract($data);
         extract($value);
-        if (isset($httponly))
+        if (isset($httponly)) {
             session_set_cookie_params($lifetime, $path, $domain, $secure, $httponly);
-        else
+        } else {
             session_set_cookie_params($lifetime, $path, $domain, $secure);
+        }
     }
 
     /**
