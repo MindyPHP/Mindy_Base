@@ -186,13 +186,15 @@ class HttpRequest extends ApplicationComponent
     public function stripSlashes(&$data)
     {
         if (is_array($data)) {
-            if (count($data) == 0)
+            if (count($data) == 0) {
                 return $data;
+            }
             $keys = array_map('stripslashes', array_keys($data));
             $data = array_combine($keys, array_values($data));
             return array_map(array($this, 'stripSlashes'), $data);
-        } else
+        } else {
             return stripslashes($data);
+        }
     }
 
     /**
@@ -251,14 +253,16 @@ class HttpRequest extends ApplicationComponent
      */
     public function getDelete($name, $defaultValue = null)
     {
-        if ($this->getIsDeleteViaPostRequest())
+        if ($this->getIsDeleteViaPostRequest()) {
             return $this->getPost($name, $defaultValue);
+        }
 
         if ($this->getIsDeleteRequest()) {
             $restParams = $this->getRestParams();
             return isset($restParams[$name]) ? $restParams[$name] : $defaultValue;
-        } else
+        } else {
             return $defaultValue;
+        }
     }
 
     /**
@@ -274,14 +278,16 @@ class HttpRequest extends ApplicationComponent
      */
     public function getPut($name, $defaultValue = null)
     {
-        if ($this->getIsPutViaPostRequest())
+        if ($this->getIsPutViaPostRequest()) {
             return $this->getPost($name, $defaultValue);
+        }
 
         if ($this->getIsPutRequest()) {
             $restParams = $this->getRestParams();
             return isset($restParams[$name]) ? $restParams[$name] : $defaultValue;
-        } else
+        } else {
             return $defaultValue;
+        }
     }
 
     /**
@@ -297,14 +303,16 @@ class HttpRequest extends ApplicationComponent
      */
     public function getPatch($name, $defaultValue = null)
     {
-        if ($this->getIsPatchViaPostRequest())
+        if ($this->getIsPatchViaPostRequest()) {
             return $this->getPost($name, $defaultValue);
+        }
 
         if ($this->getIsPatchRequest()) {
             $restParams = $this->getRestParams();
             return isset($restParams[$name]) ? $restParams[$name] : $defaultValue;
-        } else
+        } else {
             return $defaultValue;
+        }
     }
 
     /**
@@ -316,11 +324,12 @@ class HttpRequest extends ApplicationComponent
     public function getRestParams()
     {
         if ($this->_restParams === null) {
-            $result = array();
-            if (function_exists('mb_parse_str'))
+            $result = [];
+            if (function_exists('mb_parse_str')) {
                 mb_parse_str($this->getRawBody(), $result);
-            else
+            } else {
                 parse_str($this->getRawBody(), $result);
+            }
             $this->_restParams = $result;
         }
 
@@ -335,8 +344,9 @@ class HttpRequest extends ApplicationComponent
     public function getRawBody()
     {
         static $rawBody;
-        if ($rawBody === null)
+        if ($rawBody === null) {
             $rawBody = file_get_contents('php://input');
+        }
         return $rawBody;
     }
 
@@ -362,34 +372,41 @@ class HttpRequest extends ApplicationComponent
     public function getHostInfo($schema = '')
     {
         if ($this->_hostInfo === null) {
-            if ($secure = $this->getIsSecureConnection())
+            if ($secure = $this->getIsSecureConnection()) {
                 $http = 'https';
-            else
+            } else {
                 $http = 'http';
-            if (isset($_SERVER['HTTP_HOST']))
+            }
+
+            if (isset($_SERVER['HTTP_HOST'])) {
                 $this->_hostInfo = $http . '://' . $_SERVER['HTTP_HOST'];
-            else {
+            } else {
                 $this->_hostInfo = $http . '://' . $_SERVER['SERVER_NAME'];
                 $port = $secure ? $this->getSecurePort() : $this->getPort();
-                if (($port !== 80 && !$secure) || ($port !== 443 && $secure))
+                if (($port !== 80 && !$secure) || ($port !== 443 && $secure)) {
                     $this->_hostInfo .= ':' . $port;
+                }
             }
         }
+
         if ($schema !== '') {
             $secure = $this->getIsSecureConnection();
-            if ($secure && $schema === 'https' || !$secure && $schema === 'http')
+            if ($secure && $schema === 'https' || !$secure && $schema === 'http') {
                 return $this->_hostInfo;
+            }
 
             $port = $schema === 'https' ? $this->getSecurePort() : $this->getPort();
-            if ($port !== 80 && $schema === 'http' || $port !== 443 && $schema === 'https')
+            if ($port !== 80 && $schema === 'http' || $port !== 443 && $schema === 'https') {
                 $port = ':' . $port;
-            else
+            } else {
                 $port = '';
+            }
 
             $pos = strpos($this->_hostInfo, ':');
             return $schema . substr($this->_hostInfo, $pos, strcspn($this->_hostInfo, ':', $pos + 1) + 1) . $port;
-        } else
+        } else {
             return $this->_hostInfo;
+        }
     }
 
     /**
@@ -432,7 +449,7 @@ class HttpRequest extends ApplicationComponent
     /**
      * Returns the relative URL of the entry script.
      * The implementation of this method referenced Zend_Controller_Request_Http in Zend Framework.
-     * @throws CException when it is unable to determine the entry script URL.
+     * @throws Exception when it is unable to determine the entry script URL.
      * @return string the relative URL of the entry script.
      */
     public function getScriptUrl()
@@ -450,7 +467,7 @@ class HttpRequest extends ApplicationComponent
             elseif (isset($_SERVER['DOCUMENT_ROOT']) && strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) === 0)
                 $this->_scriptUrl = str_replace('\\', '/', str_replace($_SERVER['DOCUMENT_ROOT'], '', $_SERVER['SCRIPT_FILENAME']));
             else
-                throw new CException(Mindy::t('yii', 'CHttpRequest is unable to determine the entry script URL.'));
+                throw new Exception(Mindy::t('yii', 'CHttpRequest is unable to determine the entry script URL.'));
         }
         return $this->_scriptUrl;
     }
@@ -1265,8 +1282,9 @@ class HttpRequest extends ApplicationComponent
     {
         $cookie = new HttpCookie($this->csrfTokenName, sha1(uniqid(mt_rand(), true)));
         if (is_array($this->csrfCookie)) {
-            foreach ($this->csrfCookie as $name => $value)
+            foreach ($this->csrfCookie as $name => $value) {
                 $cookie->$name = $value;
+            }
         }
         return $cookie;
     }
@@ -1284,25 +1302,31 @@ class HttpRequest extends ApplicationComponent
         if ($this->getIsPostRequest() || $this->getIsPutRequest() || $this->getIsDeleteRequest()) {
             $cookies = $this->getCookies();
 
-            $method = $this->getRequestType();
-            switch ($method) {
-                case 'POST':
-                    $userToken = $this->getPost($this->csrfTokenName);
-                    break;
-                case 'PUT':
-                    $userToken = $this->getPut($this->csrfTokenName);
-                    break;
-                case 'DELETE':
-                    $userToken = $this->getDelete($this->csrfTokenName);
-                    break;
+            $userToken = $this->getHeaderValue($this->csrfTokenName);
+            if($userToken === null) {
+                $method = $this->getRequestType();
+                switch ($method) {
+                    case 'POST':
+                        $userToken = $this->getPost($this->csrfTokenName);
+                        break;
+                    case 'PUT':
+                        $userToken = $this->getPut($this->csrfTokenName);
+                        break;
+                    case 'DELETE':
+                        $userToken = $this->getDelete($this->csrfTokenName);
+                        break;
+                }
             }
 
-            if(empty($userToken)) {
-                $userToken = $this->getHeaderValue($this->csrfTokenName);
-            }
             if (!empty($userToken) && $cookies->contains($this->csrfTokenName)) {
                 $cookieToken = $cookies->get($this->csrfTokenName)->value;
-                $valid = $cookieToken === $userToken;
+                // https://github.com/studio107/Mindy_Base/issues/1
+                if($this->getIsAjaxRequest()) {
+                    $unserializedHashData = @unserialize(Mindy::app()->securityManager->validateData($userToken));
+                    $valid = $cookieToken === $userToken || $cookieToken === $unserializedHashData;
+                } else {
+                    $valid = $cookieToken === $userToken;
+                }
             } else {
                 $valid = false;
             }
