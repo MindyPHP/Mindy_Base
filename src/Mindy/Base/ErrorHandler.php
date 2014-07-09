@@ -498,8 +498,8 @@ class ErrorHandler extends ApplicationComponent
             $output .= $code;
         }
         return strtr('<pre class="brush: php; highlight: {errorLine}; first-line: {beginLine}; toolbar: false;">{content}</pre>', [
-            '{beginLine}' => $beginLine,
-            '{errorLine}' => $errorLine,
+            '{beginLine}' => $beginLine + 1,
+            '{errorLine}' => $errorLine + 1,
             '{content}' => $output
         ]);
     }

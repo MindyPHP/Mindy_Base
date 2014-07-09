@@ -25,6 +25,7 @@ namespace Mindy\Base;
 use FileHelper;
 use Mindy\Base\Exception\Exception;
 use Mindy\Base\Exception\HttpException;
+use Mindy\Helper\Console;
 
 
 /**
@@ -591,7 +592,9 @@ class HttpRequest extends ApplicationComponent
                     $this->_requestUri .= '?' . $_SERVER['QUERY_STRING'];
                 }
             } else {
-                throw new HttpException(Mindy::t('yii', 'HttpRequest is unable to determine the request URI.'));
+                if(Console::isCli() === false) {
+                    throw new HttpException(Mindy::t('yii', 'HttpRequest is unable to determine the request URI.'));
+                }
             }
         }
 
