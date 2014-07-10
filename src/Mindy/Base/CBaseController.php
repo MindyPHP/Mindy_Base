@@ -140,11 +140,11 @@ abstract class CBaseController extends Component
      * this method will use the factory to create the widget, instead.
      * @param string $className class name (can be in path alias format)
      * @param array $properties initial property values
-     * @return CWidget the fully initialized widget instance.
+     * @return \Mindy\Base\Widget the fully initialized widget instance.
      */
-    public function createWidget($className, $properties = array())
+    public function createWidget($className, $properties = [])
     {
-        $widget = Mindy::app()->getWidgetFactory()->createWidget($this, $className, $properties);
+        $widget = Mindy::app()->widgetFactory->createWidget($this, $className, $properties);
         $widget->init();
         return $widget;
     }

@@ -23,7 +23,9 @@ class Controller extends BaseController
 
     public function render($view, array $data = [])
     {
-        return $this->renderTemplate($view, $data);
+        return $this->renderTemplate($view, array_merge([
+            'this' => $this
+        ], $data));
     }
 
     public function json(array $data = [])

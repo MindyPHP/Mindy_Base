@@ -26,6 +26,7 @@ use FileHelper;
 use Mindy\Base\Exception\Exception;
 use Mindy\Base\Exception\HttpException;
 use Mindy\Helper\Console;
+use Mindy\Locale\Locale;
 
 
 /**

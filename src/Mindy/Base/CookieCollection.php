@@ -61,9 +61,9 @@ class CookieCollection extends Collection
     /**
      * @return array list of validated cookies
      */
-    protected function getCookies()
+    public function getCookies()
     {
-        $cookies = array();
+        $cookies = [];
         if ($this->_request->enableCookieValidation) {
             $sm = Mindy::app()->securityManager;
             foreach ($_COOKIE as $name => $value) {
