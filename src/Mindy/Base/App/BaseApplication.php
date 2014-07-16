@@ -489,7 +489,7 @@ abstract class BaseApplication extends Module
     }
 
     /**
-     * @return Controller the currently active controller. Null is returned in this base class.
+     * @return \Mindy\Base\BaseController the currently active controller. Null is returned in this base class.
      * @since 1.1.8
      */
     public function getController()
@@ -933,43 +933,34 @@ abstract class BaseApplication extends Module
             'logger' => [
                 'class' => '\Mindy\Logger\LoggerManager',
                 'handlers' => [
-                    'hichat' => [
-                        'class' => '\Mindy\Logger\Handler\HiChatHandler',
-                        'token' => 'Z23QbMBVhllSgUsgnVNPEh3vOiiGXlcOr2JQ7VQM',
-                        'room' => 'Студия 107',
-                        'level' => 'ERROR'
-                    ],
                     'null' => [
                         'class' => '\Mindy\Logger\Handler\NullHandler',
                         'level' => 'ERROR'
                     ],
                     'console' => [
                         'class' => '\Mindy\Logger\Handler\StreamHandler',
-                        // 'stream' => '...',
+                    ],
+                    'users' => [
+                        'class' => '\Mindy\Logger\Handler\StreamHandler',
+                        'alias' => 'application.runtime.users',
+                        'level' => 'INFO',
+                        'formatter' => 'users'
                     ],
                     'mail_admins' => [
                         'class' => '\Mindy\Logger\Handler\SwiftMailerHandler',
                     ],
                 ],
                 'formatters' => [
-                    'default' => [
-                        'class' => '\Monolog\Formatters\LineFormatter',
-                        'format' => '[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n'
+                    'users' => [
+                        'class' => '\Mindy\Logger\Formatters\LineFormatter',
+                        'format' => "%datetime% %message%\n"
                     ]
                 ],
                 'loggers' => [
-                    'django' => [
+                    'users' => [
                         'class' => '\Monolog\Logger',
-                        'handlers' => ['null'],
+                        'handlers' => ['users'],
                     ],
-                    'django.request' => [
-                        'class' => '\Monolog\Logger',
-                        'handlers' => ['mail_admins'],
-                    ],
-                    'myproject.custom' => [
-                        'class' => '\Monolog\Logger',
-                        'handlers' => ['console', 'mail_admins'],
-                    ]
                 ]
             ],
         ];

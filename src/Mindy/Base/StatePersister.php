@@ -24,6 +24,7 @@ namespace Mindy\Base;
  */
 use Mindy\Base\Exception\Exception;
 use Mindy\Base\Interfaces\IStatePersister;
+use Mindy\Cache\FileDependency;
 
 /**
  * CStatePersister implements a file-based persistent data storage.
@@ -79,12 +80,14 @@ class StatePersister extends ApplicationComponent implements IStatePersister
     public function init()
     {
         parent::init();
-        if ($this->stateFile === null)
+        if ($this->stateFile === null) {
             $this->stateFile = Mindy::app()->getRuntimePath() . DIRECTORY_SEPARATOR . 'state.bin';
+        }
         $dir = dirname($this->stateFile);
-        if (!is_dir($dir) || !is_writable($dir))
+        if (!is_dir($dir) || !is_writable($dir)) {
             throw new Exception(Mindy::t('yii', 'Unable to create application state file "{file}". Make sure the directory containing the file exists and is writable by the Web server process.',
-                array('{file}' => $this->stateFile)));
+                ['{file}' => $this->stateFile]));
+        }
     }
 
     /**
@@ -98,9 +101,9 @@ class StatePersister extends ApplicationComponent implements IStatePersister
             $cacheKey = 'Yii.CStatePersister.' . $stateFile;
             if (($value = $cache->get($cacheKey)) !== false) {
                 return unserialize($value);
-//            } elseif (($content = @file_get_contents($stateFile)) !== false) {
-//                $cache->set($cacheKey, $content, 0, new CFileCacheDependency($stateFile));
-//                return unserialize($content);
+            } elseif (($content = @file_get_contents($stateFile)) !== false) {
+                $cache->set($cacheKey, $content, 0, new FileDependency(['fileName' => $stateFile]));
+                return unserialize($content);
             } else {
                 return null;
             }

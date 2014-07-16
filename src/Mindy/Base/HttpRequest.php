@@ -12,20 +12,21 @@
  * @date 10/06/14.06.2014 14:02
  */
 
+/**
+ * CHttpRequest and CCookieCollection class file.
+ *
+ * @author Qiang Xue <qiang.xue@gmail.com>
+ * @link http://www.yiiframework.com/
+ * @copyright 2008-2013 Yii Software LLC
+ * @license http://www.yiiframework.com/license/
+ */
+
 namespace Mindy\Base;
 
-    /**
-     * CHttpRequest and CCookieCollection class file.
-     *
-     * @author Qiang Xue <qiang.xue@gmail.com>
-     * @link http://www.yiiframework.com/
-     * @copyright 2008-2013 Yii Software LLC
-     * @license http://www.yiiframework.com/license/
-     */
-use FileHelper;
 use Mindy\Base\Exception\Exception;
 use Mindy\Base\Exception\HttpException;
 use Mindy\Helper\Console;
+use Mindy\Helper\FileHelper;
 use Mindy\Locale\Locale;
 
 
@@ -86,7 +87,7 @@ class HttpRequest extends ApplicationComponent
     /**
      * @var boolean whether cookies should be validated to ensure they are not tampered. Defaults to false.
      */
-    public $enableCookieValidation = true;
+    public $enableCookieValidation = false;
     /**
      * @var boolean whether to enable CSRF (Cross-Site Request Forgery) validation. Defaults to false.
      * By setting this property to true, forms submitted to an Yii Web application must be originated
@@ -155,14 +156,18 @@ class HttpRequest extends ApplicationComponent
     {
         // normalize request
         if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
-            if (isset($_GET))
+            if (isset($_GET)) {
                 $_GET = $this->stripSlashes($_GET);
-            if (isset($_POST))
+            }
+            if (isset($_POST)) {
                 $_POST = $this->stripSlashes($_POST);
-            if (isset($_REQUEST))
+            }
+            if (isset($_REQUEST)) {
                 $_REQUEST = $this->stripSlashes($_REQUEST);
-            if (isset($_COOKIE))
+            }
+            if (isset($_COOKIE)) {
                 $_COOKIE = $this->stripSlashes($_COOKIE);
+            }
         }
 
         if ($this->enableCsrfValidation) {
@@ -939,8 +944,8 @@ class HttpRequest extends ApplicationComponent
      */
     public static function parseAcceptHeader($header)
     {
-        $matches = array();
-        $accepts = array();
+        $matches = [];
+        $accepts = [];
         // get individual entries with their type, subtype, basetype and params
         preg_match_all('/(?:\G\s?,\s?|^)(\w+|\*)\/(\w+|\*)(?:\+(\w+))?|(?<!^)\G(?:\s?;\s?(\w+)=([\w\.]+))/', $header, $matches);
         // the regexp should (in theory) always return an array of 6 arrays
@@ -949,15 +954,16 @@ class HttpRequest extends ApplicationComponent
             $itemLen = count($matches[1]);
             while ($i < $itemLen) {
                 // fill out a content type
-                $accept = array(
+                $accept = [
                     'type' => $matches[1][$i],
                     'subType' => $matches[2][$i],
                     'baseType' => null,
-                    'params' => array(),
-                );
+                    'params' => [],
+                ];
                 // fill in the base type if it exists
-                if ($matches[3][$i] !== null && $matches[3][$i] !== '')
+                if ($matches[3][$i] !== null && $matches[3][$i] !== '') {
                     $accept['baseType'] = $matches[3][$i];
+                }
                 // continue looping while there is no new content type, to fill in all accompanying params
                 for ($i++; $i < $itemLen; $i++) {
                     // if the next content type is null, then the item is a param for the current content type
@@ -977,8 +983,9 @@ class HttpRequest extends ApplicationComponent
                         break;
                 }
                 // q defaults to 1 if not explicitly given
-                if (!isset($accept['params']['q']))
+                if (!isset($accept['params']['q'])) {
                     $accept['params']['q'] = (double)1;
+                }
                 $accepts[] = $accept;
             }
         }
@@ -995,22 +1002,26 @@ class HttpRequest extends ApplicationComponent
     public static function compareAcceptTypes($a, $b)
     {
         // check for equal quality first
-        if ($a['params']['q'] === $b['params']['q'])
-            if (!($a['type'] === '*' xor $b['type'] === '*'))
-                if (!($a['subType'] === '*' xor $b['subType'] === '*'))
+        if ($a['params']['q'] === $b['params']['q']) {
+            if (!($a['type'] === '*' xor $b['type'] === '*')) {
+                if (!($a['subType'] === '*' xor $b['subType'] === '*')) {
                     // finally, higher number of parameters counts as greater precedence
-                    if (count($a['params']) === count($b['params']))
+                    if (count($a['params']) === count($b['params'])) {
                         return 0;
-                    else
+                    } else {
                         return count($a['params']) < count($b['params']) ? 1 : -1;
+                    }
                 // more specific takes precedence - whichever one doesn't have a * subType
-                else
+                } else {
                     return $a['subType'] === '*' ? 1 : -1;
+                }
             // more specific takes precedence - whichever one doesn't have a * type
-            else
+            } else {
                 return $a['type'] === '*' ? 1 : -1;
-        else
+            }
+        } else {
             return ($a['params']['q'] < $b['params']['q']) ? 1 : -1;
+        }
     }
 
     /**
@@ -1049,16 +1060,20 @@ class HttpRequest extends ApplicationComponent
     public function getPreferredLanguages()
     {
         if ($this->_preferredLanguages === null) {
-            $sortedLanguages = array();
+            $sortedLanguages = [];
             if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) && $n = preg_match_all('/([\w\-_]+)(?:\s*;\s*q\s*=\s*(\d*\.?\d*))?/', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches)) {
-                $languages = array();
+                $languages = [];
 
                 for ($i = 0; $i < $n; ++$i) {
                     $q = $matches[2][$i];
-                    if ($q === '')
+
+                    if ($q === '') {
                         $q = 1;
-                    if ($q)
+                    }
+
+                    if ($q) {
                         $languages[] = array((float)$q, $matches[1][$i]);
+                    }
                 }
 
                 usort($languages, create_function('$a,$b', 'if($a[0]==$b[0]) {return 0;} return ($a[0]<$b[0]) ? 1 : -1;'));
@@ -1090,9 +1105,8 @@ class HttpRequest extends ApplicationComponent
      */
     public function sendFile($fileName, $content, $mimeType = null, $terminate = true)
     {
-        if ($mimeType === null) {
-            if (($mimeType = FileHelper::getMimeTypeByExtension($fileName)) === null)
-                $mimeType = 'text/plain';
+        if ($mimeType === null && ($mimeType = FileHelper::getMimeTypeByExtension($fileName)) === null) {
+            $mimeType = 'text/plain';
         }
 
         $fileSize = (function_exists('mb_strlen') ? mb_strlen($content, '8bit') : strlen($content));
@@ -1221,7 +1235,7 @@ class HttpRequest extends ApplicationComponent
      * <li>addHeaders: an array of additional http headers in header-value pairs (available since version 1.1.10)</li>
      * </ul>
      */
-    public function xSendFile($filePath, $options = array())
+    public function xSendFile($filePath, $options = [])
     {
         if (!isset($options['forceDownload']) || $options['forceDownload']) {
             $disposition = 'attachment';
@@ -1311,31 +1325,29 @@ class HttpRequest extends ApplicationComponent
         if ($this->getIsPostRequest() || $this->getIsPutRequest() || $this->getIsDeleteRequest()) {
             $cookies = $this->getCookies();
 
-            $userToken = $this->getHeaderValue($this->csrfTokenName);
+            $userToken = null;
+            $method = $this->getRequestType();
+            switch ($method) {
+                case 'POST':
+                    $userToken = $this->getPost($this->csrfTokenName);
+                    break;
+                case 'PUT':
+                    $userToken = $this->getPut($this->csrfTokenName);
+                    break;
+                case 'DELETE':
+                    $userToken = $this->getDelete($this->csrfTokenName);
+                    break;
+            }
+
             if($userToken === null) {
-                $method = $this->getRequestType();
-                switch ($method) {
-                    case 'POST':
-                        $userToken = $this->getPost($this->csrfTokenName);
-                        break;
-                    case 'PUT':
-                        $userToken = $this->getPut($this->csrfTokenName);
-                        break;
-                    case 'DELETE':
-                        $userToken = $this->getDelete($this->csrfTokenName);
-                        break;
-                }
+                $userToken = $this->getHeaderValue($this->csrfTokenName);
             }
 
             if (!empty($userToken) && $cookies->contains($this->csrfTokenName)) {
                 $cookieToken = $cookies->get($this->csrfTokenName)->value;
                 // https://github.com/studio107/Mindy_Base/issues/1
-                if($this->getIsAjaxRequest()) {
-                    $unserializedHashData = @unserialize(Mindy::app()->securityManager->validateData($userToken));
-                    $valid = $cookieToken === $userToken || $cookieToken === $unserializedHashData;
-                } else {
-                    $valid = $cookieToken === $userToken;
-                }
+                $unserializedHashData = @unserialize(Mindy::app()->securityManager->validateData($userToken));
+                $valid = $cookieToken === $userToken || $cookieToken === $unserializedHashData;
             } else {
                 $valid = false;
             }

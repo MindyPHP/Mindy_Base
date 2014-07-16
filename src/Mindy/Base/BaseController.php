@@ -253,14 +253,23 @@ class BaseController extends CBaseController
     public function run($actionID)
     {
         if (($action = $this->createAction($actionID)) !== null) {
-            if (($parent = $this->getModule()) === null)
-                $parent = Mindy::app();
-            if ($parent->beforeControllerAction($this, $action)) {
+            if ($this->beforeControllerAction($this, $action)) {
                 $this->runActionWithFilters($action, $this->filters());
-                $parent->afterControllerAction($this, $action);
+                $this->afterControllerAction($this, $action);
             }
-        } else
+        } else {
             $this->missingAction($actionID);
+        }
+    }
+
+    public function beforeControllerAction($owner, $action)
+    {
+        return true;
+    }
+
+    public function afterControllerAction($owner, $action)
+    {
+        return true;
     }
 
     /**
@@ -333,6 +342,7 @@ class BaseController extends CBaseController
      * The action can be either an inline action or an object.
      * The latter is created by looking up the action map specified in {@link actions}.
      * @param string $actionID ID of the action. If empty, the {@link defaultAction default action} will be used.
+     * @throws \Mindy\Base\Exception\Exception
      * @return Action the action instance, null if the action does not exist.
      * @see actions
      */
@@ -359,9 +369,10 @@ class BaseController extends CBaseController
      * @param string $actionID the action ID that has its prefix stripped off
      * @param string $requestActionID the originally requested action ID
      * @param array $config the action configuration that should be applied on top of the configuration specified in the map
+     * @throws \Mindy\Base\Exception\Exception
      * @return Action the action instance, null if the action does not exist.
      */
-    protected function createActionFromMap($actionMap, $actionID, $requestActionID, $config = array())
+    protected function createActionFromMap($actionMap, $actionID, $requestActionID, $config = [])
     {
         if (($pos = strpos($actionID, '.')) === false && isset($actionMap[$actionID])) {
             $baseConfig = is_array($actionMap[$actionID]) ? $actionMap[$actionID] : array('class' => $actionMap[$actionID]);
@@ -445,10 +456,11 @@ class BaseController extends CBaseController
      */
     public function getRoute()
     {
-        if (($action = $this->getAction()) !== null)
+        if (($action = $this->getAction()) !== null) {
             return $this->getUniqueId() . '/' . $action->getId();
-        else
+        } else {
             return $this->getUniqueId();
+        }
     }
 
     /**
@@ -457,22 +469,13 @@ class BaseController extends CBaseController
      */
     public function getModule()
     {
+        if($this->_module === null) {
+            $reflect = new \ReflectionClass(get_class($this));
+            $namespace = $reflect->getNamespaceName();
+            $segments = explode('\\', $namespace);
+            $this->_module = Mindy::app()->getModule($segments[1]);
+        }
         return $this->_module;
-    }
-
-    /**
-     * Returns the list of clips.
-     * A clip is a named piece of rendering result that can be
-     * inserted at different places.
-     * @return Map the list of clips
-     * @see CClipWidget
-     */
-    public function getClips()
-    {
-        if ($this->_clips !== null)
-            return $this->_clips;
-        else
-            return $this->_clips = new Map;
     }
 
     /**
@@ -487,15 +490,17 @@ class BaseController extends CBaseController
      */
     public function forward($route, $exit = true)
     {
-        if (strpos($route, '/') === false)
+        if (strpos($route, '/') === false) {
             $this->run($route);
-        else {
-            if ($route[0] !== '/' && ($module = $this->getModule()) !== null)
+        } else {
+            if ($route[0] !== '/' && ($module = $this->getModule()) !== null) {
                 $route = $module->getId() . '/' . $route;
+            }
             Mindy::app()->runController($route);
         }
-        if ($exit)
+        if ($exit) {
             Mindy::app()->end();
+        }
     }
 
     /**
@@ -510,7 +515,7 @@ class BaseController extends CBaseController
      * @return mixed either the clip content or null
      * @since 1.1.8
      */
-    public function renderClip($name, $params = array(), $return = false)
+    public function renderClip($name, $params = [], $return = false)
     {
         $text = isset($this->clips[$name]) ? strtr($this->clips[$name], $params) : '';
 
@@ -533,14 +538,18 @@ class BaseController extends CBaseController
      * @param string $ampersand the token separating name-value pairs in the URL.
      * @return string the constructed URL
      */
-    public function createUrl($route, $params = array(), $ampersand = '&')
+    public function createUrl($route, $params = [], $ampersand = '&')
     {
-        if ($route === '')
+        if ($route === '') {
             $route = $this->getId() . '/' . $this->getAction()->getId();
-        elseif (strpos($route, '/') === false)
+        } elseif (strpos($route, '/') === false) {
             $route = $this->getId() . '/' . $route;
-        if ($route[0] !== '/' && ($module = $this->getModule()) !== null)
+        }
+
+        if ($route[0] !== '/' && ($module = $this->getModule()) !== null) {
             $route = $module->getId() . '/' . $route;
+        }
+
         return Mindy::app()->createUrl(trim($route, '/'), $params, $ampersand);
     }
 
@@ -554,13 +563,14 @@ class BaseController extends CBaseController
      * @param string $ampersand the token separating name-value pairs in the URL.
      * @return string the constructed URL
      */
-    public function createAbsoluteUrl($route, $params = array(), $schema = '', $ampersand = '&')
+    public function createAbsoluteUrl($route, $params = [], $schema = '', $ampersand = '&')
     {
         $url = $this->createUrl($route, $params, $ampersand);
-        if (strpos($url, 'http') === 0)
+        if (strpos($url, 'http') === 0) {
             return $url;
-        else
+        } else {
             return Mindy::app()->getRequest()->getHostInfo($schema) . $url;
+        }
     }
 
     /**
@@ -606,10 +616,11 @@ class BaseController extends CBaseController
      */
     public function recordCachingAction($context, $method, $params)
     {
-        if ($this->_cachingStack) // record only when there is an active output cache
-        {
-            foreach ($this->_cachingStack as $cache)
+        // record only when there is an active output cache
+        if ($this->_cachingStack) {
+            foreach ($this->_cachingStack as $cache) {
                 $cache->recordAction($context, $method, $params);
+            }
         }
     }
 
@@ -663,10 +674,11 @@ class BaseController extends CBaseController
      */
     public function filterPostOnly($filterChain)
     {
-        if (Mindy::app()->getRequest()->getIsPostRequest())
+        if (Mindy::app()->getRequest()->getIsPostRequest()) {
             $filterChain->run();
-        else
+        } else {
             throw new HttpException(400, Mindy::t('yii', 'Your request is invalid.'));
+        }
     }
 
     /**
@@ -677,10 +689,11 @@ class BaseController extends CBaseController
      */
     public function filterAjaxOnly($filterChain)
     {
-        if (Mindy::app()->getRequest()->getIsAjaxRequest())
+        if (Mindy::app()->getRequest()->getIsAjaxRequest()) {
             $filterChain->run();
-        else
+        } else {
             throw new HttpException(400, Mindy::t('yii', 'Your request is invalid.'));
+        }
     }
 
     /**
@@ -744,7 +757,7 @@ class BaseController extends CBaseController
      */
     public function clearPageStates()
     {
-        $this->_pageStates = array();
+        $this->_pageStates = [];
     }
 
     /**
@@ -761,7 +774,7 @@ class BaseController extends CBaseController
                     return unserialize($data);
             }
         }
-        return array();
+        return [];
     }
 
     /**

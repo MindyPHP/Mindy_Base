@@ -577,4 +577,28 @@ abstract class Module extends Component implements IModule
     {
         return [];
     }
+
+    /**
+     * Install sql
+     */
+    public function install()
+    {
+
+    }
+
+    /**
+     * Run migrations, update sql
+     */
+    public function update()
+    {
+
+    }
+
+    /**
+     * Delete tables from database
+     */
+    public function delete()
+    {
+
+    }
 }

@@ -38,6 +38,7 @@ class CookieCollection extends Collection
 {
     private $_request;
     private $_initialized = false;
+    protected $cookies = [];
 
     /**
      * Constructor.
@@ -63,20 +64,20 @@ class CookieCollection extends Collection
      */
     public function getCookies()
     {
-        $cookies = [];
+        $this->cookies = [];
         if ($this->_request->enableCookieValidation) {
             $sm = Mindy::app()->securityManager;
             foreach ($_COOKIE as $name => $value) {
                 if (is_string($value) && ($value = $sm->validateData($value)) !== false) {
-                    $cookies[$name] = new HttpCookie($name, @unserialize($value));
+                    $this->cookies[$name] = new HttpCookie($name, @unserialize($value));
                 }
             }
         } else {
             foreach ($_COOKIE as $name => $value) {
-                $cookies[$name] = new HttpCookie($name, $value);
+                $this->cookies[$name] = new HttpCookie($name, $value);
             }
         }
-        return $cookies;
+        return $this->cookies;
     }
 
     /**

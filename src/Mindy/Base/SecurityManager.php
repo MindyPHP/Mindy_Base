@@ -111,16 +111,17 @@ class SecurityManager extends ApplicationComponent
      */
     public function getValidationKey()
     {
-        if ($this->_validationKey !== null)
+        if ($this->_validationKey !== null) {
             return $this->_validationKey;
-        else {
-            if (($key = Mindy::app()->getGlobalState(self::STATE_VALIDATION_KEY)) !== null)
+        } else {
+            if (($key = Mindy::app()->getGlobalState(self::STATE_VALIDATION_KEY)) !== null) {
                 $this->setValidationKey($key);
-            else {
-                if (($key = $this->generateRandomString(32, true)) === false)
-                    if (($key = $this->generateRandomString(32, false)) === false)
-                        throw new Exception(Mindy::t('yii',
-                            'CSecurityManager::generateRandomString() cannot generate random string in the current environment.'));
+            } else {
+                if (($key = $this->generateRandomString(32, true)) === false) {
+                    if (($key = $this->generateRandomString(32, false)) === false) {
+                        throw new Exception(Mindy::t('yii', 'CSecurityManager::generateRandomString() cannot generate random string in the current environment.'));
+                    }
+                }
                 $this->setValidationKey($key);
                 Mindy::app()->setGlobalState(self::STATE_VALIDATION_KEY, $key);
             }
@@ -171,10 +172,11 @@ class SecurityManager extends ApplicationComponent
      */
     public function setEncryptionKey($value)
     {
-        if (!empty($value))
+        if (!empty($value)) {
             $this->_encryptionKey = $value;
-        else
+        } else {
             throw new Exception(Mindy::t('yii', 'CSecurityManager.encryptionKey cannot be empty.'));
+        }
     }
 
     /**
@@ -248,13 +250,15 @@ class SecurityManager extends ApplicationComponent
     protected function openCryptModule()
     {
         if (extension_loaded('mcrypt')) {
-            if (is_array($this->cryptAlgorithm))
+            if (is_array($this->cryptAlgorithm)) {
                 $module = @call_user_func_array('mcrypt_module_open', $this->cryptAlgorithm);
-            else
+            } else {
                 $module = @mcrypt_module_open($this->cryptAlgorithm, '', MCRYPT_MODE_CBC, '');
+            }
 
-            if ($module === false)
+            if ($module === false) {
                 throw new Exception(Mindy::t('yii', 'Failed to initialize the mcrypt module.'));
+            }
 
             return $module;
         } else
@@ -306,13 +310,17 @@ class SecurityManager extends ApplicationComponent
      */
     public function computeHMAC($data, $key = null, $hashAlgorithm = null)
     {
-        if ($key === null)
+        if ($key === null) {
             $key = $this->getValidationKey();
-        if ($hashAlgorithm === null)
-            $hashAlgorithm = $this->hashAlgorithm;
+        }
 
-        if (function_exists('hash_hmac'))
+        if ($hashAlgorithm === null) {
+            $hashAlgorithm = $this->hashAlgorithm;
+        }
+
+        if (function_exists('hash_hmac')) {
             return hash_hmac($hashAlgorithm, $data, $key);
+        }
 
         if (0 === strcasecmp($hashAlgorithm, 'sha1')) {
             $pack = 'H40';
@@ -323,10 +331,15 @@ class SecurityManager extends ApplicationComponent
         } else {
             throw new Exception(Mindy::t('yii', 'Only SHA1 and MD5 hashing algorithms are supported when using PHP 5.1.1 or below.'));
         }
-        if ($this->strlen($key) > 64)
+
+        if ($this->strlen($key) > 64) {
             $key = pack($pack, $func($key));
-        if ($this->strlen($key) < 64)
+        }
+
+        if ($this->strlen($key) < 64) {
             $key = str_pad($key, 64, chr(0));
+        }
+
         $key = $this->substr($key, 0, 64);
         return $func((str_repeat(chr(0x5C), 64) ^ $key) . pack($pack, $func((str_repeat(chr(0x36), 64) ^ $key) . $data)));
     }
