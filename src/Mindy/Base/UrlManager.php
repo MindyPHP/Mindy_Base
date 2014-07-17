@@ -11,7 +11,7 @@ class UrlManager extends AuraMap
 {
     public $urlsAlias = 'application.config.urls';
 
-    public $trailingSlash = false;
+    public $trailingSlash = true;
 
     public function __construct()
     {
