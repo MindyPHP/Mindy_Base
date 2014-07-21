@@ -522,7 +522,8 @@ abstract class Module extends Component implements IModule
      */
     protected function preloadComponents()
     {
-        foreach ($this->preload as $id) {
+        $defaultPreload = ['db'];
+        foreach (array_merge($defaultPreload, $this->preload) as $id) {
             $this->getComponent($id);
         }
     }
