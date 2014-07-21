@@ -17,7 +17,7 @@
         "mindy/utils": "dev-master",
         "mindy/http": "dev-master",
         "mindy/middleware": "dev-master",
-        "mindy/logger": "1.0.2",
+        "mindy/logger": "dev-master",
         "mindy/locale": "dev-master",
         "mindy/router": "dev-master"
     },
