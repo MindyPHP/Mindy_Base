@@ -94,7 +94,6 @@ class BaseController extends CBaseController
     private $_id;
     private $_action;
     private $_cachingStack;
-    private $_clips;
     private $_pageStates;
     private $_module;
 
@@ -107,7 +106,20 @@ class BaseController extends CBaseController
     {
         $this->_id = $id;
         $this->_module = $module;
+
+        $signal = Mindy::app()->signal;
+        $signal->handler($this, 'preAction', [$this, 'preAction']);
+        $signal->handler($this, 'postAction', [$this, 'postAction']);
+
         $this->attachBehaviors($this->behaviors());
+    }
+
+    public function preAction($owner, $action)
+    {
+    }
+
+    public function postAction($owner, $action)
+    {
     }
 
     /**
@@ -148,7 +160,7 @@ class BaseController extends CBaseController
      */
     public function filters()
     {
-        return array();
+        return [];
     }
 
     /**
@@ -203,7 +215,7 @@ class BaseController extends CBaseController
      */
     public function actions()
     {
-        return array();
+        return [];
     }
 
     /**
@@ -228,7 +240,7 @@ class BaseController extends CBaseController
      */
     public function behaviors()
     {
-        return array();
+        return [];
     }
 
     /**
@@ -238,7 +250,7 @@ class BaseController extends CBaseController
      */
     public function accessRules()
     {
-        return array();
+        return [];
     }
 
     /**
@@ -253,23 +265,13 @@ class BaseController extends CBaseController
     public function run($actionID)
     {
         if (($action = $this->createAction($actionID)) !== null) {
-            if ($this->beforeControllerAction($this, $action)) {
-                $this->runActionWithFilters($action, $this->filters());
-                $this->afterControllerAction($this, $action);
-            }
+            $signal = Mindy::app()->signal;
+            $signal->send($this, 'preAction', $this, $action);
+            $this->runActionWithFilters($action, $this->filters());
+            $signal->send($this, 'postAction', $this, $action);
         } else {
             $this->missingAction($actionID);
         }
-    }
-
-    public function beforeControllerAction($owner, $action)
-    {
-        return true;
-    }
-
-    public function afterControllerAction($owner, $action)
-    {
-        return true;
     }
 
     /**

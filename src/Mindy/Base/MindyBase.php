@@ -124,7 +124,7 @@ abstract class MindyBase
      * @return string the translated message
      * @see CMessageSource
      */
-    public static function t($category, $message, $params = array(), $source = null, $language = null)
+    public static function t($category, $message, $params = [], $source = null, $language = null)
     {
         if (self::$_app !== null) {
             if ($source === null) {
