@@ -243,9 +243,13 @@ class Application extends BaseApplication
         }
 
         if ($route) {
-            $className = $route->values['controller'];
+            list($handler, $vars) = $route;
+            list($className, $actionName) = $handler;
+            if(!empty($vars)) {
+                $_GET = $vars;
+            }
             $controller = Creator::createObject($className, time(), $owner === $this ? null : $owner);
-            return [$controller, $route->values['action']];
+            return [$controller, $actionName];
         }
 
         return null;
@@ -494,9 +498,6 @@ class Application extends BaseApplication
             // preload 'request' so that it has chance to respond to onBeginRequest event.
             $this->request;
         }
-
-        // preload 'db' for Orm
-        $this->db;
     }
 }
 

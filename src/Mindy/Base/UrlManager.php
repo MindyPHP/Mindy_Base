@@ -2,28 +2,29 @@
 
 namespace Mindy\Base;
 
-use Aura\Router\DefinitionFactory;
-use Aura\Router\Map as AuraMap;
+use Mindy\Router\Dispatcher;
 use Mindy\Router\Patterns;
-use Mindy\Router\RouteFactory;
 
-class UrlManager extends AuraMap
+class UrlManager extends Dispatcher
 {
     public $urlsAlias = 'application.config.urls';
-
     public $trailingSlash = true;
 
     public function __construct()
     {
         $patterns = new Patterns($this->urlsAlias);
         $patterns->setTrailingSlash($this->trailingSlash);
-
-        parent::__construct(new DefinitionFactory, new RouteFactory, $patterns->getRoutes());
+        parent::__construct($patterns->getRouteCollector());
         $this->init();
     }
 
     public function init()
     {
+    }
+
+    public function getResponse($handler)
+    {
+        return $handler;
     }
 
     /**
@@ -47,11 +48,17 @@ class UrlManager extends AuraMap
         // look through existing route objects
         foreach ($this->getRoutes() as $route) {
             $this->logRoute($route);
+//            echo $route->name . '<br/>';
+
+            if ($route->name == 'page.index' && $url == '/') {
+                return $route;
+            }
+
             if ($route->isMatch($url, $server)) {
                 return $route;
             } else {
                 if ($this->trailingSlash === true && substr($url, -1) !== '/') {
-                    $newUrl = $path . '/' . str_replace($url, '', $path);
+                    $newUrl = $url . '/' . str_replace($url, '', $path);
                     $route = $this->match($newUrl, $server);
                     if ($route && substr($route->path, -1) === '/') {
                         $this->trailingSlashCallback($newUrl);
@@ -82,34 +89,45 @@ class UrlManager extends AuraMap
         Mindy::app()->request->redirect($path);
     }
 
-    public function createUrl($name, $data = null)
+    /**
+     * @deprecated
+     * @param $name
+     * @param array $data
+     * @return mixed
+     */
+    public function createUrl($name, array $data = [])
+    {
+        return $this->reverse($name, $data);
+    }
+
+    public function reverse($name, $args = [])
     {
         if (is_array($name)) {
             $data = $name;
             $name = $name[0];
             unset($data[0]);
         }
-        return $this->generate($name, $data);
+        return parent::reverse($name, $args);
     }
 
     /**
      * @param $request \Mindy\Base\HttpRequest
-     * @return \Aura\Router\Route|false
+     * @return false
      */
     public function parseUrl($request)
     {
         $uri = $request->getRequestUri();
-        if ($route = $this->match($uri, $_SERVER)) {
-            foreach ($route->values as $key => $value) {
-                if (in_array($key, ['controller', 'action'])) {
-                    continue;
-                }
-                if ($route->wildcard == $key) {
-                    $value = implode('/', $value);
-                }
-                $_GET[$key] = $value;
+        $url = strtok($uri, "?");
+
+        $route = $this->dispatch($request->getRequestType(), $uri);
+        if (!$route && $this->trailingSlash === true && substr($url, -1) !== '/') {
+            $newUri = $url . '/' . str_replace($url, '', $uri);
+            $route = $this->dispatch($request->getRequestType(), $newUri);
+            if($route) {
+                $this->trailingSlashCallback($newUri);
             }
         }
+
         return $route;
     }
 }
