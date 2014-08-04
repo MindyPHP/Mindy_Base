@@ -95,17 +95,20 @@ class UrlManager extends Dispatcher
      * @param array $data
      * @return mixed
      */
-    public function createUrl($name, array $data = [])
+    public function createUrl($name, $data = null)
     {
+        if(is_null($data)) {
+            $data = [];
+        }
         return $this->reverse($name, $data);
     }
 
     public function reverse($name, $args = [])
     {
         if (is_array($name)) {
-            $data = $name;
+            $args = $name;
             $name = $name[0];
-            unset($data[0]);
+            unset($args[0]);
         }
         return parent::reverse($name, $args);
     }
@@ -120,7 +123,7 @@ class UrlManager extends Dispatcher
         $url = strtok($uri, "?");
 
         $route = $this->dispatch($request->getRequestType(), $uri);
-        if (!$route && $this->trailingSlash === true && substr($url, -1) !== '/') {
+        if ($this->trailingSlash === true && substr($url, -1) !== '/') {
             $newUri = $url . '/' . str_replace($url, '', $uri);
             $route = $this->dispatch($request->getRequestType(), $newUri);
             if($route) {

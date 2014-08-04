@@ -899,14 +899,15 @@ class HttpRequest extends ApplicationComponent
      * Redirects the browser to the specified URL.
      * @param string $url URL to be redirected to. Note that when URL is not
      * absolute (not starting with "/") it will be relative to current request URL.
+     * @param array $data
      * @param boolean $terminate whether to terminate the current application
      * @param integer $statusCode the HTTP status code. Defaults to 302. See {@link http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html}
      * for details about HTTP status code.
      */
-    public function redirect($url, $data = null, $terminate = true, $statusCode = 302)
+    public function redirect($url, $data = [], $terminate = true, $statusCode = 302)
     {
         if(strpos($url, '/') === false) {
-            $url = Mindy::app()->urlManager->generate($url, $data);
+            $url = Mindy::app()->urlManager->reverse($url, $data);
         }
         if (strpos($url, '/') === 0 && strpos($url, '//') !== 0) {
             $url = $this->getHostInfo() . $url;

@@ -2,8 +2,6 @@
 
 namespace Mindy\Base;
 
-use Mindy\Helper\Collection;
-
 /**
  * All rights reserved.
  *
@@ -41,20 +39,21 @@ trait ApplicationList
 
                     $resultItems = [];
 
-                    if(!isset($items['items'])) {
+                    if (!isset($items['items'])) {
                         continue;
                     } else {
-                        foreach($items['items'] as $item) {
-                            if(isset($item['code']) && $user->can($adminCode . '.' . strtolower($item['code'])) || !isset($item['code']) && $user->is_superuser) {
+                        foreach ($items['items'] as $item) {
+                            if (isset($item['code']) && $user->can($adminCode . '.' . strtolower($item['code'])) || !isset($item['code']) && $user->is_superuser) {
                                 $resultItems[] = $item;
                             }
                         }
                     }
 
-                    if(empty($resultItems)) {
+                    if (empty($resultItems)) {
                         continue;
                     }
 
+                    $items['module'] = $name;
                     $items['items'] = $resultItems;
                     $array[] = $items;
                 }

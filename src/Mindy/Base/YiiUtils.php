@@ -34,7 +34,7 @@ class YiiUtils
 
     public static function createUrl($route, $data = null)
     {
-        return Mindy::app()->urlManager->createUrl($route, $data);
+        return Mindy::app()->urlManager->reverse($route, $data);
     }
 
     public static function csrf()
