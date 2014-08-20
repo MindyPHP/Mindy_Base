@@ -2,19 +2,28 @@
 
 namespace Mindy\Base;
 
+use Mindy\Helper\Traits\Accessors;
+use Mindy\Helper\Traits\Configurator;
 use Mindy\Router\Dispatcher;
 use Mindy\Router\Patterns;
 
 class UrlManager extends Dispatcher
 {
-    public $urlsAlias = 'application.config.urls';
+    use Accessors, Configurator;
+
+    public $urlsAlias = 'App.config.urls';
+    public $patterns = null;
     public $trailingSlash = true;
 
-    public function __construct()
+    public function __construct($config = [])
     {
-        $patterns = new Patterns($this->urlsAlias);
+        $this->configure($config);
+
+        $patterns = new Patterns(empty($this->patterns) ? $this->urlsAlias : $this->patterns);
         $patterns->setTrailingSlash($this->trailingSlash);
+
         parent::__construct($patterns->getRouteCollector());
+
         $this->init();
     }
 
@@ -22,62 +31,15 @@ class UrlManager extends Dispatcher
     {
     }
 
+    public function addPattern($prefix, Patterns $patterns)
+    {
+        $patterns->setTrailingSlash($this->trailingSlash);
+        $patterns->parse($this->collector, $patterns->getPatterns(), $prefix);
+    }
+
     public function getResponse($handler)
     {
         return $handler;
-    }
-
-    /**
-     *
-     * Gets a route that matches a given path and other server conditions.
-     *
-     * @param string $path The path to match against.
-     *
-     * @param array $server An array copy of $_SERVER.
-     *
-     * @return \Aura\Router\Route|false Returns a Route object when it finds a match, or
-     * boolean false if there is no match.
-     *
-     */
-    public function match($path, array $server)
-    {
-        $url = strtok($path, '?');
-
-        // reset the log
-        $this->log = [];
-        // look through existing route objects
-        foreach ($this->getRoutes() as $route) {
-            $this->logRoute($route);
-//            echo $route->name . '<br/>';
-
-            if ($route->name == 'page.index' && $url == '/') {
-                return $route;
-            }
-
-            if ($route->isMatch($url, $server)) {
-                return $route;
-            } else {
-                if ($this->trailingSlash === true && substr($url, -1) !== '/') {
-                    $newUrl = $url . '/' . str_replace($url, '', $path);
-                    $route = $this->match($newUrl, $server);
-                    if ($route && substr($route->path, -1) === '/') {
-                        $this->trailingSlashCallback($newUrl);
-                    }
-                }
-            }
-        }
-
-        // convert remaining definitions as needed
-        while ($this->attach_routes || $this->definitions) {
-            $route = $this->createNextRoute();
-            $this->logRoute($route);
-            if ($route->isMatch($url, $server)) {
-                return $route;
-            }
-        }
-
-        // no joy
-        return false;
     }
 
     /**

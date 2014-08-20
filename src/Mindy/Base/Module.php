@@ -99,18 +99,12 @@ abstract class Module extends Component implements IModule
         Mindy::setPathOfAlias($id, $this->getBasePath());
 
         $this->preinit();
-        $this->initDi();
 
         $this->configure($config);
         $this->attachBehaviors($this->behaviors);
         $this->preloadComponents();
 
         $this->init();
-    }
-
-    public function initDi()
-    {
-        $this->locator = new ServiceLocator();
     }
 
     public function getVersion()
@@ -512,6 +506,7 @@ abstract class Module extends Component implements IModule
      */
     public function configure($config)
     {
+
         if (is_array($config)) {
             Creator::configure($this, $config);
         }

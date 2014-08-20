@@ -3,10 +3,8 @@
 namespace Mindy\Base;
 
 use Mindy\Helper\Alias;
-use Mindy\Helper\Console;
-use Mindy\Helper\Dumper;
 
-if(!function_exists('d')) {
+if (!function_exists('d')) {
     require_once __DIR__ . '/m.php';
 }
 

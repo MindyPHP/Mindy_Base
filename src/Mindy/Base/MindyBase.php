@@ -50,6 +50,10 @@ defined('YII_PATH') or define('YII_PATH', dirname(__FILE__));
  * Defines the Zii library installation path.
  */
 defined('YII_ZII_PATH') or define('YII_ZII_PATH', YII_PATH . DIRECTORY_SEPARATOR . 'zii');
+/**
+ * Defines the tests mode for application.
+ */
+defined('YII_TEST') or define('YII_TEST', false);
 
 /**
  *
@@ -192,7 +196,11 @@ abstract class MindyBase
      */
     public static function getInstance($config = null, $className = '\Mindy\Base\App\Application')
     {
-        foreach (['system' => YII_PATH, 'zii' => YII_ZII_PATH] as $name => $path) {
+        $aliases = [
+            'system' => YII_PATH,
+            'zii' => YII_ZII_PATH
+        ];
+        foreach ($aliases as $name => $path) {
             Alias::set($name, $path);
         }
 
