@@ -104,47 +104,6 @@ class Application extends BaseApplication
     private $_commandPath;
     private $_runner;
 
-    public function __construct($config = null)
-    {
-        Mindy::setApplication($this);
-
-        // set basePath at early as possible to avoid trouble
-        if (is_string($config)) {
-            $config = require($config);
-        }
-
-        if (isset($config['basePath'])) {
-            $this->setBasePath($config['basePath']);
-            unset($config['basePath']);
-        } else {
-            $this->setBasePath('protected');
-        }
-
-        if (isset($config['webPath'])) {
-            $path = realpath($config['webPath']);
-            if (!is_dir($path)) {
-                throw new Exception("Incorrent web path " . $config['webPath']);
-            }
-            Alias::set('www', $path);
-            unset($config['webPath']);
-        } else {
-            Alias::set('www', dirname($_SERVER['SCRIPT_FILENAME']));
-        }
-
-        Mindy::setPathOfAlias('application', $this->getBasePath());
-
-        $this->preinit();
-        $this->initSystemHandlers();
-        $this->initDi();
-        $this->registerCoreComponents();
-
-        $this->configure($config);
-        $this->attachBehaviors($this->behaviors);
-        $this->preloadComponents();
-
-        $this->init();
-    }
-
     /**
      * Processes the current request.
      * It first resolves the request into controller and action,
@@ -289,25 +248,15 @@ class Application extends BaseApplication
     }
 
     /**
-     * @return string the directory that contains the controller classes. Defaults to 'protected/controllers'.
-     */
-    public function getControllerPath()
-    {
-        if ($this->_controllerPath !== null) {
-            return $this->_controllerPath;
-        } else {
-            return $this->_controllerPath = $this->getBasePath() . DIRECTORY_SEPARATOR . 'controllers';
-        }
-    }
-
-    /**
      * @param string $value the directory that contains the controller classes.
      * @throws Exception if the directory is invalid
      */
     public function setControllerPath($value)
     {
         if (($this->_controllerPath = realpath($value)) === false || !is_dir($this->_controllerPath)) {
-            throw new Exception(Mindy::t('yii', 'The controller path "{path}" is not a valid directory.', ['{path}' => $value]));
+            throw new Exception(Mindy::t('yii', 'The controller path "{path}" is not a valid directory.', [
+                '{path}' => $value
+            ]));
         }
     }
 
@@ -380,18 +329,23 @@ class Application extends BaseApplication
         echo "    in file $file at line $line\n";
         $trace = debug_backtrace();
         // skip the first 4 stacks as they do not tell the error position
-        if (count($trace) > 4)
+        if (count($trace) > 4) {
             $trace = array_slice($trace, 4);
+        }
         foreach ($trace as $i => $t) {
-            if (!isset($t['file']))
+            if (!isset($t['file'])) {
                 $t['file'] = 'unknown';
-            if (!isset($t['line']))
+            }
+            if (!isset($t['line'])) {
                 $t['line'] = 0;
-            if (!isset($t['function']))
+            }
+            if (!isset($t['function'])) {
                 $t['function'] = 'unknown';
+            }
             echo "#$i {$t['file']}({$t['line']}): ";
-            if (isset($t['object']) && is_object($t['object']))
+            if (isset($t['object']) && is_object($t['object'])) {
                 echo get_class($t['object']) . '->';
+            }
             echo "{$t['function']}()\n";
         }
     }
@@ -425,9 +379,11 @@ class Application extends BaseApplication
      */
     public function setCommandPath($value)
     {
-        if (($this->_commandPath = realpath($value)) === false || !is_dir($this->_commandPath))
-            throw new Exception(Mindy::t('yii', 'The command path "{path}" is not a valid directory.',
-                array('{path}' => $value)));
+        if (($this->_commandPath = realpath($value)) === false || !is_dir($this->_commandPath)) {
+            throw new Exception(Mindy::t('yii', 'The command path "{path}" is not a valid directory.', [
+                '{path}' => $value
+            ]));
+        }
     }
 
     /**
@@ -487,9 +443,6 @@ class Application extends BaseApplication
             }
 
             foreach ($this->modules as $name => $settings) {
-                if ($modulePath = Alias::get("Contrib." . $name . ".Commands")) {
-                    $this->_runner->addCommands($modulePath);
-                }
                 if ($modulePath = Alias::get("Modules." . $name . ".Commands")) {
                     $this->_runner->addCommands($modulePath);
                 }

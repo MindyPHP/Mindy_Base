@@ -156,6 +156,7 @@ abstract class BaseApplication extends Module
      * Please make sure you specify the {@link getBasePath basePath} property in the configuration,
      * which should point to the directory containing all application logic, template and data.
      * If not, the directory will be defaulted to 'protected'.
+     * @throws \Mindy\Base\Exception\Exception
      */
     public function __construct($config = null)
     {
@@ -173,6 +174,21 @@ abstract class BaseApplication extends Module
             $this->setBasePath('protected');
         }
 
+        Alias::set('App', $this->getBasePath());
+        Alias::set('Modules', $this->getBasePath() . DIRECTORY_SEPARATOR . 'Modules');
+
+        if (isset($config['webPath'])) {
+            $path = realpath($config['webPath']);
+            if (!is_dir($path)) {
+                throw new Exception("Incorrent web path " . $config['webPath']);
+            }
+            Alias::set('www', $path);
+            unset($config['webPath']);
+        } else {
+            Alias::set('www', dirname($_SERVER['SCRIPT_FILENAME']));
+        }
+
+        // DEPRECATED
         Alias::set('application', $this->getBasePath());
         Alias::set('webroot', dirname($_SERVER['SCRIPT_FILENAME']));
 
@@ -182,9 +198,7 @@ abstract class BaseApplication extends Module
         }
 
         $this->preinit();
-
         $this->initSystemHandlers();
-        $this->initDi();
         $this->registerCoreComponents();
 
         $this->configure($config);
@@ -216,11 +230,6 @@ abstract class BaseApplication extends Module
         } else {
             return parent::__get($name);
         }
-    }
-
-    public function initDi()
-    {
-        $this->locator = new ServiceLocator();
     }
 
     /**
@@ -320,7 +329,8 @@ abstract class BaseApplication extends Module
     public function setBasePath($path)
     {
         if (($this->_basePath = realpath($path)) === false || !is_dir($this->_basePath)) {
-            throw new Exception(Mindy::t('yii', 'Application base path "{path}" is not a valid directory.', ['{path}' => $path]));
+            // TODO Mindy::t('yii', 'Application base path "{path}" is not a valid directory.', ['{path}' => $path])
+            throw new Exception(sprintf('Application base path "{path}" is not a valid directory.', ['{path}' => $path]));
         }
     }
 
@@ -965,6 +975,7 @@ abstract class BaseApplication extends Module
             ],
         ];
 
+        $this->locator = new ServiceLocator();
         $this->setComponents($components);
     }
 }
