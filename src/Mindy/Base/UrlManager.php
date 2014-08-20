@@ -82,10 +82,10 @@ class UrlManager extends Dispatcher
     public function parseUrl($request)
     {
         $uri = $request->getRequestUri();
-        $url = strtok($uri, "?");
+        $url = ltrim(strtok($uri, "?"), '/');
 
-        $route = $this->dispatch($request->getRequestType(), $uri);
-        if ($this->trailingSlash === true && substr($url, -1) !== '/') {
+        $route = $this->dispatch($request->getRequestType(), $url);
+        if (!$route && $this->trailingSlash === true && substr($url, -1) !== '/') {
             $newUri = $url . '/' . str_replace($url, '', $uri);
             $route = $this->dispatch($request->getRequestType(), $newUri);
             if($route) {

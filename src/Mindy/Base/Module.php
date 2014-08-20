@@ -100,6 +100,8 @@ abstract class Module extends Component implements IModule
 
         $this->preinit();
 
+        $this->locator = new ServiceLocator();
+
         $this->configure($config);
         $this->attachBehaviors($this->behaviors);
         $this->preloadComponents();

@@ -109,6 +109,11 @@ use ReflectionProperty;
  */
 abstract class BaseApplication extends Module
 {
+    public $managers = [];
+    /**
+     * @var array
+     */
+    public $admins = [];
     /**
      * @var string the application name. Defaults to 'My Application'.
      */
