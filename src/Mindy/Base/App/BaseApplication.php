@@ -230,6 +230,11 @@ abstract class BaseApplication extends Module
 
     public function __get($name)
     {
+        // TODO
+        if($name == 'viewRenderer') {
+            $name = 'template';
+        }
+
         if ($this->locator->has($name)) {
             return $this->locator->get($name);
         } else {

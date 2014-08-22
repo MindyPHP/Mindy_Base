@@ -6,6 +6,7 @@ use Mindy\Base\App\Application;
 use Mindy\Base\Exception\Exception;
 use Mindy\Base\Exception\ExceptionEvent;
 use Mindy\Base\Exception\HttpException;
+use Mindy\Utils\RenderTrait;
 
 /**
  * CErrorHandler handles uncaught PHP errors and exceptions.
@@ -53,6 +54,8 @@ use Mindy\Base\Exception\HttpException;
  */
 class ErrorHandler extends ApplicationComponent
 {
+    use RenderTrait;
+
     /**
      * @var integer maximum number of source code lines to be displayed. Defaults to 25.
      */
@@ -324,22 +327,12 @@ class ErrorHandler extends ApplicationComponent
         $data['admin'] = $this->adminInfo;
 
         if (!isset($data['code'])) {
-            $template = $this->getViewFile($view, '');
+            $code = '';
         } else {
-            $template = $this->getViewFile($view, $data['code']);
+            $code = $data['code'];
         }
 
-        if ($template === null) {
-            $template = $this->getViewFile($view, '');
-        }
-
-        if ($template === null) {
-            $ext = Mindy::app()->viewRenderer->fileExtension;
-            $views = implode(' ', [$view . $data['code'] . $ext, $view . $ext]);
-            throw new Exception("Template not found: $views. Search paths:\n" . implode("\n", Mindy::app()->finder->getPaths()));
-        }
-
-        echo Mindy::app()->viewRenderer->render($template, [
+        echo $this->renderTemplate('core/' . $view . $code . '.html', [
             'data' => $data,
             'this' => $this
         ]);
@@ -602,11 +595,5 @@ class ErrorHandler extends ApplicationComponent
     public function renderSource($file, $errorLine, $maxLines)
     {
         return $this->renderSourceCode($file, $errorLine, $maxLines);
-    }
-
-    protected function getViewFile($view, $code)
-    {
-        $ext = Mindy::app()->viewRenderer->fileExtension;
-        return Mindy::app()->finder->find('core/' . $view . $code . $ext);
     }
 }

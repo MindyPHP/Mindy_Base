@@ -9,8 +9,8 @@ function d()
     $data = array(
         'data' => $args,
         'debug' => array(
-            'file' => $debug[0]['file'],
-            'line' => $debug[0]['line'],
+            'file' => isset($debug[0]['file']) ? $debug[0]['file'] : null,
+            'line' => isset($debug[0]['line']) ? $debug[0]['line'] : null,
         )
     );
     Dumper::dump($data);
