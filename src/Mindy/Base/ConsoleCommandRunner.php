@@ -130,6 +130,9 @@ class ConsoleCommandRunner extends Component
         }
         $commands = [];
         while (($name = readdir($dir)) !== false) {
+            if(in_array($name, ['.', '..'])) {
+                continue;
+            }
             $file = $path . DIRECTORY_SEPARATOR . $name;
             if (!strcasecmp(substr($name, -11), 'Command.php') && is_file($file)) {
                 $commands[strtolower(substr($name, 0, -11))] = $file;

@@ -6,6 +6,7 @@ use Mindy\Base\App\Application;
 use Mindy\Base\Exception\Exception;
 use Mindy\Base\Exception\ExceptionEvent;
 use Mindy\Base\Exception\HttpException;
+use Mindy\Helper\Console;
 use Mindy\Utils\RenderTrait;
 
 /**
@@ -348,7 +349,7 @@ class ErrorHandler extends ApplicationComponent
         if ($exception instanceof Exception || !YII_DEBUG) {
             $this->renderError();
         } else {
-            if ($this->isAjaxRequest()) {
+            if ($this->isAjaxRequest() || Console::isCli()) {
                 Mindy::app()->displayException($exception);
             } else {
                 $this->render('exception', $this->getError());

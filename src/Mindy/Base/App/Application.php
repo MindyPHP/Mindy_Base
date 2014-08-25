@@ -205,7 +205,7 @@ class Application extends BaseApplication
             list($handler, $vars) = $route;
             list($className, $actionName) = $handler;
             if(!empty($vars)) {
-                $_GET = $vars;
+                $_GET = array_merge($_GET, $vars);
             }
             $controller = Creator::createObject($className, time(), $owner === $this ? null : $owner);
             return [$controller, $actionName];
@@ -443,7 +443,8 @@ class Application extends BaseApplication
             }
 
             foreach ($this->modules as $name => $settings) {
-                if ($modulePath = Alias::get("Modules." . $name . ".Commands")) {
+                $modulePath = Alias::get("Modules." . $name . ".Commands");
+                if ($modulePath) {
                     $this->_runner->addCommands($modulePath);
                 }
             }
