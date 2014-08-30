@@ -31,8 +31,7 @@ class Controller extends BaseController
     public function json(array $data = [])
     {
         header('Content-Type: application/json');
-        echo JSON::encode($data);
-        die();
+        return JSON::encode($data);
     }
 
     /**

@@ -209,8 +209,9 @@ class ErrorHandler extends ApplicationComponent
             }
 
             $this->renderException();
-        } else
+        } else {
             $app->displayException($exception);
+        }
     }
 
     /**
@@ -308,8 +309,9 @@ class ErrorHandler extends ApplicationComponent
 
         foreach ($traces as $trace) {
             // property access exception
-            if (isset($trace['function']) && ($trace['function'] === '__get' || $trace['function'] === '__set'))
+            if (isset($trace['function']) && ($trace['function'] === '__get' || $trace['function'] === '__set')) {
                 return $trace;
+            }
         }
         return null;
     }
@@ -335,7 +337,7 @@ class ErrorHandler extends ApplicationComponent
 
         echo $this->renderTemplate('core/' . $view . $code . '.html', [
             'data' => $data,
-            'this' => $this
+            'this' => $this,
         ]);
     }
 
@@ -346,13 +348,17 @@ class ErrorHandler extends ApplicationComponent
     protected function renderException()
     {
         $exception = $this->getException();
-        if ($exception instanceof Exception || !YII_DEBUG) {
-            $this->renderError();
+        if(Console::isCli()) {
+            Mindy::app()->displayException($exception);
         } else {
-            if ($this->isAjaxRequest() || Console::isCli()) {
-                Mindy::app()->displayException($exception);
+            if ($exception instanceof Exception || !YII_DEBUG) {
+                $this->renderError();
             } else {
-                $this->render('exception', $this->getError());
+                if ($this->isAjaxRequest()) {
+                    Mindy::app()->displayException($exception);
+                } else {
+                    $this->render('exception', $this->getError());
+                }
             }
         }
     }
@@ -364,30 +370,11 @@ class ErrorHandler extends ApplicationComponent
     protected function renderError()
     {
         $data = $this->getError();
-        if (YII_DEBUG)
+        if (YII_DEBUG) {
             $this->render('exception', $data);
-        else
+        } else {
             $this->render('error', $data);
-    }
-
-    /**
-     * Looks for the view under the specified directory.
-     * @param string $viewPath the directory containing the views
-     * @param string $view view name (either 'exception' or 'error')
-     * @param integer $code HTTP status code
-     * @param string $srcLanguage the language that the view file is in
-     * @return string view file path
-     */
-    protected function getViewFileInternal($viewPath, $view, $code, $srcLanguage = null)
-    {
-        $app = Mindy::app();
-        if ($view === 'error') {
-            $viewFile = $app->findLocalizedFile($viewPath . DIRECTORY_SEPARATOR . "error{$code}.php", $srcLanguage);
-            if (!is_file($viewFile))
-                $viewFile = $app->findLocalizedFile($viewPath . DIRECTORY_SEPARATOR . 'error.php', $srcLanguage);
-        } else
-            $viewFile = $viewPath . DIRECTORY_SEPARATOR . "exception.php";
-        return $viewFile;
+        }
     }
 
     /**
@@ -399,10 +386,12 @@ class ErrorHandler extends ApplicationComponent
     {
         if (YII_DEBUG) {
             $version = '<a href="http://www.mindy-cms.com/">Mindy Framework</a>/' . Mindy::getVersion();
-            if (isset($_SERVER['SERVER_SOFTWARE']))
+            if (isset($_SERVER['SERVER_SOFTWARE'])) {
                 $version = $_SERVER['SERVER_SOFTWARE'] . ' ' . $version;
-        } else
+            }
+        } else {
             $version = '';
+        }
         return $version;
     }
 

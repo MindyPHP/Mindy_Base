@@ -26,6 +26,8 @@ use ArrayAccess;
 use Countable;
 use IteratorAggregate;
 use Mindy\Base\Exception\Exception;
+use Mindy\Helper\Traits\Accessors;
+use Mindy\Helper\Traits\Configurator;
 
 /**
  * CHttpSession provides session-level data management and the related configurations.
@@ -88,12 +90,14 @@ use Mindy\Base\Exception\Exception;
  * @package system.web
  * @since 1.0
  */
-class HttpSession extends ApplicationComponent implements IteratorAggregate, ArrayAccess, Countable
+class HttpSession implements IteratorAggregate, ArrayAccess, Countable
 {
+    use Accessors, Configurator;
+
     /**
      * @var boolean whether the session should be automatically started when the session application component is initialized, defaults to true.
      */
-    public $autoStart = false;
+    public $autoStart = true;
 
     /**
      * Initializes the application component.
@@ -101,12 +105,15 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
      */
     public function init()
     {
-        parent::init();
-
         if ($this->autoStart) {
             $this->open();
         }
-        register_shutdown_function(array($this, 'close'));
+        register_shutdown_function([$this, 'close']);
+    }
+
+    public function getId()
+    {
+        return session_id();
     }
 
     /**
@@ -118,7 +125,7 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
      * The default implementation always return false.
      * @return boolean whether to use custom storage.
      */
-    public function getUseCustomStorage()
+    public function getCustomHandler()
     {
         return false;
     }
@@ -128,10 +135,22 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
      */
     public function open()
     {
-        if ($this->getUseCustomStorage())
-            @session_set_save_handler(array($this, 'openSession'), array($this, 'closeSession'), array($this, 'readSession'), array($this, 'writeSession'), array($this, 'destroySession'), array($this, 'gcSession'));
+        if ($handler = $this->getCustomHandler()) {
+//            $success = session_set_save_handler(
+//                [$this, 'openSession'],
+//                [$this, 'closeSession'],
+//                [$this, 'readSession'],
+//                [$this, 'writeSession'],
+//                [$this, 'destroySession'],
+//                [$this, 'gcSession']
+//            );
 
-        @session_start();
+            if(session_set_save_handler($handler, true) === false) {
+                throw new Exception("Failed to set custom session handlers");
+            }
+        }
+
+        session_start();
         if (YII_DEBUG && session_id() == '') {
             $message = Mindy::t('yii', 'Failed to start session.');
             if (function_exists('error_get_last')) {
@@ -148,7 +167,7 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
      */
     public function close()
     {
-        if (session_id() !== '') {
+        if ($this->getId() !== '') {
             session_write_close();
         }
     }
@@ -158,7 +177,7 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
      */
     public function destroy()
     {
-        if (session_id() !== '') {
+        if ($this->getId() !== '') {
             session_unset();
             session_destroy();
         }
@@ -169,7 +188,7 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
      */
     public function getIsStarted()
     {
-        return session_id() !== '';
+        return $this->getId() !== '';
     }
 
     /**
@@ -177,7 +196,7 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
      */
     public function getSessionID()
     {
-        return session_id();
+        return $this->getId();
     }
 
     /**
@@ -185,7 +204,7 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
      */
     public function setSessionID($value)
     {
-        session_id($value);
+        $this->setId($value);
     }
 
     /**
@@ -272,12 +291,13 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
      */
     public function getCookieMode()
     {
-        if (ini_get('session.use_cookies') === '0')
+        if (ini_get('session.use_cookies') === '0') {
             return 'none';
-        elseif (ini_get('session.use_only_cookies') === '0')
+        } elseif (ini_get('session.use_only_cookies') === '0') {
             return 'allow';
-        else
+        } else {
             return 'only';
+        }
     }
 
     /**
@@ -294,8 +314,9 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
         } elseif ($value === 'only') {
             ini_set('session.use_cookies', '1');
             ini_set('session.use_only_cookies', '1');
-        } else
+        } else {
             throw new Exception(Mindy::t('yii', 'CHttpSession.cookieMode can only be "none", "allow" or "only".'));
+        }
     }
 
     /**
@@ -316,8 +337,9 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
             // percent * 21474837 / 2147483647 ≈ percent * 0.01
             ini_set('session.gc_probability', floor($value * 21474836.47));
             ini_set('session.gc_divisor', 2147483647);
-        } else
+        } else {
             throw new Exception(Mindy::t('yii', 'CHttpSession.gcProbability "{value}" is invalid. It must be a float between 0 and 100.', ['{value}' => $value]));
+        }
     }
 
     /**
@@ -350,79 +372,6 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
     public function setTimeout($value)
     {
         ini_set('session.gc_maxlifetime', $value);
-    }
-
-    /**
-     * Session open handler.
-     * This method should be overridden if {@link useCustomStorage} is set true.
-     * Do not call this method directly.
-     * @param string $savePath session save path
-     * @param string $sessionName session name
-     * @return boolean whether session is opened successfully
-     */
-    public function openSession($savePath, $sessionName)
-    {
-        return true;
-    }
-
-    /**
-     * Session close handler.
-     * This method should be overridden if {@link useCustomStorage} is set true.
-     * Do not call this method directly.
-     * @return boolean whether session is closed successfully
-     */
-    public function closeSession()
-    {
-        return true;
-    }
-
-    /**
-     * Session read handler.
-     * This method should be overridden if {@link useCustomStorage} is set true.
-     * Do not call this method directly.
-     * @param string $id session ID
-     * @return string the session data
-     */
-    public function readSession($id)
-    {
-        return '';
-    }
-
-    /**
-     * Session write handler.
-     * This method should be overridden if {@link useCustomStorage} is set true.
-     * Do not call this method directly.
-     * @param string $id session ID
-     * @param string $data session data
-     * @return boolean whether session write is successful
-     */
-    public function writeSession($id, $data)
-    {
-        return true;
-    }
-
-    /**
-     * Session destroy handler.
-     * This method should be overridden if {@link useCustomStorage} is set true.
-     * Do not call this method directly.
-     * @param string $id session ID
-     * @return boolean whether session is destroyed successfully
-     */
-    public function destroySession($id)
-    {
-        return true;
-    }
-
-    /**
-     * Session GC (garbage collection) handler.
-     * This method should be overridden if {@link useCustomStorage} is set true.
-     * Do not call this method directly.
-     * @param integer $maxLifetime the number of seconds after which data will be seen as 'garbage' and cleaned up.
-     * @return boolean whether session is GCed successfully
-     */
-    public function gcSession($maxLifetime)
-    {
-        return true;
     }
 
     //------ The following methods enable CHttpSession to be CMap-like -----
@@ -520,8 +469,9 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
      */
     public function clear()
     {
-        foreach (array_keys($_SESSION) as $key)
+        foreach (array_keys($_SESSION) as $key) {
             unset($_SESSION[$key]);
+        }
     }
 
     /**
@@ -578,5 +528,10 @@ class HttpSession extends ApplicationComponent implements IteratorAggregate, Arr
     public function offsetUnset($offset)
     {
         unset($_SESSION[$offset]);
+    }
+
+    public function setId($value)
+    {
+        return session_id($value);
     }
 }
