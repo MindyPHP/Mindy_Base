@@ -51,20 +51,6 @@ class UrlManager extends Dispatcher
         Mindy::app()->request->redirect($path);
     }
 
-    /**
-     * @deprecated
-     * @param $name
-     * @param array $data
-     * @return mixed
-     */
-    public function createUrl($name, $data = null)
-    {
-        if(is_null($data)) {
-            $data = [];
-        }
-        return $this->reverse($name, $data);
-    }
-
     public function reverse($name, $args = [])
     {
         if (is_array($name)) {
@@ -81,10 +67,10 @@ class UrlManager extends Dispatcher
      */
     public function parseUrl($request)
     {
-        $uri = $request->getRequestUri();
+        $uri = $request->http->getPath();
         $url = ltrim(strtok($uri, "?"), '/');
 
-        $route = $this->dispatch($request->getRequestType(), $url);
+        $route = $this->dispatch($request->http->getRequestType(), $url);
         if (!$route && $this->trailingSlash === true && substr($url, -1) !== '/') {
             $newUri = $url . '/' . str_replace($url, '', $uri);
             $route = $this->dispatch($request->getRequestType(), $newUri);

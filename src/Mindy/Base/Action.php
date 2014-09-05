@@ -23,6 +23,8 @@ namespace Mindy\Base;
  * @license http://www.yiiframework.com/license/
  */
 use Mindy\Base\Interfaces\IAction;
+use Mindy\Helper\Traits\BehaviorAccessors;
+use Mindy\Helper\Traits\Configurator;
 use ReflectionMethod;
 
 /**
@@ -45,8 +47,10 @@ use ReflectionMethod;
  * @package system.web.actions
  * @since 1.0
  */
-abstract class Action extends Component implements IAction
+abstract class Action implements IAction
 {
+    use Configurator, BehaviorAccessors;
+
     private $_id;
     private $_controller;
 

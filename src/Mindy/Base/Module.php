@@ -18,6 +18,8 @@ use Mindy\Helper\Alias;
 use Mindy\Helper\Collection;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Map;
+use Mindy\Helper\Traits\BehaviorAccessors;
+use Mindy\Helper\Traits\Configurator;
 use ReflectionClass;
 
 /**
@@ -47,8 +49,10 @@ use ReflectionClass;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @package system.base
  */
-abstract class Module extends Component implements IModule
+abstract class Module implements IModule
 {
+    use Configurator, BehaviorAccessors;
+
     /**
      * @var array the IDs of the application components that should be preloaded.
      */
@@ -126,7 +130,7 @@ abstract class Module extends Component implements IModule
         if ($this->hasComponent($name)) {
             return $this->getComponent($name);
         } else {
-            return parent::__get($name);
+            return $this->__getInternal($name);
         }
     }
 
@@ -142,7 +146,7 @@ abstract class Module extends Component implements IModule
         if ($this->hasComponent($name)) {
             return $this->getComponent($name) !== null;
         } else {
-            return parent::__isset($name);
+            return $this->__issetInternal($name);
         }
     }
 
@@ -503,18 +507,6 @@ abstract class Module extends Component implements IModule
     }
 
     /**
-     * Configures the module with the specified configuration.
-     * @param array $config the configuration array
-     */
-    public function configure($config)
-    {
-
-        if (is_array($config)) {
-            Creator::configure($this, $config);
-        }
-    }
-
-    /**
      * Loads static application components.
      */
     protected function preloadComponents()
@@ -532,17 +524,6 @@ abstract class Module extends Component implements IModule
      * @see init
      */
     protected function preinit()
-    {
-    }
-
-    /**
-     * Initializes the module.
-     * This method is called at the end of the module constructor.
-     * Note that at this moment, the module has been configured, the behaviors
-     * have been attached and the application components have been registered.
-     * @see preinit
-     */
-    protected function init()
     {
     }
 

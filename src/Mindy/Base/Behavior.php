@@ -23,6 +23,8 @@ namespace Mindy\Base;
  * @license http://www.yiiframework.com/license/
  */
 use Mindy\Base\Interfaces\IBehavior;
+use Mindy\Helper\Traits\BehaviorAccessors;
+use Mindy\Helper\Traits\Configurator;
 use ReflectionClass;
 
 /**
@@ -34,8 +36,10 @@ use ReflectionClass;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @package system.base
  */
-class Behavior extends Component implements IBehavior
+class Behavior implements IBehavior
 {
+    use Configurator, BehaviorAccessors;
+
     private $_enabled = false;
     private $_owner;
 

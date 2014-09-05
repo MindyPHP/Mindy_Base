@@ -14,6 +14,8 @@ use Countable;
 use Iterator;
 use IteratorAggregate;
 use Mindy\Base\Exception\Exception;
+use Mindy\Helper\Traits\BehaviorAccessors;
+use Mindy\Helper\Traits\Configurator;
 
 /**
  * CQueue implements a queue.
@@ -36,8 +38,10 @@ use Mindy\Base\Exception\Exception;
  * @package system.collections
  * @since 1.0
  */
-class Queue extends Component implements IteratorAggregate, Countable
+class Queue implements IteratorAggregate, Countable
 {
+    use Configurator, BehaviorAccessors;
+
     /**
      * internal data storage
      * @var array

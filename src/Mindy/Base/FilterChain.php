@@ -69,6 +69,7 @@ class FilterChain extends BaseList
      * @param Controller $controller the controller who executes the action.
      * @param Action $action the action being filtered by this chain.
      * @param array $filters list of filters to be applied to the action.
+     * @throws \Mindy\Base\Exception\Exception
      * @return FilterChain
      */
     public static function create($controller, $action, $filters)
@@ -77,17 +78,17 @@ class FilterChain extends BaseList
 
         $actionID = $action->getId();
         foreach ($filters as $filter) {
-            if (is_string($filter)) // filterName [+|- action1 action2]
-            {
+            if (is_string($filter)) { // filterName [+|- action1 action2]
                 if (($pos = strpos($filter, '+')) !== false || ($pos = strpos($filter, '-')) !== false) {
                     $matched = preg_match("/\b{$actionID}\b/i", substr($filter, $pos + 1)) > 0;
-                    if (($filter[$pos] === '+') === $matched)
+                    if (($filter[$pos] === '+') === $matched) {
                         $filter = InlineFilter::create($controller, trim(substr($filter, 0, $pos)));
-                } else
+                    }
+                } else {
                     $filter = InlineFilter::create($controller, $filter);
+                }
             } elseif (is_array($filter)) {
                 // array('path.to.class [+|- action1, action2]','param1'=>'value1',...)
-
                 if (!isset($filter[0])) {
                     throw new Exception(Mindy::t('yii', 'The first element in a filter configuration must be the filter class.'));
                 }
@@ -95,10 +96,11 @@ class FilterChain extends BaseList
                 unset($filter[0]);
                 if (($pos = strpos($filterClass, '+')) !== false || ($pos = strpos($filterClass, '-')) !== false) {
                     $matched = preg_match("/\b{$actionID}\b/i", substr($filterClass, $pos + 1)) > 0;
-                    if (($filterClass[$pos] === '+') === $matched)
+                    if (($filterClass[$pos] === '+') === $matched) {
                         $filterClass = trim(substr($filterClass, 0, $pos));
-                    else
+                    } else {
                         continue;
+                    }
                 }
                 $filter['class'] = $filterClass;
                 $filter = Creator::createObject($filter);
@@ -136,13 +138,14 @@ class FilterChain extends BaseList
      * This method is usually invoked in filters so that the filtering process
      * can continue and the action can be executed.
      */
-    public function run()
+    public function run($params = [])
     {
         if ($this->offsetExists($this->filterIndex)) {
             $filter = $this->itemAt($this->filterIndex++);
             Mindy::app()->logger->info('Running filter ' . ($filter instanceof InlineFilter ? get_class($this->controller) . '.filter' . $filter->name . '()' : get_class($filter) . '.filter()'), 'system.web.filters.FilterChain');
-            $filter->filter($this);
-        } else
-            $this->controller->runAction($this->action);
+            $filter->filter($this, $params);
+        } else {
+            $this->controller->runAction($this->action, $params);
+        }
     }
 }

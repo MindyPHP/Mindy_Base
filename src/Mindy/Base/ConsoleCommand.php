@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -22,6 +22,8 @@ namespace Mindy\Base;
  * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
+use Mindy\Helper\Traits\BehaviorAccessors;
+use Mindy\Helper\Traits\Configurator;
 use ReflectionClass;
 use ReflectionMethod;
 
@@ -63,13 +65,15 @@ use ReflectionMethod;
  * @package system.console
  * @since 1.0
  */
-abstract class ConsoleCommand extends Component
+abstract class ConsoleCommand
 {
+    use Configurator, BehaviorAccessors;
+
     /**
      * @var string the name of the default action. Defaults to 'index'.
      * @since 1.1.5
      */
-    public $defaultAction='index';
+    public $defaultAction = 'index';
 
     // Set up shell colors
     public $foregroundColors = [
@@ -110,10 +114,10 @@ abstract class ConsoleCommand extends Component
      * @param string $name name of the command
      * @param ConsoleCommandRunner $runner the command runner
      */
-    public function __construct($name,$runner)
+    public function __construct($name, $runner)
     {
-        $this->_name=$name;
-        $this->_runner=$runner;
+        $this->_name = $name;
+        $this->_runner = $runner;
         $this->attachBehaviors($this->behaviors());
     }
 
@@ -169,61 +173,53 @@ abstract class ConsoleCommand extends Component
      */
     public function run($args)
     {
-        list($action, $options, $args)=$this->resolveRequest($args);
-        $methodName='action'.$action;
-        if(!preg_match('/^\w+$/',$action) || !method_exists($this,$methodName))
-            $this->usageError("Unknown action: ".$action);
+        list($action, $options, $args) = $this->resolveRequest($args);
+        $methodName = 'action' . $action;
+        if (!preg_match('/^\w+$/', $action) || !method_exists($this, $methodName))
+            $this->usageError("Unknown action: " . $action);
 
-        $method=new ReflectionMethod($this,$methodName);
-        $params=array();
+        $method = new ReflectionMethod($this, $methodName);
+        $params = array();
         // named and unnamed options
-        foreach($method->getParameters() as $i=>$param)
-        {
-            $name=$param->getName();
-            if(isset($options[$name]))
-            {
-                if($param->isArray())
-                    $params[]=is_array($options[$name]) ? $options[$name] : array($options[$name]);
-                elseif(!is_array($options[$name]))
-                    $params[]=$options[$name];
+        foreach ($method->getParameters() as $i => $param) {
+            $name = $param->getName();
+            if (isset($options[$name])) {
+                if ($param->isArray())
+                    $params[] = is_array($options[$name]) ? $options[$name] : array($options[$name]);
+                elseif (!is_array($options[$name]))
+                    $params[] = $options[$name];
                 else
                     $this->usageError("Option --$name requires a scalar. Array is given.");
-            }
-            elseif($name==='args')
-                $params[]=$args;
-            elseif($param->isDefaultValueAvailable())
-                $params[]=$param->getDefaultValue();
+            } elseif ($name === 'args')
+                $params[] = $args;
+            elseif ($param->isDefaultValueAvailable())
+                $params[] = $param->getDefaultValue();
             else
                 $this->usageError("Missing required option --$name.");
             unset($options[$name]);
         }
 
         // try global options
-        if(!empty($options))
-        {
-            $class=new ReflectionClass(get_class($this));
-            foreach($options as $name=>$value)
-            {
-                if($class->hasProperty($name))
-                {
-                    $property=$class->getProperty($name);
-                    if($property->isPublic() && !$property->isStatic())
-                    {
-                        $this->$name=$value;
+        if (!empty($options)) {
+            $class = new ReflectionClass(get_class($this));
+            foreach ($options as $name => $value) {
+                if ($class->hasProperty($name)) {
+                    $property = $class->getProperty($name);
+                    if ($property->isPublic() && !$property->isStatic()) {
+                        $this->$name = $value;
                         unset($options[$name]);
                     }
                 }
             }
         }
 
-        if(!empty($options))
-            $this->usageError("Unknown options: ".implode(', ',array_keys($options)));
+        if (!empty($options))
+            $this->usageError("Unknown options: " . implode(', ', array_keys($options)));
 
-        $exitCode=0;
-        if($this->beforeAction($action,$params))
-        {
-            $exitCode=$method->invokeArgs($this,$params);
-            $exitCode=$this->afterAction($action,$params,is_int($exitCode)?$exitCode:0);
+        $exitCode = 0;
+        if ($this->beforeAction($action, $params)) {
+            $exitCode = $method->invokeArgs($this, $params);
+            $exitCode = $this->afterAction($action, $params, is_int($exitCode) ? $exitCode : 0);
         }
         return $exitCode;
     }
@@ -235,16 +231,13 @@ abstract class ConsoleCommand extends Component
      * @param array $params the parameters to be passed to the action method.
      * @return boolean whether the action should be executed.
      */
-    protected function beforeAction($action,$params)
+    protected function beforeAction($action, $params)
     {
-        if($this->hasEventHandler('onBeforeAction'))
-        {
-            $event = new ConsoleCommandEvent($this,$params,$action);
+        if ($this->hasEventHandler('onBeforeAction')) {
+            $event = new ConsoleCommandEvent($this, $params, $action);
             $this->onBeforeAction($event);
             return !$event->stopCommand;
-        }
-        else
-        {
+        } else {
             return true;
         }
     }
@@ -257,10 +250,10 @@ abstract class ConsoleCommand extends Component
      * @param integer $exitCode the application exit code returned by the action method.
      * @return integer application exit code (return value is available since version 1.1.11)
      */
-    protected function afterAction($action,$params,$exitCode=0)
+    protected function afterAction($action, $params, $exitCode = 0)
     {
-        $event=new ConsoleCommandEvent($this,$params,$action,$exitCode);
-        if($this->hasEventHandler('onAfterAction'))
+        $event = new ConsoleCommandEvent($this, $params, $action, $exitCode);
+        if ($this->hasEventHandler('onAfterAction'))
             $this->onAfterAction($event);
         return $event->exitCode;
     }
@@ -273,32 +266,28 @@ abstract class ConsoleCommand extends Component
      */
     protected function resolveRequest($args)
     {
-        $options=array();	// named parameters
-        $params=array();	// unnamed parameters
-        foreach($args as $arg)
-        {
-            if(preg_match('/^--(\w+)(=(.*))?$/',$arg,$matches))  // an option
+        $options = array(); // named parameters
+        $params = array(); // unnamed parameters
+        foreach ($args as $arg) {
+            if (preg_match('/^--(\w+)(=(.*))?$/', $arg, $matches)) // an option
             {
-                $name=$matches[1];
-                $value=isset($matches[3]) ? $matches[3] : true;
-                if(isset($options[$name]))
-                {
-                    if(!is_array($options[$name]))
-                        $options[$name]=array($options[$name]);
-                    $options[$name][]=$value;
-                }
-                else
-                    $options[$name]=$value;
-            }
-            elseif(isset($action))
-                $params[]=$arg;
+                $name = $matches[1];
+                $value = isset($matches[3]) ? $matches[3] : true;
+                if (isset($options[$name])) {
+                    if (!is_array($options[$name]))
+                        $options[$name] = array($options[$name]);
+                    $options[$name][] = $value;
+                } else
+                    $options[$name] = $value;
+            } elseif (isset($action))
+                $params[] = $arg;
             else
-                $action=$arg;
+                $action = $arg;
         }
-        if(!isset($action))
-            $action=$this->defaultAction;
+        if (!isset($action))
+            $action = $this->defaultAction;
 
-        return array($action,$options,$params);
+        return array($action, $options, $params);
     }
 
     /**
@@ -324,15 +313,15 @@ abstract class ConsoleCommand extends Component
      */
     public function getHelp()
     {
-        $help='Usage: '.$this->getCommandRunner()->getScriptName().' '.$this->getName();
-        $options=$this->getOptionHelp();
-        if(empty($options))
-            return $help."\n";
-        if(count($options)===1)
-            return $help.' '.$options[0]."\n";
-        $help.=" <action>\nActions:\n";
-        foreach($options as $option)
-            $help.='    '.$option."\n";
+        $help = 'Usage: ' . $this->getCommandRunner()->getScriptName() . ' ' . $this->getName();
+        $options = $this->getOptionHelp();
+        if (empty($options))
+            return $help . "\n";
+        if (count($options) === 1)
+            return $help . ' ' . $options[0] . "\n";
+        $help .= " <action>\nActions:\n";
+        foreach ($options as $option)
+            $help .= '    ' . $option . "\n";
         return $help;
     }
 
@@ -346,35 +335,32 @@ abstract class ConsoleCommand extends Component
      */
     public function getOptionHelp()
     {
-        $options=array();
-        $class=new ReflectionClass(get_class($this));
-        foreach($class->getMethods(ReflectionMethod::IS_PUBLIC) as $method)
-        {
-            $name=$method->getName();
-            if(!strncasecmp($name,'action',6) && strlen($name)>6)
-            {
-                $name=substr($name,6);
-                $name[0]=strtolower($name[0]);
-                $help=$name;
+        $options = array();
+        $class = new ReflectionClass(get_class($this));
+        foreach ($class->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+            $name = $method->getName();
+            if (!strncasecmp($name, 'action', 6) && strlen($name) > 6) {
+                $name = substr($name, 6);
+                $name[0] = strtolower($name[0]);
+                $help = $name;
 
-                foreach($method->getParameters() as $param)
-                {
-                    $optional=$param->isDefaultValueAvailable();
-                    $defaultValue=$optional ? $param->getDefaultValue() : null;
-                    if(is_array($defaultValue)) {
+                foreach ($method->getParameters() as $param) {
+                    $optional = $param->isDefaultValueAvailable();
+                    $defaultValue = $optional ? $param->getDefaultValue() : null;
+                    if (is_array($defaultValue)) {
                         $defaultValue = str_replace(array("\r\n", "\n", "\r"), "", print_r($defaultValue, true));
                     }
-                    $name=$param->getName();
+                    $name = $param->getName();
 
-                    if($name==='args')
+                    if ($name === 'args')
                         continue;
 
-                    if($optional)
-                        $help.=" [--$name=$defaultValue]";
+                    if ($optional)
+                        $help .= " [--$name=$defaultValue]";
                     else
-                        $help.=" --$name=value";
+                        $help .= " --$name=value";
                 }
-                $options[]=$help;
+                $options[] = $help;
             }
         }
         return $options;
@@ -387,7 +373,7 @@ abstract class ConsoleCommand extends Component
      */
     public function usageError($message)
     {
-        echo "Error: $message\n\n".$this->getHelp()."\n";
+        echo "Error: $message\n\n" . $this->getHelp() . "\n";
         exit(1);
     }
 
@@ -412,60 +398,50 @@ abstract class ConsoleCommand extends Component
      */
     public function copyFiles($fileList)
     {
-        $overwriteAll=false;
-        foreach($fileList as $name=>$file)
-        {
-            $source=strtr($file['source'],'/\\',DIRECTORY_SEPARATOR);
-            $target=strtr($file['target'],'/\\',DIRECTORY_SEPARATOR);
-            $callback=isset($file['callback']) ? $file['callback'] : null;
-            $params=isset($file['params']) ? $file['params'] : null;
+        $overwriteAll = false;
+        foreach ($fileList as $name => $file) {
+            $source = strtr($file['source'], '/\\', DIRECTORY_SEPARATOR);
+            $target = strtr($file['target'], '/\\', DIRECTORY_SEPARATOR);
+            $callback = isset($file['callback']) ? $file['callback'] : null;
+            $params = isset($file['params']) ? $file['params'] : null;
 
-            if(is_dir($source))
-            {
+            if (is_dir($source)) {
                 $this->ensureDirectory($target);
                 continue;
             }
 
-            if($callback!==null)
-                $content=call_user_func($callback,$source,$params);
+            if ($callback !== null)
+                $content = call_user_func($callback, $source, $params);
             else
-                $content=file_get_contents($source);
-            if(is_file($target))
-            {
-                if($content===file_get_contents($target))
-                {
+                $content = file_get_contents($source);
+            if (is_file($target)) {
+                if ($content === file_get_contents($target)) {
                     echo "  unchanged $name\n";
                     continue;
                 }
-                if($overwriteAll)
+                if ($overwriteAll)
                     echo "  overwrite $name\n";
-                else
-                {
+                else {
                     echo "      exist $name\n";
                     echo "            ...overwrite? [Yes|No|All|Quit] ";
-                    $answer=trim(fgets(STDIN));
-                    if(!strncasecmp($answer,'q',1))
+                    $answer = trim(fgets(STDIN));
+                    if (!strncasecmp($answer, 'q', 1))
                         return;
-                    elseif(!strncasecmp($answer,'y',1))
+                    elseif (!strncasecmp($answer, 'y', 1))
                         echo "  overwrite $name\n";
-                    elseif(!strncasecmp($answer,'a',1))
-                    {
+                    elseif (!strncasecmp($answer, 'a', 1)) {
                         echo "  overwrite $name\n";
-                        $overwriteAll=true;
-                    }
-                    else
-                    {
+                        $overwriteAll = true;
+                    } else {
                         echo "       skip $name\n";
                         continue;
                     }
                 }
-            }
-            else
-            {
+            } else {
                 $this->ensureDirectory(dirname($target));
                 echo "   generate $name\n";
             }
-            file_put_contents($target,$content);
+            file_put_contents($target, $content);
         }
     }
 
@@ -484,20 +460,19 @@ abstract class ConsoleCommand extends Component
      * Argument available since 1.1.11.
      * @return array the file list (see {@link copyFiles})
      */
-    public function buildFileList($sourceDir, $targetDir, $baseDir='', $ignoreFiles=array(), $renameMap=array())
+    public function buildFileList($sourceDir, $targetDir, $baseDir = '', $ignoreFiles = array(), $renameMap = array())
     {
-        $list=array();
-        $handle=opendir($sourceDir);
-        while(($file=readdir($handle))!==false)
-        {
-            if(in_array($file,array('.','..','.svn','.gitignore')) || in_array($file,$ignoreFiles))
+        $list = array();
+        $handle = opendir($sourceDir);
+        while (($file = readdir($handle)) !== false) {
+            if (in_array($file, array('.', '..', '.svn', '.gitignore')) || in_array($file, $ignoreFiles))
                 continue;
-            $sourcePath=$sourceDir.DIRECTORY_SEPARATOR.$file;
-            $targetPath=$targetDir.DIRECTORY_SEPARATOR.strtr($file,$renameMap);
-            $name=$baseDir===''?$file : $baseDir.'/'.$file;
-            $list[$name]=array('source'=>$sourcePath, 'target'=>$targetPath);
-            if(is_dir($sourcePath))
-                $list=array_merge($list,$this->buildFileList($sourcePath,$targetPath,$name,$ignoreFiles,$renameMap));
+            $sourcePath = $sourceDir . DIRECTORY_SEPARATOR . $file;
+            $targetPath = $targetDir . DIRECTORY_SEPARATOR . strtr($file, $renameMap);
+            $name = $baseDir === '' ? $file : $baseDir . '/' . $file;
+            $list[$name] = array('source' => $sourcePath, 'target' => $targetPath);
+            if (is_dir($sourcePath))
+                $list = array_merge($list, $this->buildFileList($sourcePath, $targetPath, $name, $ignoreFiles, $renameMap));
         }
         closedir($handle);
         return $list;
@@ -509,10 +484,9 @@ abstract class ConsoleCommand extends Component
      */
     public function ensureDirectory($directory)
     {
-        if(!is_dir($directory))
-        {
+        if (!is_dir($directory)) {
             $this->ensureDirectory(dirname($directory));
-            echo "      mkdir ".strtr($directory,'\\','/')."\n";
+            echo "      mkdir " . strtr($directory, '\\', '/') . "\n";
             mkdir($directory);
         }
     }
@@ -524,20 +498,18 @@ abstract class ConsoleCommand extends Component
      * @param boolean $_return_ whether to return the rendering result instead of displaying it
      * @return mixed the rendering result if required. Null otherwise.
      */
-    public function renderFile($_viewFile_,$_data_=null,$_return_=false)
+    public function renderFile($_viewFile_, $_data_ = null, $_return_ = false)
     {
-        if(is_array($_data_))
-            extract($_data_,EXTR_PREFIX_SAME,'data');
+        if (is_array($_data_))
+            extract($_data_, EXTR_PREFIX_SAME, 'data');
         else
-            $data=$_data_;
-        if($_return_)
-        {
+            $data = $_data_;
+        if ($_return_) {
             ob_start();
             ob_implicit_flush(false);
             require($_viewFile_);
             return ob_get_clean();
-        }
-        else
+        } else
             require($_viewFile_);
     }
 
@@ -548,7 +520,7 @@ abstract class ConsoleCommand extends Component
      */
     public function pluralize($name)
     {
-        $rules=array(
+        $rules = array(
             '/(m)ove$/i' => '\1oves',
             '/(f)oot$/i' => '\1eet',
             '/(c)hild$/i' => '\1hildren',
@@ -568,12 +540,11 @@ abstract class ConsoleCommand extends Component
             '/(ax|test)is$/i' => '\1es',
             '/s$/' => 's',
         );
-        foreach($rules as $rule=>$replacement)
-        {
-            if(preg_match($rule,$name))
-                return preg_replace($rule,$replacement,$name);
+        foreach ($rules as $rule => $replacement) {
+            if (preg_match($rule, $name))
+                return preg_replace($rule, $replacement, $name);
         }
-        return $name.'s';
+        return $name . 's';
     }
 
     /**
@@ -586,30 +557,27 @@ abstract class ConsoleCommand extends Component
      *
      * @since 1.1.9
      */
-    public function prompt($message,$default=null)
+    public function prompt($message, $default = null)
     {
-        if($default!==null)
-            $message.=" [$default] ";
+        if ($default !== null)
+            $message .= " [$default] ";
         else
-            $message.=' ';
+            $message .= ' ';
 
-        if(extension_loaded('readline'))
-        {
-            $input=readline($message);
-            if($input!==false)
+        if (extension_loaded('readline')) {
+            $input = readline($message);
+            if ($input !== false)
                 readline_add_history($input);
-        }
-        else
-        {
+        } else {
             echo $message;
-            $input=fgets(STDIN);
+            $input = fgets(STDIN);
         }
 
-        if($input===false)
+        if ($input === false)
             return false;
-        else{
-            $input=trim($input);
-            return ($input==='' && $default!==null) ? $default : $input;
+        else {
+            $input = trim($input);
+            return ($input === '' && $default !== null) ? $default : $input;
         }
     }
 
@@ -622,12 +590,12 @@ abstract class ConsoleCommand extends Component
      *
      * @since 1.1.9
      */
-    public function confirm($message,$default=false)
+    public function confirm($message, $default = false)
     {
-        echo $message.' (yes|no) [' . ($default ? 'yes' : 'no') . ']:';
+        echo $message . ' (yes|no) [' . ($default ? 'yes' : 'no') . ']:';
 
         $input = trim(fgets(STDIN));
-        return empty($input) ? $default : !strncasecmp($input,'y',1);
+        return empty($input) ? $default : !strncasecmp($input, 'y', 1);
     }
 
     /**
@@ -637,7 +605,7 @@ abstract class ConsoleCommand extends Component
      */
     public function onBeforeAction($event)
     {
-        $this->raiseEvent('onBeforeAction',$event);
+        $this->raiseEvent('onBeforeAction', $event);
     }
 
     /**
@@ -647,7 +615,7 @@ abstract class ConsoleCommand extends Component
      */
     public function onAfterAction($event)
     {
-        $this->raiseEvent('onAfterAction',$event);
+        $this->raiseEvent('onAfterAction', $event);
     }
 
     // Returns colored string

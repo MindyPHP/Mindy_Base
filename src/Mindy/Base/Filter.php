@@ -23,6 +23,8 @@ namespace Mindy\Base;
  * @license http://www.yiiframework.com/license/
  */
 use Mindy\Base\Interfaces\IFilter;
+use Mindy\Helper\Traits\BehaviorAccessors;
+use Mindy\Helper\Traits\Configurator;
 
 /**
  * CFilter is the base class for all filters.
@@ -38,8 +40,10 @@ use Mindy\Base\Interfaces\IFilter;
  * @package system.web.filters
  * @since 1.0
  */
-class Filter extends Component implements IFilter
+class Filter implements IFilter
 {
+    use Configurator, BehaviorAccessors;
+
     /**
      * Performs the filtering.
      * The default implementation is to invoke {@link preFilter}
@@ -48,11 +52,12 @@ class Filter extends Component implements IFilter
      * make sure it calls <code>$filterChain->run()</code>
      * if the action should be executed.
      * @param FilterChain $filterChain the filter chain that the filter is on.
+     * @param array $params
      */
-    public function filter($filterChain)
+    public function filter($filterChain, $params = [])
     {
         if ($this->preFilter($filterChain)) {
-            $filterChain->run();
+            $filterChain->run($params);
             $this->postFilter($filterChain);
         }
     }

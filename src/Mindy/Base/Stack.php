@@ -14,6 +14,8 @@ use Countable;
 use Iterator;
 use IteratorAggregate;
 use Mindy\Base\Exception\Exception;
+use Mindy\Helper\Traits\BehaviorAccessors;
+use Mindy\Helper\Traits\Configurator;
 use Traversable;
 
 /**
@@ -37,8 +39,10 @@ use Traversable;
  * @package system.collections
  * @since 1.0
  */
-class Stack extends Component implements IteratorAggregate, Countable
+class Stack implements IteratorAggregate, Countable
 {
+    use Configurator, BehaviorAccessors;
+
     /**
      * internal data storage
      * @var array

@@ -14,6 +14,8 @@ namespace Mindy\Base;
      * @site http://studio107.ru
      * @date 09/06/14.06.2014 17:32
      */
+use Mindy\Helper\Traits\BehaviorAccessors;
+use Mindy\Helper\Traits\Configurator;
 
 /**
  * CEvent is the base class for all event classes.
@@ -28,8 +30,10 @@ namespace Mindy\Base;
  * @package system.base
  * @since 1.0
  */
-class Event extends Component
+class Event
 {
+    use Configurator, BehaviorAccessors;
+
     /**
      * @var object the sender of this event
      */

@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -16,6 +16,9 @@ namespace Mindy\Base;
 
 
 use Mindy\Base\Interfaces\IApplicationComponent;
+use Mindy\Helper\Traits\BehaviorAccessors;
+use Mindy\Helper\Traits\Configurator;
+
 /**
  * This file contains the base application component class.
  *
@@ -40,16 +43,18 @@ use Mindy\Base\Interfaces\IApplicationComponent;
  * @package system.base
  * @since 1.0
  */
-abstract class ApplicationComponent extends Component implements IApplicationComponent
+abstract class ApplicationComponent implements IApplicationComponent
 {
+    use Configurator, BehaviorAccessors;
+
     /**
      * @var array the behaviors that should be attached to this component.
      * The behaviors will be attached to the component when {@link init} is called.
      * Please refer to {@link CModel::behaviors} on how to specify the value of this property.
      */
-    public $behaviors=array();
+    public $behaviors = [];
 
-    private $_initialized=false;
+    private $_initialized = false;
 
     /**
      * Initializes the application component.
@@ -59,9 +64,8 @@ abstract class ApplicationComponent extends Component implements IApplicationCom
      */
     public function init()
     {
-        parent::init();
         $this->attachBehaviors($this->behaviors);
-        $this->_initialized=true;
+        $this->_initialized = true;
     }
 
     /**

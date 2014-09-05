@@ -31,6 +31,7 @@ use Mindy\Base\Mindy;
 use Mindy\Base\Module;
 use Mindy\Di\ServiceLocator;
 use Mindy\Helper\Alias;
+use Mindy\Http\Request;
 use ReflectionProperty;
 
 /**
@@ -210,7 +211,15 @@ abstract class BaseApplication extends Module
         $this->attachBehaviors($this->behaviors);
         $this->preloadComponents();
 
+        $this->initEvents();
         $this->init();
+    }
+
+    public function initEvents()
+    {
+//        $this->signal->handler($this, 'beginRequest', [$this, 'beginRequest']);
+        $this->signal->handler($this, 'onProcessRequest', [$this, 'onProcessRequest']);
+//        $this->signal->handler($this, 'endRequest', [$this, 'endRequest']);
     }
 
     public function __call($name, $args)
@@ -460,7 +469,7 @@ abstract class BaseApplication extends Module
      */
     public function getLocale($localeID = null)
     {
-        return call_user_func_array(array($this->localeClass, 'getInstance'), array($localeID === null ? $this->getLanguage() : $localeID));
+        return call_user_func_array([$this->localeClass, 'getInstance'], [$localeID === null ? $this->getLanguage() : $localeID]);
     }
 
     /**
@@ -939,7 +948,7 @@ abstract class BaseApplication extends Module
                 'class' => '\Mindy\Base\UrlManager',
             ],
             'request' => [
-                'class' => '\Mindy\Base\HttpRequest',
+                'class' => '\Mindy\Http\Request',
             ],
             'format' => [
                 'class' => '\Mindy\Locale\Formatter',
@@ -987,5 +996,10 @@ abstract class BaseApplication extends Module
 
         $this->locator = new ServiceLocator();
         $this->setComponents($components);
+    }
+
+    public function onProcessRequest()
+    {
+        $this->middleware->processRequest($this->getComponent('request'));
     }
 }

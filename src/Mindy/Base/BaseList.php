@@ -27,6 +27,8 @@ use Countable;
 use Iterator;
 use IteratorAggregate;
 use Mindy\Base\Exception\Exception;
+use Mindy\Helper\Traits\BehaviorAccessors;
+use Mindy\Helper\Traits\Configurator;
 use Traversable;
 
 /**
@@ -56,8 +58,10 @@ use Traversable;
  * @package system.collections
  * @since 1.0
  */
-class BaseList extends Component implements IteratorAggregate, ArrayAccess, Countable
+class BaseList implements IteratorAggregate, ArrayAccess, Countable
 {
+    use Configurator, BehaviorAccessors;
+
     /**
      * @var array internal data storage
      */

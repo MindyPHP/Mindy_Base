@@ -13,6 +13,11 @@ namespace Mindy\Base;
 use Mindy\Base\Exception\Exception;
 use Mindy\Base\Exception\HttpException;
 use Mindy\Helper\Creator;
+use Mindy\Helper\Traits\Accessors;
+use Mindy\Helper\Traits\BehaviorAccessors;
+use Mindy\Helper\Traits\Configurator;
+use Mindy\Http\Request;
+use Mindy\Http\Traits\HttpErrors;
 
 
 /**
@@ -79,13 +84,69 @@ use Mindy\Helper\Creator;
  * @package system.web
  * @since 1.0
  */
-class BaseController extends CBaseController
+/**
+ * CBaseController is the base class for {@link CController} and {@link CWidget}.
+ *
+ * It provides the common functionalities shared by controllers who need to render views.
+ *
+ * CBaseController also implements the support for the following features:
+ * <ul>
+ * <li>{@link CClipWidget Clips} : a clip is a piece of captured output that can be inserted elsewhere.</li>
+ * <li>{@link CWidget Widgets} : a widget is a self-contained sub-controller with its own view and model.</li>
+ * <li>{@link COutputCache Fragment cache} : fragment cache selectively caches a portion of the output.</li>
+ * </ul>
+ *
+ * To use a widget in a view, use the following in the view:
+ * <pre>
+ * $this->widget('path.to.widgetClass',array('property1'=>'value1',...));
+ * </pre>
+ * or
+ * <pre>
+ * $this->beginWidget('path.to.widgetClass',array('property1'=>'value1',...));
+ * // ... display other contents here
+ * $this->endWidget();
+ * </pre>
+ *
+ * To create a clip, use the following:
+ * <pre>
+ * $this->beginClip('clipID');
+ * // ... display the clip contents
+ * $this->endClip();
+ * </pre>
+ * Then, in a different view or place, the captured clip can be inserted as:
+ * <pre>
+ * echo $this->clips['clipID'];
+ * </pre>
+ *
+ * Note that $this in the code above refers to current controller so, for example,
+ * if you need to access clip from a widget where $this refers to widget itself
+ * you need to do it the following way:
+ *
+ * <pre>
+ * echo $this->getController()->clips['clipID'];
+ * </pre>
+ *
+ * To use fragment cache, do as follows,
+ * <pre>
+ * if($this->beginCache('cacheID',array('property1'=>'value1',...))
+ * {
+ *     // ... display the content to be cached here
+ *    $this->endCache();
+ * }
+ * </pre>
+ *
+ * @author Qiang Xue <qiang.xue@gmail.com>
+ * @package system.web
+ * @since 1.0
+ */
+class BaseController
 {
+    use Configurator, BehaviorAccessors, HttpErrors;
+
     /**
      * Name of the hidden field storing persistent page states.
      */
     const STATE_INPUT_NAME = 'YII_PAGE_STATE';
-
     /**
      * @var string the name of the default action. Defaults to 'index'.
      */
@@ -93,32 +154,60 @@ class BaseController extends CBaseController
 
     private $_id;
     private $_action;
-    private $_cachingStack;
-    private $_pageStates;
     private $_module;
-
+    /**
+     * @var \Mindy\Http\Request
+     */
+    private $_r;
 
     /**
      * @param string $id id of this controller
      * @param Module $module the module that this controller belongs to.
+     * @param \Mindy\Http\Request $request
      */
-    public function __construct($id, $module = null)
+    public function __construct($id, $module = null, Request $request)
     {
         $this->_id = $id;
         $this->_module = $module;
+        $this->_r = $request;
 
         $signal = Mindy::app()->signal;
-        $signal->handler($this, 'preAction', [$this, 'preAction']);
-        $signal->handler($this, 'postAction', [$this, 'postAction']);
+        $signal->handler($this, 'beforeAction', [$this, 'beforeAction']);
+        $signal->handler($this, 'afterAction', [$this, 'afterAction']);
 
         $this->attachBehaviors($this->behaviors());
     }
 
-    public function preAction($owner, $action)
+    /**
+     * @return array
+     */
+    public function getCsrfExempt()
     {
+        return [];
     }
 
-    public function postAction($owner, $action)
+    public function getR()
+    {
+        return $this->_r;
+    }
+
+    /**
+     * This method is invoked right before an action is to be executed (after all possible filters.)
+     * You may override this method to do last-minute preparation for the action.
+     * @param Action $action the action to be executed.
+     * @return boolean whether the action should be executed.
+     */
+    public function beforeAction($action)
+    {
+        return true;
+    }
+
+    /**
+     * This method is invoked right after an action is executed.
+     * You may override this method to do some postprocessing for the action.
+     * @param Action $action the action just executed.
+     */
+    public function afterAction($action)
     {
     }
 
@@ -257,17 +346,17 @@ class BaseController extends CBaseController
      * Runs the named action.
      * Filters specified via {@link filters()} will be applied.
      * @param string $actionID action ID
-     * @throws HttpException if the action does not exist or the action name is not proper.
+     * @param array $params
      * @see filters
      * @see createAction
      * @see runAction
      */
-    public function run($actionID)
+    public function run($actionID, $params = [])
     {
         if (($action = $this->createAction($actionID)) !== null) {
             $signal = Mindy::app()->signal;
             $signal->send($this, 'preAction', $this, $action);
-            $this->runActionWithFilters($action, $this->filters());
+            $this->runActionWithFilters($action, $this->filters(), $params);
             $signal->send($this, 'postAction', $this, $action);
         } else {
             $this->missingAction($actionID);
@@ -280,18 +369,19 @@ class BaseController extends CBaseController
      * and the action will be executed then.
      * @param Action $action the action to be executed.
      * @param array $filters list of filters to be applied to the action.
+     * @param array $params
      * @see filters
      * @see createAction
      * @see runAction
      */
-    public function runActionWithFilters($action, $filters)
+    public function runActionWithFilters($action, $filters, $params = [])
     {
-        if (empty($filters))
-            $this->runAction($action);
-        else {
+        if (empty($filters)) {
+            $this->runAction($action, $params);
+        } else {
             $priorAction = $this->_action;
             $this->_action = $action;
-            FilterChain::create($this, $action, $filters)->run();
+            FilterChain::create($this, $action, $filters)->run($params);
             $this->_action = $priorAction;
         }
     }
@@ -301,37 +391,29 @@ class BaseController extends CBaseController
      * This method is invoked by {@link runActionWithFilters} after all possible filters have been executed
      * and the action starts to run.
      * @param Action $action action to run
+     * @param array $params
      */
-    public function runAction($action)
+    public function runAction($action, $params = [])
     {
         $priorAction = $this->_action;
         $this->_action = $action;
-        if ($this->beforeAction($action)) {
-            if ($action->runWithParams($this->getActionParams()) === false) {
+        $signal = Mindy::app()->signal;
+        $results = $signal->send($this, 'beforeAction', $this, $action);
+        if ($results->getLast()->value) {
+            if ($action->runWithParams($params) === false) {
                 $this->invalidActionParams($action);
             } else {
-                $this->afterAction($action);
+                $signal->send($this, 'afterAction', $this, $action);
             }
         }
         $this->_action = $priorAction;
     }
 
     /**
-     * Returns the request parameters that will be used for action parameter binding.
-     * By default, this method will return $_GET. You may override this method if you
-     * want to use other request parameters (e.g. $_GET+$_POST).
-     * @return array the request parameters to be used for action parameter binding
-     * @since 1.1.7
-     */
-    public function getActionParams()
-    {
-        return $_GET;
-    }
-
-    /**
      * This method is invoked when the request parameters do not satisfy the requirement of the specified action.
      * The default implementation will throw a 400 HTTP exception.
      * @param Action $action the action being executed
+     * @throws \Mindy\Base\Exception\HttpException
      * @since 1.1.7
      */
     public function invalidActionParams($action)
@@ -350,14 +432,16 @@ class BaseController extends CBaseController
      */
     public function createAction($actionID)
     {
-        if ($actionID === '')
+        if ($actionID === '') {
             $actionID = $this->defaultAction;
-        if (method_exists($this, 'action' . $actionID) && strcasecmp($actionID, 's')) // we have actions method
+        }
+        if (method_exists($this, 'action' . $actionID) && strcasecmp($actionID, 's')) { // we have actions method
             return new InlineAction($this, $actionID);
-        else {
+        } else {
             $action = $this->createActionFromMap($this->actions(), $actionID, $actionID);
-            if ($action !== null && !method_exists($action, 'run'))
+            if ($action !== null && !method_exists($action, 'run')) {
                 throw new Exception(Mindy::t('yii', 'Action class {class} must implement the "run" method.', array('{class}' => get_class($action))));
+            }
             return $action;
         }
     }
@@ -377,33 +461,36 @@ class BaseController extends CBaseController
     protected function createActionFromMap($actionMap, $actionID, $requestActionID, $config = [])
     {
         if (($pos = strpos($actionID, '.')) === false && isset($actionMap[$actionID])) {
-            $baseConfig = is_array($actionMap[$actionID]) ? $actionMap[$actionID] : array('class' => $actionMap[$actionID]);
+            $baseConfig = is_array($actionMap[$actionID]) ? $actionMap[$actionID] : ['class' => $actionMap[$actionID]];
             return Creator::createObject(empty($config) ? $baseConfig : array_merge($baseConfig, $config), $this, $requestActionID);
-        } elseif ($pos === false)
+        } elseif ($pos === false) {
             return null;
+        }
 
         // the action is defined in a provider
         $prefix = substr($actionID, 0, $pos + 1);
-        if (!isset($actionMap[$prefix]))
+        if (!isset($actionMap[$prefix])) {
             return null;
+        }
         $actionID = (string)substr($actionID, $pos + 1);
 
         $provider = $actionMap[$prefix];
-        if (is_string($provider))
+        if (is_string($provider)) {
             $providerType = $provider;
-        elseif (is_array($provider) && isset($provider['class'])) {
+        } elseif (is_array($provider) && isset($provider['class'])) {
             $providerType = $provider['class'];
             if (isset($provider[$actionID])) {
-                if (is_string($provider[$actionID]))
-                    $config = array_merge(array('class' => $provider[$actionID]), $config);
-                else
+                if (is_string($provider[$actionID])) {
+                    $config = array_merge(['class' => $provider[$actionID]], $config);
+                } else {
                     $config = array_merge($provider[$actionID], $config);
+                }
             }
-        } else
+        } else {
             throw new Exception(Mindy::t('yii', 'Object configuration must be an array containing a "class" element.'));
+        }
 
-        $map = call_user_func(array($providerType, 'actions'));
-
+        $map = call_user_func([$providerType, 'actions']);
         return $this->createActionFromMap($map, $actionID, $requestActionID, $config);
     }
 
@@ -417,7 +504,7 @@ class BaseController extends CBaseController
     public function missingAction($actionID)
     {
         throw new HttpException(404, Mindy::t('yii', 'The system is unable to find the requested action "{action}".',
-            array('{action}' => $actionID == '' ? $this->defaultAction : $actionID)));
+            ['{action}' => $actionID == '' ? $this->defaultAction : $actionID]));
     }
 
     /**
@@ -450,19 +537,6 @@ class BaseController extends CBaseController
     public function getUniqueId()
     {
         return $this->_module ? $this->_module->getId() . '/' . $this->_id : $this->_id;
-    }
-
-    /**
-     * @return string the route (module ID, controller ID and action ID) of the current request.
-     * @since 1.1.0
-     */
-    public function getRoute()
-    {
-        if (($action = $this->getAction()) !== null) {
-            return $this->getUniqueId() . '/' . $action->getId();
-        } else {
-            return $this->getUniqueId();
-        }
     }
 
     /**
@@ -506,169 +580,6 @@ class BaseController extends CBaseController
     }
 
     /**
-     * Renders a named clip with the supplied parameters.
-     * This is similar to directly accessing the {@link clips} property.
-     * The main difference is that it can take an array of named parameters
-     * which will replace the corresponding placeholders in the clip.
-     * @param string $name the name of the clip
-     * @param array $params an array of named parameters (name=>value) that should replace
-     * their corresponding placeholders in the clip
-     * @param boolean $return whether to return the clip content or echo it.
-     * @return mixed either the clip content or null
-     * @since 1.1.8
-     */
-    public function renderClip($name, $params = [], $return = false)
-    {
-        $text = isset($this->clips[$name]) ? strtr($this->clips[$name], $params) : '';
-
-        if ($return)
-            return $text;
-        else
-            echo $text;
-    }
-
-    /**
-     * Creates a relative URL for the specified action defined in this controller.
-     * @param string $route the URL route. This should be in the format of 'ControllerID/ActionID'.
-     * If the ControllerID is not present, the current controller ID will be prefixed to the route.
-     * If the route is empty, it is assumed to be the current action.
-     * If the controller belongs to a module, the {@link Module::getId module ID}
-     * will be prefixed to the route. (If you do not want the module ID prefix, the route should start with a slash '/'.)
-     * @param array $params additional GET parameters (name=>value). Both the name and value will be URL-encoded.
-     * If the name is '#', the corresponding value will be treated as an anchor
-     * and will be appended at the end of the URL.
-     * @param string $ampersand the token separating name-value pairs in the URL.
-     * @return string the constructed URL
-     */
-    public function createUrl($route, $params = [], $ampersand = '&')
-    {
-        if ($route === '') {
-            $route = $this->getId() . '/' . $this->getAction()->getId();
-        } elseif (strpos($route, '/') === false) {
-            $route = $this->getId() . '/' . $route;
-        }
-
-        if ($route[0] !== '/' && ($module = $this->getModule()) !== null) {
-            $route = $module->getId() . '/' . $route;
-        }
-
-        return Mindy::app()->createUrl(trim($route, '/'), $params, $ampersand);
-    }
-
-    /**
-     * Creates an absolute URL for the specified action defined in this controller.
-     * @param string $route the URL route. This should be in the format of 'ControllerID/ActionID'.
-     * If the ControllerPath is not present, the current controller ID will be prefixed to the route.
-     * If the route is empty, it is assumed to be the current action.
-     * @param array $params additional GET parameters (name=>value). Both the name and value will be URL-encoded.
-     * @param string $schema schema to use (e.g. http, https). If empty, the schema used for the current request will be used.
-     * @param string $ampersand the token separating name-value pairs in the URL.
-     * @return string the constructed URL
-     */
-    public function createAbsoluteUrl($route, $params = [], $schema = '', $ampersand = '&')
-    {
-        $url = $this->createUrl($route, $params, $ampersand);
-        if (strpos($url, 'http') === 0) {
-            return $url;
-        } else {
-            return Mindy::app()->getRequest()->getHostInfo($schema) . $url;
-        }
-    }
-
-    /**
-     * Redirects the browser to the specified URL or route (controller/action).
-     * @param mixed $url the URL to be redirected to. If the parameter is an array,
-     * the first element must be a route to a controller action and the rest
-     * are GET parameters in name-value pairs.
-     * @param boolean $terminate whether to terminate the current application after calling this method. Defaults to true.
-     * @param integer $statusCode the HTTP status code. Defaults to 302. See {@link http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html}
-     * for details about HTTP status code.
-     */
-    public function redirect($url, $data = null, $terminate = true, $statusCode = 302)
-    {
-        if (is_array($url)) {
-            $route = isset($url[0]) ? $url[0] : '';
-            $url = $this->createUrl($route, array_splice($url, 1));
-        }
-        Mindy::app()->getRequest()->redirect($url, $data, $terminate, $statusCode);
-    }
-
-    /**
-     * Refreshes the current page.
-     * The effect of this method call is the same as user pressing the
-     * refresh button on the browser (without post data).
-     * @param boolean $terminate whether to terminate the current application after calling this method
-     * @param string $anchor the anchor that should be appended to the redirection URL.
-     * Defaults to empty. Make sure the anchor starts with '#' if you want to specify it.
-     */
-    public function refresh($terminate = true, $anchor = '')
-    {
-        $this->redirect(Mindy::app()->getRequest()->getUrl() . $anchor, $terminate);
-    }
-
-    /**
-     * Records a method call when an output cache is in effect.
-     * When the content is served from the output cache, the recorded
-     * method will be re-invoked.
-     * @param string $context a property name of the controller. It refers to an object
-     * whose method is being called. If empty it means the controller itself.
-     * @param string $method the method name
-     * @param array $params parameters passed to the method
-     * @see COutputCache
-     */
-    public function recordCachingAction($context, $method, $params)
-    {
-        // record only when there is an active output cache
-        if ($this->_cachingStack) {
-            foreach ($this->_cachingStack as $cache) {
-                $cache->recordAction($context, $method, $params);
-            }
-        }
-    }
-
-    /**
-     * @param boolean $createIfNull whether to create a stack if it does not exist yet. Defaults to true.
-     * @return Stack stack of {@link COutputCache} objects
-     */
-    public function getCachingStack($createIfNull = true)
-    {
-        if (!$this->_cachingStack)
-            $this->_cachingStack = new Stack;
-        return $this->_cachingStack;
-    }
-
-    /**
-     * Returns whether the caching stack is empty.
-     * @return boolean whether the caching stack is empty. If not empty, it means currently there are
-     * some output cache in effect. Note, the return result of this method may change when it is
-     * called in different output regions, depending on the partition of output caches.
-     */
-    public function isCachingStackEmpty()
-    {
-        return $this->_cachingStack === null || !$this->_cachingStack->getCount();
-    }
-
-    /**
-     * This method is invoked right before an action is to be executed (after all possible filters.)
-     * You may override this method to do last-minute preparation for the action.
-     * @param Action $action the action to be executed.
-     * @return boolean whether the action should be executed.
-     */
-    protected function beforeAction($action)
-    {
-        return true;
-    }
-
-    /**
-     * This method is invoked right after an action is executed.
-     * You may override this method to do some postprocessing for the action.
-     * @param Action $action the action just executed.
-     */
-    protected function afterAction($action)
-    {
-    }
-
-    /**
      * The filter method for 'postOnly' filter.
      * This filter throws an exception (HttpException with code 400) if the applied action is receiving a non-POST request.
      * @param FilterChain $filterChain the filter chain that the filter is on.
@@ -676,7 +587,7 @@ class BaseController extends CBaseController
      */
     public function filterPostOnly($filterChain)
     {
-        if (Mindy::app()->getRequest()->getIsPostRequest()) {
+        if ($this->r->isPost) {
             $filterChain->run();
         } else {
             throw new HttpException(400, Mindy::t('yii', 'Your request is invalid.'));
@@ -691,7 +602,7 @@ class BaseController extends CBaseController
      */
     public function filterAjaxOnly($filterChain)
     {
-        if (Mindy::app()->getRequest()->getIsAjaxRequest()) {
+        if ($this->r->isAjax) {
             $filterChain->run();
         } else {
             throw new HttpException(400, Mindy::t('yii', 'Your request is invalid.'));
@@ -709,99 +620,5 @@ class BaseController extends CBaseController
         $filter = new AccessControlFilter;
         $filter->setRules($this->accessRules());
         $filter->filter($filterChain);
-    }
-
-    /**
-     * Returns a persistent page state value.
-     * A page state is a variable that is persistent across POST requests of the same page.
-     * In order to use persistent page states, the form(s) must be stateful
-     * which are generated using {@link CHtml::statefulForm}.
-     * @param string $name the state name
-     * @param mixed $defaultValue the value to be returned if the named state is not found
-     * @return mixed the page state value
-     * @see setPageState
-     * @see CHtml::statefulForm
-     */
-    public function getPageState($name, $defaultValue = null)
-    {
-        if ($this->_pageStates === null)
-            $this->_pageStates = $this->loadPageStates();
-        return isset($this->_pageStates[$name]) ? $this->_pageStates[$name] : $defaultValue;
-    }
-
-    /**
-     * Saves a persistent page state value.
-     * A page state is a variable that is persistent across POST requests of the same page.
-     * In order to use persistent page states, the form(s) must be stateful
-     * which are generated using {@link CHtml::statefulForm}.
-     * @param string $name the state name
-     * @param mixed $value the page state value
-     * @param mixed $defaultValue the default page state value. If this is the same as
-     * the given value, the state will be removed from persistent storage.
-     * @see getPageState
-     * @see CHtml::statefulForm
-     */
-    public function setPageState($name, $value, $defaultValue = null)
-    {
-        if ($this->_pageStates === null)
-            $this->_pageStates = $this->loadPageStates();
-        if ($value === $defaultValue)
-            unset($this->_pageStates[$name]);
-        else
-            $this->_pageStates[$name] = $value;
-
-        $params = func_get_args();
-        $this->recordCachingAction('', 'setPageState', $params);
-    }
-
-    /**
-     * Removes all page states.
-     */
-    public function clearPageStates()
-    {
-        $this->_pageStates = [];
-    }
-
-    /**
-     * Loads page states from a hidden input.
-     * @return array the loaded page states
-     */
-    protected function loadPageStates()
-    {
-        if (!empty($_POST[self::STATE_INPUT_NAME])) {
-            if (($data = base64_decode($_POST[self::STATE_INPUT_NAME])) !== false) {
-                if (extension_loaded('zlib'))
-                    $data = @gzuncompress($data);
-                if (($data = Mindy::app()->getSecurityManager()->validateData($data)) !== false)
-                    return unserialize($data);
-            }
-        }
-        return [];
-    }
-
-    /**
-     * Saves page states as a base64 string.
-     * @param array $states the states to be saved.
-     * @param string $output the output to be modified. Note, this is passed by reference.
-     */
-    protected function savePageStates($states, &$output)
-    {
-        $data = Mindy::app()->getSecurityManager()->hashData(serialize($states));
-        if (extension_loaded('zlib')) {
-            $data = gzcompress($data);
-        }
-        $value = base64_encode($data);
-        $output = str_replace('<input type="hidden" name="' . self::STATE_INPUT_NAME . '" value="" />', '<input type="hidden" name="' . self::STATE_INPUT_NAME . '" value="' . $value . '" />', $output);
-    }
-
-    /**
-     * Returns the view script file according to the specified view name.
-     * This method must be implemented by child classes.
-     * @param string $viewName view name
-     * @return string the file path for the named view. False if the view cannot be found.
-     */
-    public function getViewFile($viewName)
-    {
-        return null;
     }
 }

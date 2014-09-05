@@ -111,6 +111,8 @@ class Application extends BaseApplication
      */
     public function processRequest()
     {
+        $this->signal->send($this, 'onProcessRequest');
+
         if (Console::isCli()) {
             $exitCode = $this->_runner->run($_SERVER['argv']);
             if (is_int($exitCode)) {
@@ -162,11 +164,15 @@ class Application extends BaseApplication
     public function runController($route)
     {
         if (($ca = $this->createController($route)) !== null) {
-            list($controller, $actionID) = $ca;
+            list($controller, $actionID, $params) = $ca;
+            $csrfExempt = $controller->getCsrfExempt();
+            if(!Console::isCli() && !in_array($actionID, $csrfExempt)) {
+                $this->getComponent('request')->csrf->validate();
+            }
             $oldController = $this->_controller;
             $this->_controller = $controller;
             $controller->init();
-            $controller->run($actionID);
+            $controller->run($actionID, $params);
             $this->_controller = $oldController;
         } else {
             throw new HttpException(404, Mindy::t('yii', 'Unable to resolve the request "{route}".', [
@@ -204,11 +210,8 @@ class Application extends BaseApplication
         if ($route) {
             list($handler, $vars) = $route;
             list($className, $actionName) = $handler;
-            if(!empty($vars)) {
-                $_GET = array_merge($_GET, $vars);
-            }
-            $controller = Creator::createObject($className, time(), $owner === $this ? null : $owner);
-            return [$controller, $actionName];
+            $controller = Creator::createObject($className, time(), $owner === $this ? null : $owner, $this->getComponent('request'));
+            return [$controller, $actionName, array_merge($_GET, $vars)];
         }
 
         return null;
@@ -420,7 +423,7 @@ class Application extends BaseApplication
      * Initializes the application.
      * This method overrides the parent implementation by preloading the 'request' component.
      */
-    protected function init()
+    public function init()
     {
         parent::init();
 

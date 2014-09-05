@@ -25,6 +25,8 @@ namespace Mindy\Base;
 use Mindy\Base\Commands\HelpCommand;
 use Mindy\Base\Exception\Exception;
 use Mindy\Helper\Creator;
+use Mindy\Helper\Traits\BehaviorAccessors;
+use Mindy\Helper\Traits\Configurator;
 
 /**
  * ConsoleCommandRunner manages commands and executes the requested command.
@@ -36,8 +38,10 @@ use Mindy\Helper\Creator;
  * @package system.console
  * @since 1.0
  */
-class ConsoleCommandRunner extends Component
+class ConsoleCommandRunner
 {
+    use Configurator, BehaviorAccessors;
+
     /**
      * @var array list of all available commands (command name=>command configuration).
      * Each command configuration can be either a string or an array.
@@ -130,7 +134,7 @@ class ConsoleCommandRunner extends Component
         }
         $commands = [];
         while (($name = readdir($dir)) !== false) {
-            if(in_array($name, ['.', '..'])) {
+            if (in_array($name, ['.', '..'])) {
                 continue;
             }
             $file = $path . DIRECTORY_SEPARATOR . $name;

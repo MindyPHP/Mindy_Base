@@ -24,6 +24,8 @@
 namespace Mindy\Base;
 
 use Mindy\Base\Interfaces\IUserIdentity;
+use Mindy\Helper\Traits\BehaviorAccessors;
+use Mindy\Helper\Traits\Configurator;
 
 /**
  * CBaseUserIdentity is a base class implementing {@link IUserIdentity}.
@@ -47,8 +49,10 @@ use Mindy\Base\Interfaces\IUserIdentity;
  * @package system.web.auth
  * @since 1.0
  */
-abstract class BaseUserIdentity extends Component implements IUserIdentity
+abstract class BaseUserIdentity implements IUserIdentity
 {
+    use Configurator, BehaviorAccessors;
+
     const ERROR_NONE = 0;
     const ERROR_USERNAME_INVALID = 1;
     const ERROR_PASSWORD_INVALID = 2;
