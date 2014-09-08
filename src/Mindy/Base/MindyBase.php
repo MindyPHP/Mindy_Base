@@ -69,8 +69,6 @@ defined('YII_TEST') or define('YII_TEST', false);
  */
 abstract class MindyBase
 {
-    use CompatabilityLayer;
-
     /**
      * @var \Mindy\Base\App\Application
      */

@@ -355,9 +355,9 @@ class BaseController
     {
         if (($action = $this->createAction($actionID)) !== null) {
             $signal = Mindy::app()->signal;
-            $signal->send($this, 'preAction', $this, $action);
+            $signal->send($this, 'beforeAction', $this, $action);
             $this->runActionWithFilters($action, $this->filters(), $params);
-            $signal->send($this, 'postAction', $this, $action);
+            $signal->send($this, 'afterAction', $this, $action);
         } else {
             $this->missingAction($actionID);
         }

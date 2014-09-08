@@ -22,16 +22,13 @@ namespace Mindy\Base\App;
  * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
-use Mindy\Base\ErrorEvent;
-use Mindy\Base\Event;
 use Mindy\Base\Exception\Exception;
-use Mindy\Base\Exception\ExceptionEvent;
 use Mindy\Base\Exception\HttpException;
 use Mindy\Base\Mindy;
 use Mindy\Base\Module;
 use Mindy\Di\ServiceLocator;
 use Mindy\Helper\Alias;
-use Mindy\Http\Request;
+use Mindy\Helper\Creator;
 use ReflectionProperty;
 
 /**
@@ -95,10 +92,10 @@ use ReflectionProperty;
  * @property \Mindy\Base\ErrorHandler $errorHandler The error handler application component.
  * @property \Mindy\Base\SecurityManager $securityManager The security manager application component.
  * @property \Mindy\Base\StatePersister $statePersister The state persister application component.
- * @property \Mindy\Base\Cache $cache The cache application component. Null if the component is not enabled.
+ * @property \Mindy\Cache\Cache $cache The cache application component. Null if the component is not enabled.
  * @property \Mindy\Locale\PhpMessageSource $coreMessages The core message translations.
  * @property \Mindy\Locale\MessageSource $messages The application message translations.
- * @property \Mindy\Base\HttpRequest $request The request component.
+ * @property \Mindy\Http\Http $request The request component.
  * @property \Mindy\Base\UrlManager $urlManager The URL manager component.
  * @property \Mindy\Base\Controller $controller The currently active controller. Null is returned in this base class.
  * @property string $baseUrl The relative URL for the application.
@@ -141,6 +138,9 @@ abstract class BaseApplication extends Module
     private $_ended = false;
     private $_language;
     private $_homeUrl;
+    private $_params;
+    private $_modules = [];
+    private $_moduleConfig = [];
 
     /**
      * @var \Mindy\Di\ServiceLocator
@@ -215,11 +215,128 @@ abstract class BaseApplication extends Module
         $this->init();
     }
 
+    /**
+     * Defines the root aliases.
+     * @param array $mappings list of aliases to be defined. The array keys are root aliases,
+     * while the array values are paths or aliases corresponding to the root aliases.
+     * For example,
+     * <pre>
+     * array(
+     *    'models'=>'application.models',              // an existing alias
+     *    'extensions'=>'application.extensions',      // an existing alias
+     *    'backend'=>dirname(__FILE__).'/../backend',  // a directory
+     * )
+     * </pre>
+     */
+    public function setAliases($mappings)
+    {
+        foreach ($mappings as $name => $alias) {
+            if (($path = Alias::get($alias)) !== false) {
+                Alias::set($name, $path);
+            } else {
+                Alias::set($name, $alias);
+            }
+        }
+    }
+
     public function initEvents()
     {
-//        $this->signal->handler($this, 'beginRequest', [$this, 'beginRequest']);
-        $this->signal->handler($this, 'onProcessRequest', [$this, 'onProcessRequest']);
-//        $this->signal->handler($this, 'endRequest', [$this, 'endRequest']);
+        $this->signal->handler($this, 'beginRequest', [$this, 'beginRequest']);
+        $this->signal->handler($this, 'endRequest', [$this, 'endRequest']);
+    }
+
+    /**
+     * Retrieves the named application module.
+     * The module has to be declared in {@link modules}. A new instance will be created
+     * when calling this method with the given ID for the first time.
+     * @param string $id application module ID (case-sensitive)
+     * @return Module the module instance, null if the module is disabled or does not exist.
+     */
+    public function getModule($id)
+    {
+        $id = ucfirst($id);
+        if (isset($this->_modules[$id]) || array_key_exists($id, $this->_modules)) {
+            return $this->_modules[$id];
+        } elseif (isset($this->_moduleConfig[$id])) {
+            $config = $this->_moduleConfig[$id];
+            if (!isset($config['enabled']) || $config['enabled']) {
+                Mindy::app()->logger->info("Loading \"$id\" module", 'system.base.CModule');
+                $class = $config['class'];
+                unset($config['class'], $config['enabled']);
+                if ($this === Mindy::app()) {
+                    $module = Creator::createObject($class, $id, null, $config);
+                } else {
+                    $module = Creator::createObject($class, $this->getId() . '/' . $id, $this, $config);
+                }
+                return $this->_modules[$id] = $module;
+            }
+        }
+    }
+
+    /**
+     * Returns a value indicating whether the specified module is installed.
+     * @param string $id the module ID
+     * @return boolean whether the specified module is installed.
+     * @since 1.1.2
+     */
+    public function hasModule($id)
+    {
+        return isset($this->_moduleConfig[$id]) || isset($this->_modules[$id]);
+    }
+
+    /**
+     * Returns the configuration of the currently installed modules.
+     * @return array the configuration of the currently installed modules (module ID => configuration)
+     */
+    public function getModules()
+    {
+        return $this->_moduleConfig;
+    }
+
+    /**
+     * Configures the sub-modules of this module.
+     *
+     * Call this method to declare sub-modules and configure them with their initial property values.
+     * The parameter should be an array of module configurations. Each array element represents a single module,
+     * which can be either a string representing the module ID or an ID-configuration pair representing
+     * a module with the specified ID and the initial property values.
+     *
+     * For example, the following array declares two modules:
+     * <pre>
+     * array(
+     *     'admin',                // a single module ID
+     *     'payment'=>array(       // ID-configuration pair
+     *         'server'=>'paymentserver.com',
+     *     ),
+     * )
+     * </pre>
+     *
+     * By default, the module class is determined using the expression <code>ucfirst($moduleID).'Module'</code>.
+     * And the class file is located under <code>modules/$moduleID</code>.
+     * You may override this default by explicitly specifying the 'class' option in the configuration.
+     *
+     * You may also enable or disable a module by specifying the 'enabled' option in the configuration.
+     *
+     * @param array $modules module configurations.
+     */
+    public function setModules($modules)
+    {
+        foreach ($modules as $id => $module) {
+            if (is_int($id)) {
+                $id = $module;
+                $module = [];
+            }
+            if (!isset($module['class'])) {
+                Alias::set($id, $this->getModulePath() . DIRECTORY_SEPARATOR . $id);
+                $module['class'] = '\\Modules\\' . ucfirst($id) . '\\' . ucfirst($id) . 'Module';
+            }
+
+            if (isset($this->_moduleConfig[$id])) {
+                $this->_moduleConfig[$id] = Collection::mergeArray($this->_moduleConfig[$id], $module);
+            } else {
+                $this->_moduleConfig[$id] = $module;
+            }
+        }
     }
 
     public function __call($name, $args)
@@ -239,11 +356,6 @@ abstract class BaseApplication extends Module
 
     public function __get($name)
     {
-        // TODO
-        if($name == 'viewRenderer') {
-            $name = 'template';
-        }
-
         if ($this->locator->has($name)) {
             return $this->locator->get($name);
         } else {
@@ -259,14 +371,10 @@ abstract class BaseApplication extends Module
      */
     public function run()
     {
-        if ($this->hasEventHandler('onBeginRequest')) {
-            $this->onBeginRequest(new Event($this));
-        }
-        register_shutdown_function(array($this, 'end'), 0, false);
+        $this->signal->send($this, 'beginRequest', $this);
+        register_shutdown_function([$this, 'end'], 0, false);
         $this->processRequest();
-        if ($this->hasEventHandler('onEndRequest')) {
-            $this->onEndRequest(new Event($this));
-        }
+        $this->signal->send($this, 'endRequest', $this);
     }
 
     /**
@@ -279,9 +387,7 @@ abstract class BaseApplication extends Module
      */
     public function end($status = 0, $exit = true)
     {
-        if ($this->hasEventHandler('onEndRequest')) {
-            $this->onEndRequest(new Event($this));
-        }
+        $this->signal->send($this, 'endRequest', $this);
         if ($exit) {
             exit($status);
         }
@@ -289,22 +395,21 @@ abstract class BaseApplication extends Module
 
     /**
      * Raised right BEFORE the application processes the request.
-     * @param Event $event the event parameter
+     * @param BaseApplication $owner the event parameter
      */
-    public function onBeginRequest($event)
+    public function beginRequest($owner)
     {
-        $this->raiseEvent('onBeginRequest', $event);
+        $owner->middleware->processRequest($owner->getComponent('request'));
     }
 
     /**
      * Raised right AFTER the application processes the request.
-     * @param Event $event the event parameter
+     * @param BaseApplication $owner the event parameter
      */
-    public function onEndRequest($event)
+    public function endRequest($owner)
     {
         if (!$this->_ended) {
             $this->_ended = true;
-            $this->raiseEvent('onEndRequest', $event);
         }
     }
 
@@ -348,8 +453,9 @@ abstract class BaseApplication extends Module
     public function setBasePath($path)
     {
         if (($this->_basePath = realpath($path)) === false || !is_dir($this->_basePath)) {
-            // TODO Mindy::t('yii', 'Application base path "{path}" is not a valid directory.', ['{path}' => $path])
-            throw new Exception(sprintf('Application base path "{path}" is not a valid directory.', ['{path}' => $path]));
+            $msg = strtr('Application base path "{path}" is not a valid directory.', ['{path}' => $path]);
+//            $msg = Mindy::t('yii', 'Application base path "{path}" is not a valid directory.', ['{path}' => $path]);
+            throw new Exception($msg);
         }
     }
 
@@ -603,11 +709,7 @@ abstract class BaseApplication extends Module
             $this->loadGlobalState();
         }
 
-        if (isset($this->_globalState[$key])) {
-            return $this->_globalState[$key];
-        } else {
-            return $defaultValue;
-        }
+        return isset($this->_globalState[$key]) ? $this->_globalState[$key] : $defaultValue;
     }
 
     /**
@@ -627,18 +729,42 @@ abstract class BaseApplication extends Module
         }
 
         $changed = $this->_stateChanged;
-        if ($value === $defaultValue) {
-            if (isset($this->_globalState[$key])) {
-                unset($this->_globalState[$key]);
-                $this->_stateChanged = true;
-            }
+        if ($value === $defaultValue && isset($this->_globalState[$key])) {
+            unset($this->_globalState[$key]);
+            $this->_stateChanged = true;
         } elseif (!isset($this->_globalState[$key]) || $this->_globalState[$key] !== $value) {
             $this->_globalState[$key] = $value;
             $this->_stateChanged = true;
         }
 
         if ($this->_stateChanged !== $changed) {
-            $this->attachEventHandler('onEndRequest', array($this, 'saveGlobalState'));
+            $this->signal->handler($this, 'endRequest', [$this, 'saveGlobalState']);
+        }
+    }
+
+    /**
+     * Returns user-defined parameters.
+     * @return \Mindy\Helper\Collection the list of user-defined parameters
+     */
+    public function getParams()
+    {
+        if ($this->_params !== null) {
+            return $this->_params;
+        } else {
+            $this->_params = new Collection;
+            return $this->_params;
+        }
+    }
+
+    /**
+     * Sets user-defined parameters.
+     * @param array $value user-defined parameters. This should be in name-value pairs.
+     */
+    public function setParams($value)
+    {
+        $params = $this->getParams();
+        foreach ($value as $k => $v) {
+            $params->add($k, $v);
         }
     }
 
@@ -660,12 +786,10 @@ abstract class BaseApplication extends Module
      */
     public function loadGlobalState()
     {
-        $persister = $this->getStatePersister();
-        if (($this->_globalState = $persister->load()) === null) {
-            $this->_globalState = array();
+        if (($this->_globalState = $this->statePersister->load()) === null) {
+            $this->_globalState = [];
         }
         $this->_stateChanged = false;
-        $this->detachEventHandler('onEndRequest', array($this, 'saveGlobalState'));
     }
 
     /**
@@ -677,8 +801,7 @@ abstract class BaseApplication extends Module
     {
         if ($this->_stateChanged) {
             $this->_stateChanged = false;
-            $this->detachEventHandler('onEndRequest', array($this, 'saveGlobalState'));
-            $this->getStatePersister()->save($this->_globalState);
+            $this->statePersister->save($this->_globalState);
         }
     }
 
@@ -703,8 +826,9 @@ abstract class BaseApplication extends Module
         restore_exception_handler();
 
         $category = 'exception.' . get_class($exception);
-        if ($exception instanceof HttpException)
+        if ($exception instanceof HttpException) {
             $category .= '.' . $exception->statusCode;
+        }
         // php <5.2 doesn't support string conversion auto-magically
         $message = $exception->__toString();
         if (isset($_SERVER['REQUEST_URI']))
@@ -715,16 +839,8 @@ abstract class BaseApplication extends Module
         Mindy::app()->logger->error($message, 'default', ['category' => $category]);
 
         try {
-            $event = new ExceptionEvent($this, $exception);
-            $this->onException($event);
-            if (!$event->handled) {
-                // try an error handler
-                if (($handler = $this->getErrorHandler()) !== null) {
-                    $handler->handle($event);
-                } else {
-                    $this->displayException($exception);
-                }
-            }
+            $this->signal->send($this, 'raiseException', $exception);
+            $this->displayException($exception);
         } catch (Exception $e) {
             $this->displayException($e);
         }
@@ -791,16 +907,13 @@ abstract class BaseApplication extends Module
             Mindy::app()->logger->error($log, 'default', ['category' => 'php']);
 
             try {
-                $event = new ErrorEvent($this, $code, $message, $file, $line);
-                $this->onError($event);
-                if (!$event->handled) {
-                    // try an error handler
-                    if (($handler = $this->getErrorHandler()) !== null) {
-                        $handler->handle($event);
-                    } else {
-                        $this->displayError($code, $message, $file, $line);
-                    }
-                }
+                $this->signal->send($this, 'raiseError', [
+                    'code' => $code,
+                    'message' => $message,
+                    'file' => $file,
+                    'line' => $line
+                ]);
+                $this->displayError($code, $message, $file, $line);
             } catch (Exception $e) {
                 $this->displayException($e);
             }
@@ -828,11 +941,10 @@ abstract class BaseApplication extends Module
      * handling is needed. Otherwise, the {@link getErrorHandler errorHandler}
      * application component will continue processing the error.
      *
-     * @param ExceptionEvent $event event parameter
+     * @param \Mindy\Base\Exception\Exception $exception
      */
-    public function onException($event)
+    public function raiseException(Exception $exception)
     {
-        $this->raiseEvent('onException', $event);
     }
 
     /**
@@ -843,11 +955,10 @@ abstract class BaseApplication extends Module
      * handling is needed. Otherwise, the {@link getErrorHandler errorHandler}
      * application component will continue processing the error.
      *
-     * @param ErrorEvent $event event parameter
+     * @param $error
      */
-    public function onError($event)
+    public function raiseError($error)
     {
-        $this->raiseEvent('onError', $event);
     }
 
     /**
@@ -914,10 +1025,10 @@ abstract class BaseApplication extends Module
     protected function initSystemHandlers()
     {
         if (YII_ENABLE_EXCEPTION_HANDLER) {
-            set_exception_handler(array($this, 'handleException'));
+            set_exception_handler([$this, 'handleException']);
         }
         if (YII_ENABLE_ERROR_HANDLER) {
-            set_error_handler(array($this, 'handleError'), error_reporting());
+            set_error_handler([$this, 'handleError'], error_reporting());
         }
     }
 
@@ -996,10 +1107,5 @@ abstract class BaseApplication extends Module
 
         $this->locator = new ServiceLocator();
         $this->setComponents($components);
-    }
-
-    public function onProcessRequest()
-    {
-        $this->middleware->processRequest($this->getComponent('request'));
     }
 }

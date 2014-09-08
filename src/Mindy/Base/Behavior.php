@@ -44,20 +44,6 @@ class Behavior implements IBehavior
     private $_owner;
 
     /**
-     * Declares events and the corresponding event handler methods.
-     * The events are defined by the {@link owner} component, while the handler
-     * methods by the behavior class. The handlers will be attached to the corresponding
-     * events when the behavior is attached to the {@link owner} component; and they
-     * will be detached from the events when the behavior is detached from the component.
-     * Make sure you've declared handler method as public.
-     * @return array events (array keys) and the corresponding event handler methods (array values).
-     */
-    public function events()
-    {
-        return [];
-    }
-
-    /**
      * Attaches the behavior object to the component.
      * The default implementation will set the {@link owner} property
      * and attach event handlers as declared in {@link events}.
@@ -69,7 +55,6 @@ class Behavior implements IBehavior
     {
         $this->_enabled = true;
         $this->_owner = $owner;
-        $this->_attachEventHandlers();
     }
 
     /**
@@ -82,9 +67,6 @@ class Behavior implements IBehavior
      */
     public function detach($owner)
     {
-        foreach ($this->events() as $event => $handler) {
-            $owner->detachEventHandler($event, array($this, $handler));
-        }
         $this->_owner = null;
         $this->_enabled = false;
     }
@@ -110,26 +92,6 @@ class Behavior implements IBehavior
      */
     public function setEnabled($value)
     {
-        $value = (bool)$value;
-        if ($this->_enabled != $value && $this->_owner) {
-            if ($value) {
-                $this->_attachEventHandlers();
-            } else {
-                foreach ($this->events() as $event => $handler) {
-                    $this->_owner->detachEventHandler($event, array($this, $handler));
-                }
-            }
-        }
-        $this->_enabled = $value;
-    }
-
-    private function _attachEventHandlers()
-    {
-        $class = new ReflectionClass($this);
-        foreach ($this->events() as $event => $handler) {
-            if ($class->getMethod($handler)->isPublic()) {
-                $this->_owner->attachEventHandler($event, array($this, $handler));
-            }
-        }
+        $this->_enabled = (bool)$value;
     }
 }

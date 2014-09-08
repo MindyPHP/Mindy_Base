@@ -293,7 +293,7 @@ class ErrorHandler extends ApplicationComponent
      * whether the current request is an AJAX (XMLHttpRequest) request.
      * @return boolean whether the current request is an AJAX request.
      */
-    protected function isAjaxRequest()
+    protected function getIsAjax()
     {
         return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
     }
@@ -354,7 +354,7 @@ class ErrorHandler extends ApplicationComponent
             if ($exception instanceof Exception || !YII_DEBUG) {
                 $this->renderError();
             } else {
-                if ($this->isAjaxRequest()) {
+                if ($this->getIsAjax()) {
                     Mindy::app()->displayException($exception);
                 } else {
                     $this->render('exception', $this->getError());

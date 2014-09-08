@@ -67,7 +67,7 @@ class UrlManager extends Dispatcher
      */
     public function parseUrl($request)
     {
-        $uri = $request->http->getPath();
+        $uri = $request->http->getRequestUri();
         $url = ltrim(strtok($uri, "?"), '/');
 
         $route = $this->dispatch($request->http->getRequestType(), $url);

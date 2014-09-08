@@ -68,9 +68,6 @@ abstract class Module implements IModule
     private $_parentModule;
     private $_basePath;
     private $_modulePath;
-    private $_params;
-    private $_modules = [];
-    private $_moduleConfig = [];
     private $_componentConfig = [];
 
     /**
@@ -100,7 +97,7 @@ abstract class Module implements IModule
             unset($config['basePath']);
         }
 
-        Mindy::setPathOfAlias($id, $this->getBasePath());
+        Alias::set($id, $this->getBasePath());
 
         $this->preinit();
 
@@ -194,31 +191,10 @@ abstract class Module implements IModule
         }
     }
 
-    /**
-     * Returns user-defined parameters.
-     * @return AttributeCollection the list of user-defined parameters
-     */
     public function getParams()
     {
-        if ($this->_params !== null) {
-            return $this->_params;
-        } else {
-            $this->_params = new AttributeCollection;
-            $this->_params->caseSensitive = true;
-            return $this->_params;
-        }
-    }
-
-    /**
-     * Sets user-defined parameters.
-     * @param array $value user-defined parameters. This should be in name-value pairs.
-     */
-    public function setParams($value)
-    {
-        $params = $this->getParams();
-        foreach ($value as $k => $v) {
-            $params->add($k, $v);
-        }
+        $params = $this->getParentModule()->getParams();
+        return $params->get($this->getId());
     }
 
     /**
@@ -247,130 +223,12 @@ abstract class Module implements IModule
     }
 
     /**
-     * Defines the root aliases.
-     * @param array $mappings list of aliases to be defined. The array keys are root aliases,
-     * while the array values are paths or aliases corresponding to the root aliases.
-     * For example,
-     * <pre>
-     * array(
-     *    'models'=>'application.models',              // an existing alias
-     *    'extensions'=>'application.extensions',      // an existing alias
-     *    'backend'=>dirname(__FILE__).'/../backend',  // a directory
-     * )
-     * </pre>
-     */
-    public function setAliases($mappings)
-    {
-        foreach ($mappings as $name => $alias) {
-            if (($path = Alias::get($alias)) !== false) {
-                Alias::set($name, $path);
-            } else {
-                Alias::set($name, $alias);
-            }
-        }
-    }
-
-    /**
      * Returns the parent module.
      * @return Module the parent module. Null if this module does not have a parent.
      */
     public function getParentModule()
     {
         return $this->_parentModule;
-    }
-
-    /**
-     * Retrieves the named application module.
-     * The module has to be declared in {@link modules}. A new instance will be created
-     * when calling this method with the given ID for the first time.
-     * @param string $id application module ID (case-sensitive)
-     * @return Module the module instance, null if the module is disabled or does not exist.
-     */
-    public function getModule($id)
-    {
-        $id = ucfirst($id);
-        if (isset($this->_modules[$id]) || array_key_exists($id, $this->_modules)) {
-            return $this->_modules[$id];
-        } elseif (isset($this->_moduleConfig[$id])) {
-            $config = $this->_moduleConfig[$id];
-            if (!isset($config['enabled']) || $config['enabled']) {
-                Mindy::app()->logger->info("Loading \"$id\" module", 'system.base.CModule');
-                $class = $config['class'];
-                unset($config['class'], $config['enabled']);
-                if ($this === Mindy::app()) {
-                    $module = Creator::createObject($class, $id, null, $config);
-                } else {
-                    $module = Creator::createObject($class, $this->getId() . '/' . $id, $this, $config);
-                }
-                return $this->_modules[$id] = $module;
-            }
-        }
-    }
-
-    /**
-     * Returns a value indicating whether the specified module is installed.
-     * @param string $id the module ID
-     * @return boolean whether the specified module is installed.
-     * @since 1.1.2
-     */
-    public function hasModule($id)
-    {
-        return isset($this->_moduleConfig[$id]) || isset($this->_modules[$id]);
-    }
-
-    /**
-     * Returns the configuration of the currently installed modules.
-     * @return array the configuration of the currently installed modules (module ID => configuration)
-     */
-    public function getModules()
-    {
-        return $this->_moduleConfig;
-    }
-
-    /**
-     * Configures the sub-modules of this module.
-     *
-     * Call this method to declare sub-modules and configure them with their initial property values.
-     * The parameter should be an array of module configurations. Each array element represents a single module,
-     * which can be either a string representing the module ID or an ID-configuration pair representing
-     * a module with the specified ID and the initial property values.
-     *
-     * For example, the following array declares two modules:
-     * <pre>
-     * array(
-     *     'admin',                // a single module ID
-     *     'payment'=>array(       // ID-configuration pair
-     *         'server'=>'paymentserver.com',
-     *     ),
-     * )
-     * </pre>
-     *
-     * By default, the module class is determined using the expression <code>ucfirst($moduleID).'Module'</code>.
-     * And the class file is located under <code>modules/$moduleID</code>.
-     * You may override this default by explicitly specifying the 'class' option in the configuration.
-     *
-     * You may also enable or disable a module by specifying the 'enabled' option in the configuration.
-     *
-     * @param array $modules module configurations.
-     */
-    public function setModules($modules)
-    {
-        foreach ($modules as $id => $module) {
-            if (is_int($id)) {
-                $id = $module;
-                $module = [];
-            }
-            if (!isset($module['class'])) {
-                Alias::set($id, $this->getModulePath() . DIRECTORY_SEPARATOR . $id);
-                $module['class'] = '\\Modules\\' . ucfirst($id) . '\\' . ucfirst($id) . 'Module';
-            }
-
-            if (isset($this->_moduleConfig[$id])) {
-                $this->_moduleConfig[$id] = Collection::mergeArray($this->_moduleConfig[$id], $module);
-            } else {
-                $this->_moduleConfig[$id] = $module;
-            }
-        }
     }
 
     /**
@@ -400,10 +258,9 @@ abstract class Module implements IModule
         } elseif (isset($this->_componentConfig[$id]) && $createIfNull) {
             $config = $this->_componentConfig[$id];
             if (!isset($config['enabled']) || $config['enabled']) {
-                Mindy::trace("Loading \"$id\" application component", 'system.CModule');
+                Mindy::app()->logger->trace("Loading \"$id\" application component", 'system.CModule');
                 unset($config['enabled']);
                 $component = Creator::createObject($config);
-                // TODO перенесено в __construct, что вроде бы логично $component->init();
                 $this->locator->set($id, $component);
                 return $component;
             }
@@ -575,7 +432,7 @@ abstract class Module implements IModule
     /**
      * Delete tables from database
      */
-    public function delete()
+    public function uninstall()
     {
 
     }

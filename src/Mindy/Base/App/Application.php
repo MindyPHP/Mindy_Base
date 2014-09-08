@@ -22,64 +22,8 @@ use Mindy\Helper\Creator;
  */
 class Application extends BaseApplication
 {
-    /**
-     * @var mixed the application-wide layout. Defaults to 'main' (relative to {@link getLayoutPath layoutPath}).
-     * If this is false, then no layout will be used.
-     */
-
-    /**
-     * @var array mapping from controller ID to controller configurations.
-     * Each name-value pair specifies the configuration for a single controller.
-     * A controller configuration can be either a string or an array.
-     * If the former, the string should be the class name or
-     * {@link YiiBase::getPathOfAlias class path alias} of the controller.
-     * If the latter, the array must contain a 'class' element which specifies
-     * the controller's class name or {@link YiiBase::getPathOfAlias class path alias}.
-     * The rest name-value pairs in the array are used to initialize
-     * the corresponding controller properties. For example,
-     * <pre>
-     * array(
-     *   'post'=>array(
-     *      'class'=>'path.to.PostController',
-     *      'pageTitle'=>'something new',
-     *   ),
-     *   'user'=>'path.to.UserController',
-     * )
-     * </pre>
-     *
-     * Note, when processing an incoming request, the controller map will first be
-     * checked to see if the request can be handled by one of the controllers in the map.
-     * If not, a controller will be searched for under the {@link getControllerPath default controller path}.
-     */
-    public $controllerMap = [];
-    /**
-     * @var array the configuration specifying a controller which should handle
-     * all user requests. This is mainly used when the application is in maintenance mode
-     * and we should use a controller to handle all incoming requests.
-     * The configuration specifies the controller route (the first element)
-     * and GET parameters (the rest name-value pairs). For example,
-     * <pre>
-     * array(
-     *     'offline/notice',
-     *     'param1'=>'value1',
-     *     'param2'=>'value2',
-     * )
-     * </pre>
-     * Defaults to null, meaning catch-all is not effective.
-     */
-    public $catchAllRequest;
-
-    /**
-     * @var string Namespace that should be used when loading controllers.
-     * Default is to use global namespace.
-     * @since 1.1.11
-     */
-    public $controllerNamespace;
-
     private $_controllerPath;
     private $_controller;
-
-    public $baseController = 'CBaseController';
 
     /**
      * @var array mapping from command name to command configurations.
@@ -119,14 +63,7 @@ class Application extends BaseApplication
                 $this->end($exitCode);
             }
         } else {
-            if (is_array($this->catchAllRequest) && isset($this->catchAllRequest[0])) {
-                $route = $this->catchAllRequest[0];
-                foreach (array_splice($this->catchAllRequest, 1) as $name => $value) {
-                    $_GET[$name] = $value;
-                }
-            } else {
-                $route = $this->getUrlManager()->parseUrl($this->getRequest());
-            }
+            $route = $this->getUrlManager()->parseUrl($this->getRequest());
             $this->runController($route);
         }
     }
@@ -425,8 +362,6 @@ class Application extends BaseApplication
      */
     public function init()
     {
-        parent::init();
-
         if (Console::isCli()) {
             // fix for fcgi
             defined('STDIN') or define('STDIN', fopen('php://stdin', 'r'));
