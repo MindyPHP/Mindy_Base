@@ -29,6 +29,7 @@ use Mindy\Base\Module;
 use Mindy\Di\ServiceLocator;
 use Mindy\Helper\Alias;
 use Mindy\Helper\Creator;
+use Mindy\Helper\Collection;
 use ReflectionProperty;
 
 /**
@@ -1050,13 +1051,13 @@ abstract class BaseApplication extends Module
                 'class' => '\Mindy\Base\ErrorHandler',
             ],
             'securityManager' => [
-                'class' => '\Mindy\Base\SecurityManager',
+                'class' => '\Mindy\Security\SecurityManager',
             ],
             'statePersister' => [
                 'class' => '\Mindy\Base\StatePersister',
             ],
             'urlManager' => [
-                'class' => '\Mindy\Base\UrlManager',
+                'class' => '\Mindy\Router\UrlManager',
             ],
             'request' => [
                 'class' => '\Mindy\Http\Request',
@@ -1065,10 +1066,7 @@ abstract class BaseApplication extends Module
                 'class' => '\Mindy\Locale\Formatter',
             ],
             'session' => [
-                'class' => '\Mindy\Base\HttpSession',
-            ],
-            'widgetFactory' => [
-                'class' => '\Mindy\Base\WidgetFactory',
+                'class' => '\Mindy\Session\HttpSession',
             ],
             'logger' => [
                 'class' => '\Mindy\Logger\LoggerManager',

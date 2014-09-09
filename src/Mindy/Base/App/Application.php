@@ -2,10 +2,10 @@
 
 namespace Mindy\Base\App;
 
-use Mindy\Base\ConsoleCommandRunner;
 use Mindy\Base\Exception\Exception;
 use Mindy\Base\Exception\HttpException;
 use Mindy\Base\Mindy;
+use Mindy\Console\ConsoleCommandRunner;
 use Mindy\Helper\Alias;
 use Mindy\Helper\Console;
 use Mindy\Helper\Creator;
@@ -172,7 +172,7 @@ class Application extends BaseApplication
     }
 
     /**
-     * @return \Mindy\Base\Controller the currently active controller
+     * @return \Mindy\Controller\Controller the currently active controller
      */
     public function getController()
     {
@@ -180,7 +180,7 @@ class Application extends BaseApplication
     }
 
     /**
-     * @param \Mindy\Base\Controller $value the currently active controller
+     * @param \Mindy\Controller\Controller $value the currently active controller
      */
     public function setController($value)
     {
@@ -205,8 +205,8 @@ class Application extends BaseApplication
      * This method is invoked before the currently requested controller action and all its filters
      * are executed. You may override this method with logic that needs to be done
      * before all controller actions.
-     * @param \Mindy\Base\Controller $controller the controller
-     * @param \Mindy\Base\Action $action the action
+     * @param \Mindy\Controller\Controller $controller the controller
+     * @param \Mindy\Controller\Action $action the action
      * @return boolean whether the action should be executed.
      */
     public function beforeControllerAction($controller, $action)
@@ -219,8 +219,8 @@ class Application extends BaseApplication
      * This method is invoked after the currently requested controller action and all its filters
      * are executed. You may override this method with logic that needs to be done
      * after all controller actions.
-     * @param \Mindy\Base\Controller $controller the controller
-     * @param \Mindy\Base\Action $action the action
+     * @param \Mindy\Controller\Controller $controller the controller
+     * @param \Mindy\Controller\Action $action the action
      */
     public function afterControllerAction($controller, $action)
     {
@@ -328,7 +328,7 @@ class Application extends BaseApplication
 
     /**
      * Returns the command runner.
-     * @return ConsoleCommandRunner the command runner.
+     * @return \Mindy\Console\ConsoleCommandRunner the command runner.
      */
     public function getCommandRunner()
     {
@@ -338,7 +338,7 @@ class Application extends BaseApplication
     /**
      * Returns the currently running command.
      * This is shortcut method for {@link CConsoleCommandRunner::getCommand()}.
-     * @return \Mindy\Base\ConsoleCommand|null the currently active command.
+     * @return \Mindy\Console\ConsoleCommand|null the currently active command.
      * @since 1.1.14
      */
     public function getCommand()
@@ -348,7 +348,7 @@ class Application extends BaseApplication
 
     /**
      * This is shortcut method for {@link CConsoleCommandRunner::setCommand()}.
-     * @param \Mindy\Base\ConsoleCommand $value the currently active command.
+     * @param \Mindy\Console\ConsoleCommand $value the currently active command.
      * @since 1.1.14
      */
     public function setCommand($value)

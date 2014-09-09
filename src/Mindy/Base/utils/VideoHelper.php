@@ -1,4 +1,7 @@
 <?php
+
+namespace Mindy\Helper;
+
 /**
  *  Copyright (C) 2011 by OpenHost S.L.
  *
