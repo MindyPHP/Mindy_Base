@@ -102,6 +102,7 @@ class Application extends BaseApplication
     {
         if (($ca = $this->createController($route)) !== null) {
             list($controller, $actionID, $params) = $ca;
+            $_GET = array_merge($_GET, $params);
             $csrfExempt = $controller->getCsrfExempt();
             if(!Console::isCli() && !in_array($actionID, $csrfExempt)) {
                 $this->getComponent('request')->csrf->validate();

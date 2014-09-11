@@ -1079,7 +1079,7 @@ abstract class BaseApplication extends Module
                         'class' => '\Mindy\Logger\Handler\StreamHandler',
                     ],
                     'users' => [
-                        'class' => '\Mindy\Logger\Handler\StreamHandler',
+                        'class' => '\Mindy\Logger\Handler\RotatingFileHandler',
                         'alias' => 'application.runtime.users',
                         'level' => 'INFO',
                         'formatter' => 'users'
