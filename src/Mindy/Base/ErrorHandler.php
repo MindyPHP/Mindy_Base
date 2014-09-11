@@ -271,11 +271,10 @@ class ErrorHandler extends ApplicationComponent
 
     /**
      * Handles the PHP error.
-     * @param ErrorEvent $event the PHP error event
      */
-    public function handleError($event)
+    public function handleError($code, $message, $file, $line, array $errcontext = [])
     {
-        $msg = "Error: {$event->message}\nFile: {$event->file}\nLine: {$event->line}";
+        $msg = "Error: {$message}\nFile: {$file}\nLine: {$line}";
         Mindy::app()->middleware->processException(new Exception($msg));
 
         $trace = debug_backtrace();
@@ -303,7 +302,7 @@ class ErrorHandler extends ApplicationComponent
 
         $app = Mindy::app();
         if ($app instanceof Application) {
-            switch ($event->code) {
+            switch ($code) {
                 case E_WARNING:
                     $type = 'PHP warning';
                     break;
@@ -329,9 +328,9 @@ class ErrorHandler extends ApplicationComponent
             $this->_error = array(
                 'code' => 500,
                 'type' => $type,
-                'message' => $event->message,
-                'file' => $event->file,
-                'line' => $event->line,
+                'message' => $message,
+                'file' => $file,
+                'line' => $line,
                 'trace' => $traceString,
                 'traces' => $trace,
             );
@@ -340,7 +339,7 @@ class ErrorHandler extends ApplicationComponent
             }
             $this->renderError();
         } else {
-            $this->displayError($event->code, $event->message, $event->file, $event->line);
+            $this->displayError($code, $message, $file, $line);
         }
     }
 
