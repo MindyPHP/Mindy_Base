@@ -390,10 +390,14 @@ class ErrorHandler extends ApplicationComponent
             $code = $data['code'];
         }
 
-        echo $this->renderTemplate('core/' . $view . $code . '.html', [
-            'data' => $data,
-            'this' => $this,
-        ]);
+        if(Console::isCli()) {
+            d($data);
+        } else {
+            echo $this->renderTemplate('core/' . $view . $code . '.html', [
+                'data' => $data,
+                'this' => $this,
+            ]);
+        }
     }
 
     /**
@@ -409,7 +413,7 @@ class ErrorHandler extends ApplicationComponent
             if ($exception instanceof Exception || !YII_DEBUG) {
                 $this->renderError();
             } else {
-                if ($this->getIsAjax()) {
+                if ($this->getIsAjax() || Console::isCli()) {
                     $this->displayException($exception);
                 } else {
                     $this->render('exception', $this->getError());
@@ -424,12 +428,7 @@ class ErrorHandler extends ApplicationComponent
      */
     protected function renderError()
     {
-        $data = $this->getError();
-        if (YII_DEBUG) {
-            $this->render('exception', $data);
-        } else {
-            $this->render('error', $data);
-        }
+        $this->render(YII_DEBUG ? 'exception' : 'error', $this->getError());
     }
 
     /**
