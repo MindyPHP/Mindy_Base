@@ -292,17 +292,6 @@ class Application extends BaseApplication
     }
 
     /**
-     * Displays the uncaught PHP exception.
-     * This method displays the exception in console mode when there is
-     * no active error handler.
-     * @param Exception $exception the uncaught exception
-     */
-    public function displayException($exception)
-    {
-        echo $exception;
-    }
-
-    /**
      * @return string the directory that contains the command classes. Defaults to 'protected/commands'.
      */
     public function getCommandPath()

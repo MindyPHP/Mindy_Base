@@ -57,6 +57,8 @@ class ErrorHandler extends ApplicationComponent
 {
     use RenderTrait;
 
+    public $handlers = [];
+
     /**
      * @var integer maximum number of source code lines to be displayed. Defaults to 25.
      */
@@ -90,13 +92,9 @@ class ErrorHandler extends ApplicationComponent
      * Handles the exception/error event.
      * This method is invoked by the application whenever it captures
      * an exception or PHP error.
-     * @param Event $event the event containing the exception/error information
      */
-    public function handle($event)
+    public function process($exception)
     {
-        // set event as handled to prevent it from being handled by other event handlers
-        $event->handled = true;
-
         if ($this->discardOutput) {
             $gzHandler = false;
             foreach (ob_list_handlers() as $h) {
@@ -123,11 +121,8 @@ class ErrorHandler extends ApplicationComponent
             }
         }
 
-        if ($event instanceof ExceptionEvent) {
-            $this->handleException($event->exception);
-        } else { // ErrorEvent
-            $this->handleError($event);
-        }
+//        $this->handleException($event->exception);
+//        $this->handleError($event);
     }
 
     /**
@@ -162,7 +157,7 @@ class ErrorHandler extends ApplicationComponent
      * Handles the exception.
      * @param Exception $exception the exception captured
      */
-    protected function handleException($exception)
+    public function handleException($exception)
     {
         $app = Mindy::app();
         if($app->hasComponent('middleware')) {
@@ -212,7 +207,65 @@ class ErrorHandler extends ApplicationComponent
 
             $this->renderException();
         } else {
-            $app->displayException($exception);
+            $this->displayException($exception);
+        }
+    }
+
+    /**
+     * Displays the captured PHP error.
+     * This method displays the error in HTML when there is
+     * no active error handler.
+     * @param integer $code error code
+     * @param string $message error message
+     * @param string $file error file
+     * @param string $line error line
+     */
+    public function displayError($code, $message, $file, $line)
+    {
+        if (YII_DEBUG) {
+            echo "<h1>PHP Error [$code]</h1>\n";
+            echo "<p>$message ($file:$line)</p>\n";
+            echo '<pre>';
+
+            $trace = debug_backtrace();
+            // skip the first 3 stacks as they do not tell the error position
+            if (count($trace) > 3)
+                $trace = array_slice($trace, 3);
+            foreach ($trace as $i => $t) {
+                if (!isset($t['file']))
+                    $t['file'] = 'unknown';
+                if (!isset($t['line']))
+                    $t['line'] = 0;
+                if (!isset($t['function']))
+                    $t['function'] = 'unknown';
+                echo "#$i {$t['file']}({$t['line']}): ";
+                if (isset($t['object']) && is_object($t['object']))
+                    echo get_class($t['object']) . '->';
+                echo "{$t['function']}()\n";
+            }
+
+            echo '</pre>';
+        } else {
+            echo "<h1>PHP Error [$code]</h1>\n";
+            echo "<p>$message</p>\n";
+        }
+    }
+
+    /**
+     * Displays the uncaught PHP exception.
+     * This method displays the exception in HTML when there is
+     * no active error handler.
+     * @param Exception $exception the uncaught exception
+     */
+    public function displayException($exception)
+    {
+        if (YII_DEBUG) {
+            echo '<h1>' . get_class($exception) . "</h1>\n";
+            echo '<p>' . $exception->getMessage() . ' (' . $exception->getFile() . ':' . $exception->getLine() . ')</p>';
+            echo '<pre>' . $exception->getTraceAsString() . '</pre>';
+        } else {
+            echo '<h1>' . get_class($exception) . "</h1>\n";
+            echo '<p>' . $exception->getMessage() . '</p>';
         }
     }
 
@@ -220,7 +273,7 @@ class ErrorHandler extends ApplicationComponent
      * Handles the PHP error.
      * @param ErrorEvent $event the PHP error event
      */
-    protected function handleError($event)
+    public function handleError($event)
     {
         $msg = "Error: {$event->message}\nFile: {$event->file}\nLine: {$event->line}";
         Mindy::app()->middleware->processException(new Exception($msg));
@@ -287,7 +340,7 @@ class ErrorHandler extends ApplicationComponent
             }
             $this->renderError();
         } else {
-            $app->displayError($event->code, $event->message, $event->file, $event->line);
+            $this->displayError($event->code, $event->message, $event->file, $event->line);
         }
     }
 
@@ -351,13 +404,13 @@ class ErrorHandler extends ApplicationComponent
     {
         $exception = $this->getException();
         if(Console::isCli()) {
-            Mindy::app()->displayException($exception);
+            $this->displayException($exception);
         } else {
             if ($exception instanceof Exception || !YII_DEBUG) {
                 $this->renderError();
             } else {
                 if ($this->getIsAjax()) {
-                    Mindy::app()->displayException($exception);
+                    $this->displayException($exception);
                 } else {
                     $this->render('exception', $this->getError());
                 }

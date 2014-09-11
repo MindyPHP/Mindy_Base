@@ -131,6 +131,11 @@ abstract class BaseApplication extends Module
      */
     public $localeClass = 'Mindy\Locale\Locale';
 
+    /**
+     * @var string the class used to handle errors
+     */
+    public $errorHandlerClass = 'Mindy\Base\ErrorHandler';
+
     private $_id;
     private $_basePath;
     private $_runtimePath;
@@ -625,42 +630,12 @@ abstract class BaseApplication extends Module
     }
 
     /**
-     * @return \Mindy\Base\BaseController the currently active controller. Null is returned in this base class.
+     * @return \Mindy\Controller\BaseController the currently active controller. Null is returned in this base class.
      * @since 1.1.8
      */
     public function getController()
     {
         return null;
-    }
-
-    /**
-     * Creates a relative URL based on the given controller and action information.
-     * @param string $route the URL route. This should be in the format of 'ControllerID/ActionID'.
-     * @param array $params additional GET parameters (name=>value). Both the name and value will be URL-encoded.
-     * @param string $ampersand the token separating name-value pairs in the URL.
-     * @return string the constructed URL
-     */
-    public function createUrl($route, $params = array(), $ampersand = '&')
-    {
-        return $this->getUrlManager()->createUrl($route, $params, $ampersand);
-    }
-
-    /**
-     * Creates an absolute URL based on the given controller and action information.
-     * @param string $route the URL route. This should be in the format of 'ControllerID/ActionID'.
-     * @param array $params additional GET parameters (name=>value). Both the name and value will be URL-encoded.
-     * @param string $schema schema to use (e.g. http, https). If empty, the schema used for the current request will be used.
-     * @param string $ampersand the token separating name-value pairs in the URL.
-     * @return string the constructed URL
-     */
-    public function createAbsoluteUrl($route, $params = array(), $schema = '', $ampersand = '&')
-    {
-        $url = $this->createUrl($route, $params, $ampersand);
-        if (strpos($url, 'http') === 0) {
-            return $url;
-        } else {
-            return $this->getRequest()->getHostInfo($schema) . $url;
-        }
     }
 
     /**
@@ -826,16 +801,20 @@ abstract class BaseApplication extends Module
         restore_error_handler();
         restore_exception_handler();
 
-        $category = 'exception.' . get_class($exception);
+        $errorCode = 500;
+        $category = 'exception';
         if ($exception instanceof HttpException) {
+            $errorCode = $exception->statusCode;
             $category .= '.' . $exception->statusCode;
         }
         // php <5.2 doesn't support string conversion auto-magically
         $message = $exception->__toString();
-        if (isset($_SERVER['REQUEST_URI']))
+        if (isset($_SERVER['REQUEST_URI'])) {
             $message .= "\nREQUEST_URI=" . $_SERVER['REQUEST_URI'];
-        if (isset($_SERVER['HTTP_REFERER']))
+        }
+        if (isset($_SERVER['HTTP_REFERER'])) {
             $message .= "\nHTTP_REFERER=" . $_SERVER['HTTP_REFERER'];
+        }
         $message .= "\n---";
         Mindy::app()->logger->error($message, 'default', ['category' => $category]);
 
@@ -963,73 +942,19 @@ abstract class BaseApplication extends Module
     }
 
     /**
-     * Displays the captured PHP error.
-     * This method displays the error in HTML when there is
-     * no active error handler.
-     * @param integer $code error code
-     * @param string $message error message
-     * @param string $file error file
-     * @param string $line error line
-     */
-    public function displayError($code, $message, $file, $line)
-    {
-        if (YII_DEBUG) {
-            echo "<h1>PHP Error [$code]</h1>\n";
-            echo "<p>$message ($file:$line)</p>\n";
-            echo '<pre>';
-
-            $trace = debug_backtrace();
-            // skip the first 3 stacks as they do not tell the error position
-            if (count($trace) > 3)
-                $trace = array_slice($trace, 3);
-            foreach ($trace as $i => $t) {
-                if (!isset($t['file']))
-                    $t['file'] = 'unknown';
-                if (!isset($t['line']))
-                    $t['line'] = 0;
-                if (!isset($t['function']))
-                    $t['function'] = 'unknown';
-                echo "#$i {$t['file']}({$t['line']}): ";
-                if (isset($t['object']) && is_object($t['object']))
-                    echo get_class($t['object']) . '->';
-                echo "{$t['function']}()\n";
-            }
-
-            echo '</pre>';
-        } else {
-            echo "<h1>PHP Error [$code]</h1>\n";
-            echo "<p>$message</p>\n";
-        }
-    }
-
-    /**
-     * Displays the uncaught PHP exception.
-     * This method displays the exception in HTML when there is
-     * no active error handler.
-     * @param Exception $exception the uncaught exception
-     */
-    public function displayException($exception)
-    {
-        if (YII_DEBUG) {
-            echo '<h1>' . get_class($exception) . "</h1>\n";
-            echo '<p>' . $exception->getMessage() . ' (' . $exception->getFile() . ':' . $exception->getLine() . ')</p>';
-            echo '<pre>' . $exception->getTraceAsString() . '</pre>';
-        } else {
-            echo '<h1>' . get_class($exception) . "</h1>\n";
-            echo '<p>' . $exception->getMessage() . '</p>';
-        }
-    }
-
-    /**
      * Initializes the error handlers.
      */
     protected function initSystemHandlers()
     {
-        if (YII_ENABLE_EXCEPTION_HANDLER) {
-            set_exception_handler([$this, 'handleException']);
-        }
-        if (YII_ENABLE_ERROR_HANDLER) {
-            set_error_handler([$this, 'handleError'], error_reporting());
+        if (YII_ENABLE_EXCEPTION_HANDLER || YII_ENABLE_ERROR_HANDLER) {
+            $errorHandlerClass = $this->errorHandlerClass;
+            $handler = new $errorHandlerClass;
+            if (YII_ENABLE_EXCEPTION_HANDLER) {
+                set_exception_handler([$handler, 'handleException']);
+            }
+            if (YII_ENABLE_ERROR_HANDLER) {
+                set_error_handler([$handler, 'handleError'], error_reporting());
+            }
         }
     }
 
