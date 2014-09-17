@@ -26,7 +26,7 @@ class EventManager extends AuraSignalManager
     public function __construct()
     {
         $tmp = func_get_args();
-        $args = $tmp[0];
+        $args = isset($tmp[0]) ? $tmp[0] : null;
         $events = isset($args['events']) ? $args['events'] : null;
         if (is_string($events)) {
             $handlers = require_once($events);
