@@ -172,6 +172,7 @@ abstract class BaseApplication extends Module
      */
     public function __construct($config = null)
     {
+        d('Construct');
         Mindy::setApplication($this);
 
         // set basePath at early as possible to avoid trouble
