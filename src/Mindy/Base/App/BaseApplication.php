@@ -218,7 +218,24 @@ abstract class BaseApplication extends Module
         $this->preloadComponents();
 
         $this->initEvents();
+
+        $this->signal->handler('\\Mindy\\Base\\Module', 'preConfigure', [$this, 'preConfigure']);
+        $this->initModules();
+
         $this->init();
+    }
+
+    protected function initModules()
+    {
+        foreach($this->getModules() as $module => $config) {
+            if(is_numeric($module)) {
+                $name = $config;
+                $className = '\\Modules\\' . ucfirst($name) . '\\' . ucfirst($name) . 'Module';
+            } else {
+                $className = $config['class'];
+            }
+            call_user_func([$className, 'preConfigure']);
+        }
     }
 
     /**
@@ -647,7 +664,7 @@ abstract class BaseApplication extends Module
      */
     public function getBaseUrl($absolute = false)
     {
-        return $this->getRequest()->getBaseUrl($absolute);
+        return $this->getComponent('request')->http->getBaseUrl($absolute);
     }
 
     /**
@@ -656,7 +673,7 @@ abstract class BaseApplication extends Module
     public function getHomeUrl()
     {
         if ($this->_homeUrl === null) {
-            return $this->getRequest()->getBaseUrl() . '/';
+            return $this->getComponent('request')->http->getBaseUrl() . '/';
         } else {
             return $this->_homeUrl;
         }

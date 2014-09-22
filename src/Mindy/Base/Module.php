@@ -110,6 +110,11 @@ abstract class Module implements IModule
         $this->init();
     }
 
+    public static function preConfigure()
+    {
+
+    }
+
     public function getVersion()
     {
         return '1.0';
