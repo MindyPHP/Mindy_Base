@@ -10,6 +10,7 @@ namespace Mindy\Base;
  * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
+use Mindy\Base\App\Application;
 use Mindy\Base\Exception\Exception;
 use Mindy\Base\Interfaces\IApplicationComponent;
 use Mindy\Base\Interfaces\IModule;
@@ -396,7 +397,11 @@ abstract class Module implements IModule
 
     public static function t($str, $params = [], $dic = 'main')
     {
-        return Mindy::t(get_called_class() . "." . $dic, $str, $params);
+        $class = get_called_class();
+        if ($class == Application::className()) {
+            $class = 'Modules\Core\CoreModule';
+        }
+        return Mindy::t($class . "." . $dic, $str, $params);
     }
 
     /**
