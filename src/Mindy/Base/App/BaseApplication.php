@@ -91,14 +91,14 @@ use ReflectionProperty;
  * The current {@link getLocale application locale} will be used.
  * @property \Mindy\Query\Connection $db The database connection.
  * @property \Mindy\Base\ErrorHandler $errorHandler The error handler application component.
- * @property \Mindy\Base\SecurityManager $securityManager The security manager application component.
+ * @property \Mindy\Security\SecurityManager $securityManager The security manager application component.
  * @property \Mindy\Base\StatePersister $statePersister The state persister application component.
  * @property \Mindy\Cache\Cache $cache The cache application component. Null if the component is not enabled.
  * @property \Mindy\Locale\PhpMessageSource $coreMessages The core message translations.
  * @property \Mindy\Locale\MessageSource $messages The application message translations.
  * @property \Mindy\Http\Http $request The request component.
- * @property \Mindy\Base\UrlManager $urlManager The URL manager component.
- * @property \Mindy\Base\Controller $controller The currently active controller. Null is returned in this base class.
+ * @property \Mindy\Router\UrlManager $urlManager The URL manager component.
+ * @property \Mindy\Controller\BaseController $controller The currently active controller. Null is returned in this base class.
  * @property string $baseUrl The relative URL for the application.
  * @property string $homeUrl The homepage URL.
  *
