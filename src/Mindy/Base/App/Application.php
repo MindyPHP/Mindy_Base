@@ -113,9 +113,13 @@ class Application extends BaseApplication
             $controller->run($actionID, $params);
             $this->_controller = $oldController;
         } else {
-            throw new HttpException(404, Mindy::t('yii', 'Unable to resolve the request "{route}".', [
-                '{route}' => $this->request->getRequestUri()
-            ]));
+//            $msg = Mindy::t('yii', 'Unable to resolve the request "{route}".', [
+//                '{route}' => $this->request->getPath()
+//            ]);
+            $msg = strtr('Unable to resolve the request "{route}".', [
+                '{route}' => $this->request->getPath()
+            ]);
+            throw new HttpException(404, $msg);
         }
     }
 
