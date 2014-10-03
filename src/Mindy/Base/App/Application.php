@@ -104,7 +104,7 @@ class Application extends BaseApplication
             list($controller, $actionID, $params) = $ca;
             $_GET = array_merge($_GET, $params);
             $csrfExempt = $controller->getCsrfExempt();
-            if(!Console::isCli() && !in_array($actionID, $csrfExempt)) {
+            if(!Console::isCli() && !in_array($actionID, $csrfExempt) && $this->getComponent('request')->enableCsrfValidation) {
                 $this->getComponent('request')->csrf->validate();
             }
             $oldController = $this->_controller;
