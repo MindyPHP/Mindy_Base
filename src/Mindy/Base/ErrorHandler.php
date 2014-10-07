@@ -396,6 +396,7 @@ class ErrorHandler extends ApplicationComponent
                 'data' => $data,
                 'this' => $this,
             ]);
+            Mindy::app()->end();
         }
     }
 
