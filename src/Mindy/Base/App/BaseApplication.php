@@ -28,8 +28,8 @@ use Mindy\Base\Mindy;
 use Mindy\Base\Module;
 use Mindy\Di\ServiceLocator;
 use Mindy\Helper\Alias;
-use Mindy\Helper\Creator;
 use Mindy\Helper\Collection;
+use Mindy\Helper\Creator;
 use ReflectionProperty;
 
 /**
@@ -227,8 +227,8 @@ abstract class BaseApplication extends Module
 
     protected function initModules()
     {
-        foreach($this->getModules() as $module => $config) {
-            if(is_numeric($module)) {
+        foreach ($this->getModules() as $module => $config) {
+            if (is_numeric($module)) {
                 $name = $config;
                 $className = '\\Modules\\' . ucfirst($name) . '\\' . ucfirst($name) . 'Module';
             } else {
@@ -1006,6 +1006,9 @@ abstract class BaseApplication extends Module
             ],
             'format' => [
                 'class' => '\Mindy\Locale\Formatter',
+            ],
+            'signal' => [
+                'class' => '\Mindy\Event\EventManager',
             ],
             'session' => [
                 'class' => '\Mindy\Session\HttpSession',
