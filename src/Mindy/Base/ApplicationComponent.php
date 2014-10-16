@@ -48,12 +48,8 @@ abstract class ApplicationComponent implements IApplicationComponent
     use Configurator, BehaviorAccessors;
 
     /**
-     * @var array the behaviors that should be attached to this component.
-     * The behaviors will be attached to the component when {@link init} is called.
-     * Please refer to {@link CModel::behaviors} on how to specify the value of this property.
+     * @var bool
      */
-    public $behaviors = [];
-
     private $_initialized = false;
 
     /**
