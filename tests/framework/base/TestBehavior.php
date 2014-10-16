@@ -1,7 +1,7 @@
 <?php
 use Mindy\Base\Behavior;
 use Mindy\Base\Event;
-use Mindy\Base\Exception\Exception;
+use Mindy\Exception\Exception;
 
 /**
  * Used in CBehaviorTest

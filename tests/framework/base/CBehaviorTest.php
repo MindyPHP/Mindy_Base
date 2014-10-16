@@ -16,7 +16,7 @@ class CBehaviorTest extends CTestCase
         $this->assertFalse(method_exists($component, 'test'));
         $this->assertEquals(2, $component->test());
         $this->assertTrue($component->behaviorCalled);
-        $this->setExpectedException('\Mindy\Base\Exception\Exception');
+        $this->setExpectedException('\Mindy\Exception\Exception');
         $component->test2();
     }
 
@@ -25,7 +25,7 @@ class CBehaviorTest extends CTestCase
         $component = new NewComponent;
         $component->attachBehavior('a', new NewBehavior);
         $component->disableBehaviors();
-        $this->setExpectedException('\Mindy\Base\Exception\Exception');
+        $this->setExpectedException('\Mindy\Exception\Exception');
         // test should not be called since behavior is disabled
         echo $component->test();
     }

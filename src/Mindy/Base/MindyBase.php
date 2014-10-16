@@ -2,23 +2,8 @@
 
 namespace Mindy\Base;
 
-use Mindy\Base\Compatability\CompatabilityLayer;
-use Mindy\Base\Exception\Exception;
+use Mindy\Exception\Exception;
 use Mindy\Helper\Alias;
-use Mindy\Helper\Console;
-use ReflectionClass;
-
-
-/**
- * YiiBase class file.
- *
- * @author Qiang Xue <qiang.xue@gmail.com>
- * @link http://www.yiiframework.com/
- * @copyright 2008-2013 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- * @package system
- * @since 1.0
- */
 
 /**
  * Gets the application start timestamp.
@@ -70,13 +55,13 @@ defined('YII_TEST') or define('YII_TEST', false);
 abstract class MindyBase
 {
     /**
-     * @var \Mindy\Base\App\Application
+     * @var \Mindy\Application\Application
      */
     private static $_app;
 
     /**
      * Returns the application singleton or null if the singleton has not been created yet.
-     * @return \Mindy\Base\App\Application the application singleton, null if the singleton has not been created yet.
+     * @return \Mindy\Application\Application the application singleton, null if the singleton has not been created yet.
      */
     public static function app()
     {
@@ -89,7 +74,7 @@ abstract class MindyBase
      * Repeated invocation of this method or the CApplication constructor
      * will cause the throw of an exception.
      * To retrieve the application instance, use {@link app()}.
-     * @param \Mindy\Base\App\Application $app the application instance. If this is null, the existing
+     * @param \Mindy\Application\Application $app the application instance. If this is null, the existing
      * application singleton will be removed.
      * @throws Exception if multiple application instances are registered.
      */
@@ -98,75 +83,16 @@ abstract class MindyBase
         if (self::$_app === null || $app === null) {
             self::$_app = $app;
         } else {
-            throw new Exception(Mindy::t('yii', 'Yii application can only be created once.'));
+            throw new Exception(self::t('base', 'Application can only be created once.'));
         }
     }
 
     /**
-     * Translates a message to the specified language.
-     * This method supports choice format (see {@link ChoiceFormat}),
-     * i.e., the message returned will be chosen from a few candidates according to the given
-     * number value. This feature is mainly used to solve plural format issue in case
-     * a message has different plural forms in some languages.
-     * @param string $category message category. Please use only word letters. Note, category 'yii' is
-     * reserved for Yii framework core code use. See {@link PhpMessageSource} for
-     * more interpretation about message category.
-     * @param string $message the original message
-     * @param array $params parameters to be applied to the message using <code>strtr</code>.
-     * The first parameter can be a number without key.
-     * And in this case, the method will call {@link ChoiceFormat::format} to choose
-     * an appropriate message translation.
-     * Starting from version 1.1.6 you can pass parameter for {@link ChoiceFormat::format}
-     * or plural forms format without wrapping it with array.
-     * This parameter is then available as <code>{n}</code> in the message translation string.
-     * @param string $source which message source application component to use.
-     * Defaults to null, meaning using 'coreMessages' for messages belonging to
-     * the 'yii' category and using 'messages' for the rest messages.
-     * @param string $language the target language. If null (default), the {@link Application::getLanguage application language} will be used.
-     * @return string the translated message
-     * @see CMessageSource
+     * @DEPRECATED
      */
     public static function t($category, $message, $params = [], $source = null, $language = null)
     {
-        if (self::$_app !== null) {
-            if ($source === null) {
-                $source = ($category === 'yii' || $category === 'zii') ? 'coreMessages' : 'messages';
-            }
-
-            if (($source = self::$_app->getComponent($source)) !== null) {
-                /* @var $source \Mindy\Locale\MessageSource */
-                $message = $source->translate($category, $message, $language);
-            }
-        }
-
-        if ($params === []) {
-            return $message;
-        }
-
-        if (!is_array($params))
-            $params = [$params];
-
-        if (isset($params[0])) { // number choice
-            if (strpos($message, '|') !== false) {
-                if (strpos($message, '#') === false) {
-                    $chunks = explode('|', $message);
-                    $expressions = self::$_app->getLocale($language)->getPluralRules();
-                    if ($n = min(count($chunks), count($expressions))) {
-                        for ($i = 0; $i < $n; $i++) {
-                            $chunks[$i] = $expressions[$i] . '#' . $chunks[$i];
-                        }
-
-                        $message = implode('|', $chunks);
-                    }
-                }
-                $message = ChoiceFormat::format($message, $params[0]);
-            }
-            if (!isset($params['{n}'])) {
-                $params['{n}'] = $params[0];
-            }
-            unset($params[0]);
-        }
-        return $params !== [] ? strtr($message, $params) : $message;
+        return self::app()->getTranslate()->t($category, $message, $params, $source, $language);
     }
 
     /**
@@ -190,9 +116,9 @@ abstract class MindyBase
      * which should point to the directory containing all application logic, template and data.
      * If not, the directory will be defaulted to 'protected'.
      * @param string $className
-     * @return \Mindy\Base\App\Application
+     * @return \Mindy\Application\Application
      */
-    public static function getInstance($config = null, $className = '\Mindy\Base\App\Application')
+    public static function getInstance($config = null, $className = '\Mindy\Application\Application')
     {
         $aliases = [
             'system' => YII_PATH,

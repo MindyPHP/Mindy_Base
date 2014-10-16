@@ -81,7 +81,7 @@ class CConfigurationTest extends CTestCase
     {
         $config = new Configuration(array('invalid' => 'value'));
         $object = new MyClass;
-        $this->setExpectedException('\Mindy\Base\Exception\Exception');
+        $this->setExpectedException('\Mindy\Exception\Exception');
         $config->applyTo($object);
     }
 

@@ -16,7 +16,7 @@ class CAttributeCollectionTest extends CTestCase
     {
         $collection = new AttributeCollection(array(), true);
         $this->assertFalse($collection->canGetProperty('Property'));
-        $this->setExpectedException('\Mindy\Base\Exception\Exception');
+        $this->setExpectedException('\Mindy\Exception\Exception');
         $value = $collection->Property;
     }
 
@@ -31,7 +31,7 @@ class CAttributeCollectionTest extends CTestCase
     public function testCanNotSetPropertyIfReadOnly()
     {
         $collection = new AttributeCollection(array(), true);
-        $this->setExpectedException('\Mindy\Base\Exception\Exception');
+        $this->setExpectedException('\Mindy\Exception\Exception');
         $collection->Property = 'value';
     }
 

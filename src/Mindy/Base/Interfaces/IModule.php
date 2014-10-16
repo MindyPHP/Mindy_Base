@@ -28,4 +28,28 @@ interface IModule
      * @return array
      */
     public function getMailTemplates();
+
+    /**
+     * Install module
+     * @void
+     */
+    public function install();
+
+    /**
+     * Uninstall module. Delete tables from database.
+     * @void
+     */
+    public function uninstall();
+
+    /**
+     * Upgrade module to new version. Run migrations, update sql.
+     * @void
+     */
+    public function upgrade();
+
+    /**
+     * Downgrade module to old version. Delete tables from database if need.
+     * @void
+     */
+    public function downgrade();
 }

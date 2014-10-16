@@ -40,8 +40,9 @@ class Generator extends ApplicationComponent
             $items['controllers'][$controllerName]['actions'] = $actions;
         }
 
-        foreach ($items['modules'] as $moduleName => $module)
+        foreach ($items['modules'] as $moduleName => $module) {
             $items['modules'][$moduleName] = $this->getControllerActions($module);
+        }
 
         return $items;
     }
@@ -57,10 +58,7 @@ class Generator extends ApplicationComponent
         $controllers = $this->getFilesInPath($basePath . DIRECTORY_SEPARATOR . 'controllers', $flat, 'controller', -14);
         $modules = $this->getFilesInModules($basePath, 'controllers', $flat, 'controller', -14);
 
-        return array(
-            'controllers' => $controllers,
-            'modules' => $modules
-        );
+        return ['controllers' => $controllers, 'modules' => $modules];
     }
 
     /**
@@ -74,10 +72,7 @@ class Generator extends ApplicationComponent
         $models = $this->getFilesInPath($basePath . DIRECTORY_SEPARATOR . 'models', $flat);
         $modules = $this->getFilesInModules($basePath, 'models', $flat);
 
-        return array(
-            'models' => $models,
-            'modules' => $modules
-        );
+        return ['models' => $models, 'modules' => $modules];
     }
 
     /**
@@ -91,10 +86,10 @@ class Generator extends ApplicationComponent
 
         $models = $this->getFilesInPath($basePath . DIRECTORY_SEPARATOR . 'models', $flat, 'settings', -12);
         $modules = $this->getFilesInModules($basePath, 'models', $flat, 'settings', -12);
-        return $flat === true ? array_merge($models, $modules) : array(
+        return $flat === true ? array_merge($models, $modules) : [
             'models' => $models,
             'modules' => $modules
-        );
+        ];
     }
 
     /**
@@ -116,22 +111,24 @@ class Generator extends ApplicationComponent
 
                     if (strpos(strtolower($entry), $condition) !== false || empty($condition)) {
                         $name = substr($entry, 0, $offset);
-                        if ($flat)
+                        if ($flat) {
                             $files = substr($entry, 0, self::EXT_OFFSET);
-                        else {
+                        } else {
                             $fileName = strpos($entryPath, 'admin/') ? 'admin.' . strtolower($name) : strtolower($name);
-                            $files[$fileName] = array(
+                            $files[$fileName] = [
                                 'name' => $name,
                                 'baseName' => substr($entry, 0, self::EXT_OFFSET),
                                 'file' => $entry,
                                 'path' => $entryPath,
-                            );
+                            ];
                         }
                     }
 
-                    if (is_dir($entryPath) === true)
-                        foreach ($this->getFilesInPath($entryPath, $flat, $condition, $offset) as $fileName => $file)
+                    if (is_dir($entryPath) === true) {
+                        foreach ($this->getFilesInPath($entryPath, $flat, $condition, $offset) as $fileName => $file) {
                             $files[$fileName] = $file;
+                        }
+                    }
                 }
             }
         }

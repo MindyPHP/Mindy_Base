@@ -69,7 +69,7 @@ class CComponentTest extends CTestCase
         try {
             $this->component->caption;
         } catch (Exception $e) {
-            $this->assertInstanceOf('\Mindy\Base\Exception\Exception', $e);
+            $this->assertInstanceOf('\Mindy\Exception\Exception', $e);
             $this->assertSame('Property "NewComponent.caption" is not defined.', $e->getMessage());
         }
     }
@@ -82,14 +82,14 @@ class CComponentTest extends CTestCase
         try {
             $this->component->object = new NewComponent();
         } catch (Exception $e) {
-            $this->assertInstanceOf('\Mindy\Base\Exception\Exception', $e);
+            $this->assertInstanceOf('\Mindy\Exception\Exception', $e);
             $this->assertSame('Property "NewComponent.object" is read only.', $e->getMessage());
         }
 
         try {
             $this->component->newMember = 'new value';
         } catch (Exception $e) {
-            $this->assertInstanceOf('\Mindy\Base\Exception\Exception', $e);
+            $this->assertInstanceOf('\Mindy\Exception\Exception', $e);
             $this->assertSame('Property "NewComponent.newMember" is not defined.', $e->getMessage());
         }
     }
@@ -114,7 +114,7 @@ class CComponentTest extends CTestCase
         try {
             unset($this->component->object);
         } catch (Exception $e) {
-            $this->assertInstanceOf('\Mindy\Base\Exception\Exception', $e);
+            $this->assertInstanceOf('\Mindy\Exception\Exception', $e);
             $this->assertSame('Property "NewComponent.object" is read only.', $e->getMessage());
         }
     }
@@ -127,7 +127,7 @@ class CComponentTest extends CTestCase
         try {
             $this->component->otherMethod();
         } catch (Exception $e) {
-            $this->assertInstanceOf('\Mindy\Base\Exception\Exception', $e);
+            $this->assertInstanceOf('\Mindy\Exception\Exception', $e);
             $this->assertSame('NewComponent and its behaviors do not have a method or closure named "otherMethod".', $e->getMessage());
         }
     }
@@ -156,7 +156,7 @@ class CComponentTest extends CTestCase
         try {
             $this->component->getEventHandlers('YourEvent');
         } catch (Exception $e) {
-            $this->assertInstanceOf('\Mindy\Base\Exception\Exception', $e);
+            $this->assertInstanceOf('\Mindy\Exception\Exception', $e);
             $this->assertSame('Event "NewComponent.YourEvent" is not defined.', $e->getMessage());
         }
     }
@@ -170,7 +170,7 @@ class CComponentTest extends CTestCase
         try {
             $this->component->attachEventHandler('onYourEvent', 'foo');
         } catch (Exception $e) {
-            $this->assertInstanceOf('\Mindy\Base\Exception\Exception', $e);
+            $this->assertInstanceOf('\Mindy\Exception\Exception', $e);
             $this->assertSame('Event "NewComponent.onYourEvent" is not defined.', $e->getMessage());
         }
     }
@@ -227,7 +227,7 @@ class CComponentTest extends CTestCase
         try {
             $this->component->raiseEvent('OnUnknown', new Event($this->component));
         } catch (Exception $e) {
-            $this->assertInstanceOf('\Mindy\Base\Exception\Exception', $e);
+            $this->assertInstanceOf('\Mindy\Exception\Exception', $e);
             $this->assertSame('Event "NewComponent.onunknown" is not defined.', $e->getMessage());
         }
     }
@@ -263,7 +263,7 @@ class CComponentTest extends CTestCase
         try {
             $this->component->onMyEvent();
         } catch (Exception $e) {
-            $this->assertInstanceOf('\Mindy\Base\Exception\Exception', $e);
+            $this->assertInstanceOf('\Mindy\Exception\Exception', $e);
             $this->assertSame('Event "NewComponent.onmyevent" is attached with an invalid handler "array".', $e->getMessage());
         }
     }
@@ -275,7 +275,7 @@ class CComponentTest extends CTestCase
         try {
             $this->component->onMyEvent();
         } catch (Exception $e) {
-            $this->assertInstanceOf('\Mindy\Base\Exception\Exception', $e);
+            $this->assertInstanceOf('\Mindy\Exception\Exception', $e);
             $this->assertSame('Event "NewComponent.onmyevent" is attached with an invalid handler "nullHandler".', $e->getMessage());
         }
     }
@@ -304,7 +304,7 @@ class CComponentTest extends CTestCase
         try {
             $this->component->test();
         } catch (Exception $e) {
-            $this->assertInstanceOf('\Mindy\Base\Exception\Exception', $e);
+            $this->assertInstanceOf('\Mindy\Exception\Exception', $e);
             $this->assertSame('NewComponent and its behaviors do not have a method or closure named "test".', $e->getMessage());
         }
     }

@@ -23,7 +23,7 @@ class CTypedMapTest extends CTestCase
 
     public function testAddWrongType()
     {
-        $this->setExpectedException('\Mindy\Base\Exception\Exception');
+        $this->setExpectedException('\Mindy\Exception\Exception');
 
         $typedMap = new TypedMap('CTypedMapTestFoo');
         $typedMap->add(0, new CTypedMapTestBar());

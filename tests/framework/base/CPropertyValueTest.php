@@ -148,7 +148,7 @@ class CPropertyValueTest extends CTestCase
     public function testEnsureEnum()
     {
         $this->assertTrue(PropertyValue::ensureEnum('Left', 'TextAlign') === 'Left');
-        $this->setExpectedException('\Mindy\Base\Exception\Exception');
+        $this->setExpectedException('\Mindy\Exception\Exception');
         $this->assertTrue(PropertyValue::ensureEnum('left', 'TextAlign') === 'Left');
     }
 }

@@ -22,7 +22,7 @@ namespace Mindy\Base;
  * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
-use Mindy\Base\Exception\Exception;
+use Mindy\Exception\Exception;
 use Mindy\Base\Interfaces\IStatePersister;
 use Mindy\Cache\FileDependency;
 
@@ -85,7 +85,7 @@ class StatePersister extends ApplicationComponent implements IStatePersister
         }
         $dir = dirname($this->stateFile);
         if (!is_dir($dir) || !is_writable($dir)) {
-            throw new Exception(Mindy::t('yii', 'Unable to create application state file "{file}". Make sure the directory containing the file exists and is writable by the Web server process.',
+            throw new Exception(Mindy::t('base', 'Unable to create application state file "{file}". Make sure the directory containing the file exists and is writable by the Web server process.',
                 ['{file}' => $this->stateFile]));
         }
     }

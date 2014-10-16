@@ -3,9 +3,9 @@
 namespace Mindy\Base;
 
 use Mindy\Base\App\Application;
-use Mindy\Base\Exception\Exception;
-use Mindy\Base\Exception\ExceptionEvent;
-use Mindy\Base\Exception\HttpException;
+use Mindy\Exception\Exception;
+use Mindy\Exception\ExceptionEvent;
+use Mindy\Exception\HttpException;
 use Mindy\Helper\Console;
 use Mindy\Utils\RenderTrait;
 
@@ -531,7 +531,7 @@ class ErrorHandler extends ApplicationComponent
 
         $output = '';
         for ($i = $beginLine; $i <= $endLine; ++$i) {
-            $code = sprintf("%s", htmlentities(str_replace("\t", '    ', $lines[$i]), ENT_QUOTES, Mindy::app()->charset));
+            $code = sprintf("%s", htmlentities(str_replace("\t", '    ', $lines[$i]), ENT_QUOTES, Mindy::app()->getTranslate()->charset));
             $output .= $code;
         }
         return strtr('<pre class="brush: php; highlight: {errorLine}; first-line: {beginLine}; toolbar: false;">{content}</pre>', [

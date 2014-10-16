@@ -3,7 +3,7 @@
 use Mindy\Base\Action;
 use Mindy\Base\Controller;
 use Mindy\Base\Filter;
-use Mindy\Base\Exception\Exception;
+use Mindy\Exception\Exception;
 
 class TestController extends Controller
 {
@@ -110,7 +110,7 @@ class CControllerTest extends CTestCase
         $this->assertEquals($c->actions(), array());
         $this->assertNull($c->action);
         $this->assertEquals($c->defaultAction, 'index');
-        $this->setExpectedException('\Mindy\Base\Exception\HttpException');
+        $this->setExpectedException('\Mindy\Exception\HttpException');
         $c->missingAction('index');
     }
 
@@ -149,7 +149,7 @@ class CControllerTest extends CTestCase
         $this->assertEquals($c->internalFilter3, 1);
         $this->assertEquals($c->externalFilter, 2);
 
-        $this->setExpectedException('\Mindy\Base\Exception\Exception');
+        $this->setExpectedException('\Mindy\Exception\Exception');
         $c->run('unknown');
     }
 
@@ -181,7 +181,7 @@ class CControllerTest extends CTestCase
         $app = new TestApplication;
         $c = new TestController('test');
         $_GET = array('a' => 1);
-        $this->setExpectedException('\Mindy\Base\Exception\Exception');
+        $this->setExpectedException('\Mindy\Exception\Exception');
         $c->run('create');
     }
 }

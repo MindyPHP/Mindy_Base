@@ -77,7 +77,7 @@ class MessageCommandTest extends CTestCase
     {
         //$command=new MessageCommand('message',null);
         $command = $this->getMock('\Mindy\Base\MessageCommand', array('usageError'), array('message', null));
-        $command->expects($this->any())->method('usageError')->will($this->throwException(new Mindy\Base\Exception\Exception('usageError')));
+        $command->expects($this->any())->method('usageError')->will($this->throwException(new Mindy\Exception\Exception('usageError')));
         return $command;
     }
 
@@ -144,13 +144,13 @@ class MessageCommandTest extends CTestCase
 
     public function testEmptyArgs()
     {
-        $this->setExpectedException('\Mindy\Base\Exception\Exception', 'usageError');
+        $this->setExpectedException('\Mindy\Exception\Exception', 'usageError');
         $this->runMessageCommand(array());
     }
 
     public function testConfigFileNotExist()
     {
-        $this->setExpectedException('\Mindy\Base\Exception\Exception', 'usageError');
+        $this->setExpectedException('\Mindy\Exception\Exception', 'usageError');
         $this->runMessageCommand(array('not_existing_file.php'));
     }
 
