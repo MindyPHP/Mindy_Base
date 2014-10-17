@@ -2,9 +2,8 @@
 
 namespace Mindy\Base;
 
-use Mindy\Base\App\Application;
+use Mindy\Application\Application;
 use Mindy\Exception\Exception;
-use Mindy\Exception\ExceptionEvent;
 use Mindy\Exception\HttpException;
 use Mindy\Helper\Console;
 use Mindy\Utils\RenderTrait;
@@ -160,9 +159,11 @@ class ErrorHandler extends ApplicationComponent
     public function handleException($exception)
     {
         $app = Mindy::app();
-        if($app->hasComponent('middleware')) {
-            $app->middleware->processException($exception);
-        }
+        
+        // TODO move to events
+//        if($app->hasComponent('middleware')) {
+//            $app->getComponent('middleware')->processException($exception);
+//        }
 
         if ($app instanceof Application) {
             if (($trace = $this->getExactTrace($exception)) === null) {
@@ -275,7 +276,11 @@ class ErrorHandler extends ApplicationComponent
     public function handleError($code, $message, $file, $line, array $errcontext = [])
     {
         $msg = "Error: {$message}\nFile: {$file}\nLine: {$line}";
-        Mindy::app()->middleware->processException(new Exception($msg));
+
+        // TODO move to events
+//        if(Mindy::app()->hasComponent('middleware')) {
+//            Mindy::app()->getComponent('middleware')->processException(new Exception($msg));
+//        }
 
         $trace = debug_backtrace();
         // skip the first 3 stacks as they do not tell the error position
