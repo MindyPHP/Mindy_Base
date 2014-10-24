@@ -159,7 +159,7 @@ class ErrorHandler extends ApplicationComponent
     public function handleException($exception)
     {
         $app = Mindy::app();
-        
+
         // TODO move to events
 //        if($app->hasComponent('middleware')) {
 //            $app->getComponent('middleware')->processException($exception);
@@ -394,13 +394,19 @@ class ErrorHandler extends ApplicationComponent
             $code = $data['code'];
         }
 
-        if(Console::isCli()) {
+        if (Console::isCli()) {
             d($data);
         } else {
-            echo $this->renderTemplate('core/' . $view . $code . '.html', [
+            $params = [
                 'data' => $data,
-                'this' => $this,
-            ]);
+                'this' => $this
+            ];
+
+            if (Mindy::app()->hasComponent('template')) {
+                echo $this->renderTemplate('core/' . $view . '.html', $params);
+            } else {
+                echo $this->renderInternal(__DIR__ . '/templates/' . $view . '.php', $params);
+            }
             Mindy::app()->end();
         }
     }
@@ -412,7 +418,7 @@ class ErrorHandler extends ApplicationComponent
     protected function renderException()
     {
         $exception = $this->getException();
-        if(Console::isCli()) {
+        if (Console::isCli()) {
             $this->displayException($exception);
         } else {
             if ($exception instanceof Exception || !YII_DEBUG) {
