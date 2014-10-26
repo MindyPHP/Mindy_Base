@@ -22,9 +22,9 @@ namespace Mindy\Base;
  * @copyright 2008-2013 Yii Software LLC
  * @license http://www.yiiframework.com/license/
  */
-use Mindy\Exception\Exception;
 use Mindy\Base\Interfaces\IStatePersister;
 use Mindy\Cache\FileDependency;
+use Mindy\Exception\Exception;
 
 /**
  * CStatePersister implements a file-based persistent data storage.
@@ -97,6 +97,9 @@ class StatePersister extends ApplicationComponent implements IStatePersister
     public function load()
     {
         $stateFile = $this->stateFile;
+        if (!is_file($stateFile)) {
+            file_put_contents($stateFile, '');
+        }
         if ($this->cacheID !== false && ($cache = Mindy::app()->getComponent($this->cacheID)) !== null) {
             $cacheKey = 'Yii.CStatePersister.' . $stateFile;
             if (($value = $cache->get($cacheKey)) !== false) {
