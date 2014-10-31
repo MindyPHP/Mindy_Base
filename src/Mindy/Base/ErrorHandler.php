@@ -260,13 +260,24 @@ class ErrorHandler extends ApplicationComponent
      */
     public function displayException($exception)
     {
-        if (YII_DEBUG) {
-            echo '<h1>' . get_class($exception) . "</h1>\n";
-            echo '<p>' . $exception->getMessage() . ' (' . $exception->getFile() . ':' . $exception->getLine() . ')</p>';
-            echo '<pre>' . $exception->getTraceAsString() . '</pre>';
+        if(Console::isCli()) {
+            if (YII_DEBUG) {
+                echo Console::color(get_class($exception), Console::FOREGROUND_RED) . PHP_EOL;
+                echo $exception->getMessage() . ' (' . $exception->getFile() . ':' . $exception->getLine() . ')' . PHP_EOL;
+                echo $exception->getTraceAsString() . PHP_EOL;
+            } else {
+                echo Console::color(get_class($exception), Console::FOREGROUND_RED) . PHP_EOL;
+                echo $exception->getMessage() . PHP_EOL;
+            }
         } else {
-            echo '<h1>' . get_class($exception) . "</h1>\n";
-            echo '<p>' . $exception->getMessage() . '</p>';
+            if (YII_DEBUG) {
+                echo '<h1>' . get_class($exception) . "</h1>\n";
+                echo '<p>' . $exception->getMessage() . ' (' . $exception->getFile() . ':' . $exception->getLine() . ')</p>';
+                echo '<pre>' . $exception->getTraceAsString() . '</pre>';
+            } else {
+                echo '<h1>' . get_class($exception) . "</h1>\n";
+                echo '<p>' . $exception->getMessage() . '</p>';
+            }
         }
     }
 

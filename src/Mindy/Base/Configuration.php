@@ -13,18 +13,16 @@
  */
 
 namespace Mindy\Base;
-
-    /**
-     * This file contains classes implementing configuration feature.
-     *
-     * @author Qiang Xue <qiang.xue@gmail.com>
-     * @link http://www.yiiframework.com/
-     * @copyright 2008-2013 Yii Software LLC
-     * @license http://www.yiiframework.com/license/
-     */
-
+use Mindy\Helper\Collection;
 
 /**
+ * This file contains classes implementing configuration feature.
+ *
+ * @author Qiang Xue <qiang.xue@gmail.com>
+ * @link http://www.yiiframework.com/
+ * @copyright 2008-2013 Yii Software LLC
+ * @license http://www.yiiframework.com/license/
+ *
  * CConfiguration represents an array-based configuration.
  *
  * It can be used to initialize an object's properties.
@@ -52,7 +50,7 @@ namespace Mindy\Base;
  * @package system.collections
  * @since 1.0
  */
-class Configuration extends Map
+class Configuration extends Collection
 {
     /**
      * Constructor.
@@ -82,10 +80,11 @@ class Configuration extends Map
     public function loadFromFile($configFile)
     {
         $data = require($configFile);
-        if ($this->getCount() > 0)
+        if ($this->getCount() > 0) {
             $this->mergeWith($data);
-        else
+        } else {
             $this->copyFrom($data);
+        }
     }
 
     /**
@@ -106,7 +105,8 @@ class Configuration extends Map
      */
     public function applyTo($object)
     {
-        foreach ($this->toArray() as $key => $value)
+        foreach ($this->toArray() as $key => $value) {
             $object->$key = $value;
+        }
     }
 }
