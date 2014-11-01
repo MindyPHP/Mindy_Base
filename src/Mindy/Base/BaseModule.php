@@ -213,7 +213,7 @@ abstract class BaseModule implements IModule
         if (!is_string($id)) {
             $id = array_shift($id);
         }
-        return $this->locator->has($id);
+        return $this->getLocator()->has($id);
     }
 
     /**
@@ -226,14 +226,14 @@ abstract class BaseModule implements IModule
     public function getComponent($id, $createIfNull = true)
     {
         if ($this->hasComponent($id)) {
-            return $this->locator->get($id);
+            return $this->getLocator()->get($id);
         } elseif (isset($this->_componentConfig[$id]) && $createIfNull) {
             $config = $this->_componentConfig[$id];
             if (!isset($config['enabled']) || $config['enabled']) {
-                Mindy::app()->logger->trace("Loading \"$id\" application component", 'system.CModule');
+                Mindy::app()->logger->debug("Loading \"$id\" application component", 'system.CModule');
                 unset($config['enabled']);
                 $component = Creator::createObject($config);
-                $this->locator->set($id, $component);
+                $this->getLocator()->set($id, $component);
                 return $component;
             }
         }
@@ -256,19 +256,19 @@ abstract class BaseModule implements IModule
     public function setComponent($id, $component, $merge = true)
     {
         if ($component === null) {
-            $this->locator->clear($id);
+            $this->getLocator()->clear($id);
             return;
         } elseif (is_object($component)) {
-            $this->locator->set($id, $component);
+            $this->getLocator()->set($id, $component);
             return;
-        } elseif ($this->locator->has($id)) {
-            if (isset($component['class']) && get_class($this->locator->get($id)) !== $component['class']) {
-                $this->locator->clear($id);
+        } elseif ($this->getLocator()->has($id)) {
+            if (isset($component['class']) && get_class($this->getLocator()->get($id)) !== $component['class']) {
+                $this->getLocator()->clear($id);
                 $this->_componentConfig[$id] = $component; //we should ignore merge here
                 return;
             }
 
-            Creator::configure($this->locator->get($id), $component);
+            Creator::configure($this->getLocator()->get($id), $component);
         } elseif (isset($this->_componentConfig[$id]['class'], $component['class']) && $this->_componentConfig[$id]['class'] !== $component['class']) {
             $this->_componentConfig[$id] = $component; //we should ignore merge here
             return;
@@ -291,7 +291,7 @@ abstract class BaseModule implements IModule
      */
     public function getComponents($loadedOnly = true)
     {
-        return $this->locator->getComponents(!$loadedOnly);
+        return $this->getLocator()->getComponents(!$loadedOnly);
     }
 
     /**
@@ -328,10 +328,10 @@ abstract class BaseModule implements IModule
     public function setComponents($components, $merge = true)
     {
         if ($merge) {
-            $components = array_merge($this->locator->getComponents(), $components);
+            $components = array_merge($this->getLocator()->getComponents(), $components);
         }
         foreach ($components as $id => $obj) {
-            $this->locator->set($id, is_object($obj) ? $obj : Creator::createObject($obj));
+            $this->getLocator()->set($id, is_object($obj) ? $obj : Creator::createObject($obj));
         }
     }
 
