@@ -405,21 +405,17 @@ class ErrorHandler extends ApplicationComponent
             $code = $data['code'];
         }
 
-        if (Console::isCli()) {
-            d($data);
-        } else {
-            $params = [
-                'data' => $data,
-                'this' => $this
-            ];
+        $params = [
+            'data' => $data,
+            'this' => $this
+        ];
 
-            if (Mindy::app()->hasComponent('template')) {
-                echo $this->renderTemplate('core/' . $view . '.html', $params);
-            } else {
-                echo $this->renderInternal(__DIR__ . '/templates/' . $view . '.php', $params);
-            }
-            Mindy::app()->end();
+        if (Mindy::app()->hasComponent('template')) {
+            echo $this->renderTemplate('core/' . $view . '.html', $params);
+        } else {
+            echo $this->renderInternal(__DIR__ . '/templates/' . $view . '.php', $params);
         }
+        Mindy::app()->end();
     }
 
     /**
