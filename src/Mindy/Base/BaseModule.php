@@ -230,7 +230,7 @@ abstract class BaseModule implements IModule
         } elseif (isset($this->_componentConfig[$id]) && $createIfNull) {
             $config = $this->_componentConfig[$id];
             if (!isset($config['enabled']) || $config['enabled']) {
-                Mindy::app()->logger->debug("Loading \"$id\" application component", 'system.CModule');
+                Mindy::app()->logger->debug("Loading \"$id\" application component", [], 'system.CModule');
                 unset($config['enabled']);
                 $component = Creator::createObject($config);
                 $this->getLocator()->set($id, $component);
