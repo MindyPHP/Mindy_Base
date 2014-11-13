@@ -224,9 +224,14 @@ class ErrorHandler extends ApplicationComponent
     public function displayError($code, $message, $file, $line)
     {
         if (YII_DEBUG) {
-            echo "<h1>PHP Error [$code]</h1>\n";
-            echo "<p>$message ($file:$line)</p>\n";
-            echo '<pre>';
+            if (Console::isCli()) {
+                echo "PHP Error [$code]" . PHP_EOL;
+                echo "$message ($file:$line)" . PHP_EOL;
+            } else {
+                echo "<h1>PHP Error [$code]</h1>\n";
+                echo "<p>$message ($file:$line)</p>\n";
+                echo '<pre>';
+            }
 
             $trace = debug_backtrace();
             // skip the first 3 stacks as they do not tell the error position
@@ -245,10 +250,17 @@ class ErrorHandler extends ApplicationComponent
                 echo "{$t['function']}()\n";
             }
 
-            echo '</pre>';
+            if (!Console::isCli()) {
+                echo '</pre>';
+            }
         } else {
-            echo "<h1>PHP Error [$code]</h1>\n";
-            echo "<p>$message</p>\n";
+            if (Console::isCli()) {
+                echo "PHP Error [$code]\n" . PHP_EOL;
+                echo "$message\n" . PHP_EOL;
+            } else {
+                echo "<h1>PHP Error [$code]</h1>\n";
+                echo "<p>$message</p>\n";
+            }
         }
     }
 
@@ -260,7 +272,7 @@ class ErrorHandler extends ApplicationComponent
      */
     public function displayException($exception)
     {
-        if(Console::isCli()) {
+        if (Console::isCli()) {
             if (YII_DEBUG) {
                 echo Console::color(get_class($exception), Console::FOREGROUND_RED) . PHP_EOL;
                 echo $exception->getMessage() . ' (' . $exception->getFile() . ':' . $exception->getLine() . ')' . PHP_EOL;
@@ -317,7 +329,7 @@ class ErrorHandler extends ApplicationComponent
         }
 
         $app = Mindy::app();
-        if ($app instanceof Application) {
+        if ($app instanceof Application && Console::isCli() === false) {
             switch ($code) {
                 case E_WARNING:
                     $type = 'PHP warning';
