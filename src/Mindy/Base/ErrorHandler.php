@@ -2,11 +2,26 @@
 
 namespace Mindy\Base;
 
+use ErrorException;
 use Mindy\Application\Application;
-use Mindy\Exception\Exception;
-use Mindy\Exception\HttpException;
 use Mindy\Helper\Console;
 use Mindy\Utils\RenderTrait;
+
+use Mindy\Exception\CompileErrorException;
+use Mindy\Exception\CoreErrorException;
+use Mindy\Exception\CoreWarningException;
+use Mindy\Exception\DeprecatedException;
+use Mindy\Exception\Exception;
+use Mindy\Exception\HttpException;
+use Mindy\Exception\NoticeException;
+use Mindy\Exception\ParseException;
+use Mindy\Exception\RecoverableErrorException;
+use Mindy\Exception\StrictException;
+use Mindy\Exception\UserDeprecatedException;
+use Mindy\Exception\UserErrorException;
+use Mindy\Exception\UserNoticeException;
+use Mindy\Exception\UserWarningException;
+use Mindy\Exception\WarningException;
 
 /**
  * CErrorHandler handles uncaught PHP errors and exceptions.
@@ -298,76 +313,112 @@ class ErrorHandler extends ApplicationComponent
      */
     public function handleError($code, $message, $file, $line, array $errcontext = [])
     {
-        $msg = "Error: {$message}\nFile: {$file}\nLine: {$line}";
-
-        // TODO move to events
-//        if(Mindy::app()->hasComponent('middleware')) {
-//            Mindy::app()->getComponent('middleware')->processException(new Exception($msg));
-//        }
-
-        $trace = debug_backtrace();
-        // skip the first 3 stacks as they do not tell the error position
-        if (count($trace) > 3)
-            $trace = array_slice($trace, 3);
-        $traceString = '';
-        foreach ($trace as $i => $t) {
-            if (!isset($t['file']))
-                $trace[$i]['file'] = 'unknown';
-
-            if (!isset($t['line']))
-                $trace[$i]['line'] = 0;
-
-            if (!isset($t['function']))
-                $trace[$i]['function'] = 'unknown';
-
-            $traceString .= "#$i {$trace[$i]['file']}({$trace[$i]['line']}): ";
-            if (isset($t['object']) && is_object($t['object']))
-                $traceString .= get_class($t['object']) . '->';
-            $traceString .= "{$trace[$i]['function']}()\n";
-
-            unset($trace[$i]['object']);
-        }
-
-        $app = Mindy::app();
-        if ($app instanceof Application && Console::isCli() === false) {
+        if (YII_DEBUG) {
+            // Tryhard
             switch ($code) {
+                case E_ERROR:
+                    throw new ErrorException($message, 0, $code, $file, $line);
                 case E_WARNING:
-                    $type = 'PHP warning';
-                    break;
+                    throw new WarningException($message, 0, $code, $file, $line);
+                case E_PARSE:
+                    throw new ParseException($message, 0, $code, $file, $line);
                 case E_NOTICE:
-                    $type = 'PHP notice';
-                    break;
+                    throw new NoticeException($message, 0, $code, $file, $line);
+                case E_CORE_ERROR:
+                    throw new CoreErrorException($message, 0, $code, $file, $line);
+                case E_CORE_WARNING:
+                    throw new CoreWarningException($message, 0, $code, $file, $line);
+                case E_COMPILE_ERROR:
+                    throw new CompileErrorException($message, 0, $code, $file, $line);
+                case E_COMPILE_WARNING:
+                    throw new CoreWarningException($message, 0, $code, $file, $line);
                 case E_USER_ERROR:
-                    $type = 'User error';
-                    break;
+                    throw new UserErrorException($message, 0, $code, $file, $line);
                 case E_USER_WARNING:
-                    $type = 'User warning';
-                    break;
+                    throw new UserWarningException($message, 0, $code, $file, $line);
                 case E_USER_NOTICE:
-                    $type = 'User notice';
-                    break;
+                    throw new UserNoticeException($message, 0, $code, $file, $line);
+                case E_STRICT:
+                    throw new StrictException($message, 0, $code, $file, $line);
                 case E_RECOVERABLE_ERROR:
-                    $type = 'Recoverable error';
-                    break;
-                default:
-                    $type = 'PHP error';
+                    throw new RecoverableErrorException($message, 0, $code, $file, $line);
+                case E_DEPRECATED:
+                    throw new DeprecatedException($message, 0, $code, $file, $line);
+                case E_USER_DEPRECATED:
+                    throw new UserDeprecatedException($message, 0, $code, $file, $line);
             }
-            $this->_exception = null;
-            $this->_error = array(
-                'code' => 500,
-                'type' => $type,
-                'message' => $message,
-                'file' => $file,
-                'line' => $line,
-                'trace' => $traceString,
-                'traces' => $trace,
-            );
-            if (!headers_sent()) {
-                header("HTTP/1.0 500 Internal Server Error");
-            }
-            $this->renderError();
         } else {
-            $this->displayError($code, $message, $file, $line);
+            $msg = "Error: {$message}\nFile: {$file}\nLine: {$line}";
+
+            // TODO move to events
+    //        if(Mindy::app()->hasComponent('middleware')) {
+    //            Mindy::app()->getComponent('middleware')->processException(new Exception($msg));
+    //        }
+
+            $trace = debug_backtrace();
+            // skip the first 3 stacks as they do not tell the error position
+            if (count($trace) > 3)
+                $trace = array_slice($trace, 3);
+            $traceString = '';
+            foreach ($trace as $i => $t) {
+                if (!isset($t['file']))
+                    $trace[$i]['file'] = 'unknown';
+
+                if (!isset($t['line']))
+                    $trace[$i]['line'] = 0;
+
+                if (!isset($t['function']))
+                    $trace[$i]['function'] = 'unknown';
+
+                $traceString .= "#$i {$trace[$i]['file']}({$trace[$i]['line']}): ";
+                if (isset($t['object']) && is_object($t['object']))
+                    $traceString .= get_class($t['object']) . '->';
+                $traceString .= "{$trace[$i]['function']}()\n";
+
+                unset($trace[$i]['object']);
+            }
+
+            $app = Mindy::app();
+            if ($app instanceof Application && Console::isCli() === false) {
+                switch ($code) {
+                    case E_WARNING:
+                        $type = 'PHP warning';
+                        break;
+                    case E_NOTICE:
+                        $type = 'PHP notice';
+                        break;
+                    case E_USER_ERROR:
+                        $type = 'User error';
+                        break;
+                    case E_USER_WARNING:
+                        $type = 'User warning';
+                        break;
+                    case E_USER_NOTICE:
+                        $type = 'User notice';
+                        break;
+                    case E_RECOVERABLE_ERROR:
+                        $type = 'Recoverable error';
+                        break;
+                    default:
+                        $type = 'PHP error';
+                }
+                $this->_exception = null;
+                $this->_error = array(
+                    'code' => 500,
+                    'type' => $type,
+                    'message' => $message,
+                    'file' => $file,
+                    'line' => $line,
+                    'trace' => $traceString,
+                    'traces' => $trace,
+                );
+                if (!headers_sent()) {
+                    header("HTTP/1.0 500 Internal Server Error");
+                }
+                $this->renderError();
+            } else {
+                $this->displayError($code, $message, $file, $line);
+            }
         }
     }
 
