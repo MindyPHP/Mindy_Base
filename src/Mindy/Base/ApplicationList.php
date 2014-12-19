@@ -43,7 +43,7 @@ trait ApplicationList
                         continue;
                     } else {
                         foreach ($items['items'] as $item) {
-                            if (isset($item['code']) && $user->can($adminCode . '.' . strtolower($item['code'])) || !isset($item['code']) && $user->is_superuser) {
+                            if (isset($item['adminClass']) && $user->can($adminCode . '.' . strtolower($item['adminClass'])) || !isset($item['code']) && $user->is_superuser) {
                                 $resultItems[] = $item;
                             }
                         }
