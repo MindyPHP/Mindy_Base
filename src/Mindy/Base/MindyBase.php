@@ -8,37 +8,33 @@ use Mindy\Helper\Alias;
 /**
  * Gets the application start timestamp.
  */
-defined('YII_BEGIN_TIME') or define('YII_BEGIN_TIME', microtime(true));
+defined('MINDY_BEGIN_TIME') or define('MINDY_BEGIN_TIME', microtime(true));
 /**
  * This constant defines whether the application should be in debug mode or not. Defaults to false.
  */
-defined('YII_DEBUG') or define('YII_DEBUG', false);
+defined('MINDY_DEBUG') or define('MINDY_DEBUG', false);
 /**
  * This constant defines how much call stack information (file name and line number) should be logged by Mindy::trace().
  * Defaults to 0, meaning no backtrace information. If it is greater than 0,
  * at most that number of call stacks will be logged. Note, only user application call stacks are considered.
  */
-defined('YII_TRACE_LEVEL') or define('YII_TRACE_LEVEL', 0);
+defined('MINDY_TRACE_LEVEL') or define('MINDY_TRACE_LEVEL', 0);
 /**
  * This constant defines whether exception handling should be enabled. Defaults to true.
  */
-defined('YII_ENABLE_EXCEPTION_HANDLER') or define('YII_ENABLE_EXCEPTION_HANDLER', true);
+defined('MINDY_ENABLE_EXCEPTION_HANDLER') or define('MINDY_ENABLE_EXCEPTION_HANDLER', true);
 /**
  * This constant defines whether error handling should be enabled. Defaults to true.
  */
-defined('YII_ENABLE_ERROR_HANDLER') or define('YII_ENABLE_ERROR_HANDLER', true);
+defined('MINDY_ENABLE_ERROR_HANDLER') or define('MINDY_ENABLE_ERROR_HANDLER', true);
 /**
  * Defines the Yii framework installation path.
  */
-defined('YII_PATH') or define('YII_PATH', dirname(__FILE__));
-/**
- * Defines the Zii library installation path.
- */
-defined('YII_ZII_PATH') or define('YII_ZII_PATH', YII_PATH . DIRECTORY_SEPARATOR . 'zii');
+defined('MINDY_PATH') or define('MINDY_PATH', dirname(__FILE__));
 /**
  * Defines the tests mode for application.
  */
-defined('YII_TEST') or define('YII_TEST', false);
+defined('MINDY_TEST') or define('MINDY_TEST', false);
 
 /**
  *
@@ -121,8 +117,7 @@ abstract class MindyBase
     public static function getInstance($config = null, $className = '\Mindy\Application\Application')
     {
         $aliases = [
-            'system' => YII_PATH,
-            'zii' => YII_ZII_PATH
+            'system' => MINDY_PATH,
         ];
         foreach ($aliases as $name => $path) {
             Alias::set($name, $path);

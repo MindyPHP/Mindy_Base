@@ -9,9 +9,9 @@ $loader->add('Mindy\\Utils\\', __DIR__ . '/../vendor/mindy/utils/src');
 $loader->add('Monolog\\', __DIR__ . '/../vendor/monolog/monolog/src');
 $loader->register();
 
-defined('YII_ENABLE_EXCEPTION_HANDLER') or define('YII_ENABLE_EXCEPTION_HANDLER', false);
-defined('YII_ENABLE_ERROR_HANDLER') or define('YII_ENABLE_ERROR_HANDLER', false);
-defined('YII_DEBUG') or define('YII_DEBUG', true);
+defined('MINDY_ENABLE_EXCEPTION_HANDLER') or define('MINDY_ENABLE_EXCEPTION_HANDLER', false);
+defined('MINDY_ENABLE_ERROR_HANDLER') or define('MINDY_ENABLE_ERROR_HANDLER', false);
+defined('MINDY_DEBUG') or define('MINDY_DEBUG', true);
 $_SERVER['SCRIPT_NAME'] = '/' . basename(__FILE__);
 $_SERVER['SCRIPT_FILENAME'] = __FILE__;
 

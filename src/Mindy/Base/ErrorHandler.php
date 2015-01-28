@@ -40,7 +40,7 @@ use Mindy\Exception\WarningException;
  * whose name is the language code (e.g. zh_cn/error500.php).
  *
  * Development views are displayed when the application is in debug mode
- * (i.e. YII_DEBUG is defined as true). Detailed error information with source code
+ * (i.e. MINDY_DEBUG is defined as true). Detailed error information with source code
  * are displayed in these views. Production views are meant to be shown
  * to end-users and are used when the application is in production mode.
  * For security reasons, they only display the error message without any
@@ -238,7 +238,7 @@ class ErrorHandler extends ApplicationComponent
      */
     public function displayError($code, $message, $file, $line)
     {
-        if (YII_DEBUG) {
+        if (MINDY_DEBUG) {
             if (Console::isCli()) {
                 echo "PHP Error [$code]" . PHP_EOL;
                 echo "$message ($file:$line)" . PHP_EOL;
@@ -288,7 +288,7 @@ class ErrorHandler extends ApplicationComponent
     public function displayException($exception)
     {
         if (Console::isCli()) {
-            if (YII_DEBUG) {
+            if (MINDY_DEBUG) {
                 echo Console::color(get_class($exception), Console::FOREGROUND_RED) . PHP_EOL;
                 echo $exception->getMessage() . ' (' . $exception->getFile() . ':' . $exception->getLine() . ')' . PHP_EOL;
                 echo $exception->getTraceAsString() . PHP_EOL;
@@ -297,7 +297,7 @@ class ErrorHandler extends ApplicationComponent
                 echo $exception->getMessage() . PHP_EOL;
             }
         } else {
-            if (YII_DEBUG) {
+            if (MINDY_DEBUG) {
                 echo '<h1>' . get_class($exception) . "</h1>\n";
                 echo '<p>' . $exception->getMessage() . ' (' . $exception->getFile() . ':' . $exception->getLine() . ')</p>';
                 echo '<pre>' . $exception->getTraceAsString() . '</pre>';
@@ -313,7 +313,7 @@ class ErrorHandler extends ApplicationComponent
      */
     public function handleError($code, $message, $file, $line, array $errcontext = [])
     {
-        if (YII_DEBUG) {
+        if (MINDY_DEBUG) {
             // Tryhard
             switch ($code) {
                 case E_ERROR:
@@ -491,7 +491,7 @@ class ErrorHandler extends ApplicationComponent
         if (Console::isCli()) {
             $this->displayException($exception);
         } else {
-            if ($exception instanceof Exception || !YII_DEBUG) {
+            if ($exception instanceof Exception || !MINDY_DEBUG) {
                 $this->renderError();
             } else {
                 if ($this->getIsAjax() || Console::isCli()) {
@@ -509,7 +509,7 @@ class ErrorHandler extends ApplicationComponent
      */
     protected function renderError()
     {
-        $this->render(YII_DEBUG ? 'exception' : 'error', $this->getError());
+        $this->render(MINDY_DEBUG ? 'exception' : 'error', $this->getError());
     }
 
     /**
@@ -519,7 +519,7 @@ class ErrorHandler extends ApplicationComponent
      */
     protected function getVersionInfo()
     {
-        if (YII_DEBUG) {
+        if (MINDY_DEBUG) {
             $version = '<a href="http://www.mindy-cms.com/">Mindy Framework</a>/' . Mindy::getVersion();
             if (isset($_SERVER['SERVER_SOFTWARE'])) {
                 $version = $_SERVER['SERVER_SOFTWARE'] . ' ' . $version;

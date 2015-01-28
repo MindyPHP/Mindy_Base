@@ -315,7 +315,7 @@ abstract class BaseModule implements IModule
      *     'cache'=>array(
      *         'class'=>'CDbCache',
      *         'connectionID'=>'db',
-     *         'enabled'=>!YII_DEBUG,  // enable caching in non-debug mode
+     *         'enabled'=>!MINDY_DEBUG,  // enable caching in non-debug mode
      *     ),
      * )
      * </pre>
