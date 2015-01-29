@@ -4,20 +4,20 @@
     "version": "0.1",
     "license": "MIT",
     "autoload": {
-        "psr-0": {
-            "": "src/"
+        "psr-4": {
+            "Mindy\\Base\\": "src/Mindy/Base"
         }
     },
     "require": {
         "php": ">=5.4",
-        "mindy/exception": "dev-master",
-        "mindy/di": "dev-master",
-        "mindy/utils": "dev-master",
-        "mindy/http": "dev-master",
-        "mindy/middleware": "dev-master",
-        "mindy/logger": "dev-master",
-        "mindy/locale": "dev-master",
-        "mindy/router": "dev-master"
+        "mindy/exception": "0.1",
+        "mindy/di": "0.1",
+        "mindy/utils": "0.1",
+        "mindy/http": "0.1",
+        "mindy/middleware": "0.1",
+        "mindy/logger": "0.1",
+        "mindy/locale": "0.1",
+        "mindy/router": "0.1"
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.32",
