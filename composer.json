@@ -1,7 +1,7 @@
 {
     "name": "mindy/base",
     "homepage": "https://github.com/studio107/Mindy_Base",
-    "version": "0.1",
+    "version": "0.2",
     "license": "MIT",
     "autoload": {
         "psr-4": {
@@ -15,7 +15,7 @@
         "mindy/utils": "0.1",
         "mindy/http": "0.1",
         "mindy/middleware": "0.1",
-        "mindy/logger": "0.1",
+        "mindy/logger": "1.0.3",
         "mindy/locale": "0.1",
         "mindy/router": "0.1"
     },
