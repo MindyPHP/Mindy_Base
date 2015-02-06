@@ -10,14 +10,14 @@
     },
     "require": {
         "php": ">=5.4",
-        "mindy/exception": "0.1",
-        "mindy/di": "0.1",
-        "mindy/utils": "0.1",
-        "mindy/http": "0.1",
-        "mindy/middleware": "0.1",
-        "mindy/logger": "1.0.3",
-        "mindy/locale": "0.1",
-        "mindy/router": "0.1"
+        "mindy/exception": "*",
+        "mindy/di": "0.*",
+        "mindy/utils": "0.*",
+        "mindy/http": "0.*",
+        "mindy/middleware": "0.*",
+        "mindy/logger": "1.*",
+        "mindy/locale": "0.*",
+        "mindy/router": "0.*"
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.32",
