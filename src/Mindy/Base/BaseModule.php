@@ -50,7 +50,7 @@ use ReflectionClass;
  * </pre>.
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @package system.base
+ * @package Mindy\Base
  */
 abstract class BaseModule implements IModule
 {

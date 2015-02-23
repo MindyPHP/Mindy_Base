@@ -2,6 +2,10 @@
 
 namespace Mindy\Base;
 
+/**
+ * Class Module
+ * @package Mindy\Base
+ */
 class Module extends BaseModule
 {
     public function getVersion()

@@ -10,6 +10,10 @@ if (!function_exists('d')) {
 
 Alias::set('mindy', __DIR__);
 
+/**
+ * Class Mindy
+ * @package Mindy\Base
+ */
 class Mindy extends MindyBase
 {
     /**

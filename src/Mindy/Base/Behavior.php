@@ -34,7 +34,7 @@ use ReflectionClass;
  * @property boolean $enabled Whether this behavior is enabled.
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @package system.base
+ * @package Mindy\Base
  */
 class Behavior implements IBehavior
 {

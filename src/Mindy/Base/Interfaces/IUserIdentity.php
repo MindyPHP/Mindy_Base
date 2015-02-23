@@ -22,7 +22,7 @@ namespace Mindy\Base\Interfaces;
  * used with the {@link CWebApplication::user user application component}.
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @package system.base
+ * @package Mindy\Base
  * @since 1.0
  */
 interface IUserIdentity

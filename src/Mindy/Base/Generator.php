@@ -2,6 +2,10 @@
 
 namespace Mindy\Base;
 
+/**
+ * Class Generator
+ * @package Mindy\Base
+ */
 class Generator extends ApplicationComponent
 {
     /**

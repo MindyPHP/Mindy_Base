@@ -47,7 +47,7 @@ use Mindy\Helper\Collection;
  * used like an associative array. See {@link CMap} for more details.
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @package system.collections
+ * @package Mindy\Base
  * @since 1.0
  */
 class Configuration extends Collection

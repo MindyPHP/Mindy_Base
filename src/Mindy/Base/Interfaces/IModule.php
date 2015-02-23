@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -14,6 +14,10 @@
 
 namespace Mindy\Base\Interfaces;
 
+/**
+ * Interface IModule
+ * @package Mindy\Base\Interfaces
+ */
 interface IModule
 {
     /**

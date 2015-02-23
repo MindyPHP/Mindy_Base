@@ -20,7 +20,7 @@ namespace Mindy\Base\Interfaces;
  * An auth manager is mainly responsible for providing role-based access control (RBAC) service.
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @package system.base
+ * @package Mindy\Base
  * @since 1.0
  */
 interface IAuthManager

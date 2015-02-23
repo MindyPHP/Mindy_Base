@@ -5,6 +5,10 @@ namespace Mindy\Base;
 use Mindy\Helper\Alias;
 use Mindy\Helper\Params;
 
+/**
+ * Class ParamsCollectionBehavior
+ * @package Mindy\Base
+ */
 class ParamsCollectionBehavior extends Behavior
 {
     public $modulesDirs = [

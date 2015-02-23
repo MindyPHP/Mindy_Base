@@ -20,7 +20,7 @@ namespace Mindy\Base\Interfaces;
  * A log filter preprocesses the logged messages before they are handled by a log route.
  * You can attach classes that implement ILogFilter to {@link CLogRoute::$filter}.
  *
- * @package system.logging
+ * @package Mindy\Base
  * @since 1.1.11
  */
 interface ILogFilter

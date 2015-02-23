@@ -64,7 +64,7 @@ use Mindy\Exception\WarningException;
  * @property Exception|null $exception exception instance. Null if there is no exception.
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @package system.base
+ * @package Mindy\Base
  * @since 1.0
  */
 class ErrorHandler extends ApplicationComponent

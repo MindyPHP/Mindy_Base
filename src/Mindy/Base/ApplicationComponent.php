@@ -40,7 +40,7 @@ use Mindy\Helper\Traits\Configurator;
  * @property boolean $isInitialized Whether this application component has been initialized (ie, {@link init()} is invoked).
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @package system.base
+ * @package Mindy\Base
  * @since 1.0
  */
 abstract class ApplicationComponent implements IApplicationComponent

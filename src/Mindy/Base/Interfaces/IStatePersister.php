@@ -20,7 +20,7 @@ namespace Mindy\Base\Interfaces;
  * This interface must be implemented by all state persister classes (such as
  * {@link CStatePersister}.
  *
- * @package system.base
+ * @package Mindy\Base
  * @since 1.0
  */
 interface IStatePersister

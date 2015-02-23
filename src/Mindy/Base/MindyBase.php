@@ -37,16 +37,8 @@ defined('MINDY_PATH') or define('MINDY_PATH', dirname(__FILE__));
 defined('MINDY_TEST') or define('MINDY_TEST', false);
 
 /**
- *
- *
- * All rights reserved.
- *
- * @author Falaleev Maxim
- * @email max@studio107.ru
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 09/06/14.06.2014 18:01
+ * Class MindyBase
+ * @package Mindy\Base
  */
 abstract class MindyBase
 {

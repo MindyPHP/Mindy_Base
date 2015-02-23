@@ -17,7 +17,7 @@ namespace Mindy\Base\Interfaces;
 /**
  * IAction is the interface that must be implemented by controller actions.
  *
- * @package system.base
+ * @package Mindy\Base
  * @since 1.0
  */
 interface IAction

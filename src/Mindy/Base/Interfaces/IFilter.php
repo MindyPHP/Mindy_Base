@@ -17,7 +17,7 @@ namespace Mindy\Base\Interfaces;
 /**
  * IFilter is the interface that must be implemented by action filters.
  *
- * @package system.base
+ * @package Mindy\Base
  * @since 1.0
  */
 interface IFilter

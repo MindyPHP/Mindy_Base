@@ -21,7 +21,7 @@ namespace Mindy\Base\Interfaces;
  * are defined in the behavior class and not available in the component class.
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @package system.base
+ * @package Mindy\Base
  */
 interface IBehavior
 {

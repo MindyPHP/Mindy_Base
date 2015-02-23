@@ -23,7 +23,7 @@ namespace Mindy\Base\Interfaces;
  * Objects implementing this interface must be able to be serialized and unserialized.
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @package system.caching
+ * @package Mindy\Base
  * @since 1.0
  */
 interface ICacheDependency

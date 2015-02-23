@@ -21,7 +21,7 @@ namespace Mindy\Base\Interfaces;
  * for the current user.
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @package system.base
+ * @package Mindy\Base
  * @since 1.0
  */
 interface IWebUser

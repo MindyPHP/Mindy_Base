@@ -3,26 +3,13 @@
 namespace Mindy\Base\Interfaces;
 
 /**
- * 
- *
- * All rights reserved.
- * 
- * @author Falaleev Maxim
- * @email max@studio107.ru
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 09/06/14.06.2014 17:42
- */
-
-/**
  * IApplicationComponent is the interface that all application components must implement.
  *
  * After the application completes configuration, it will invoke the {@link init()}
  * method of every loaded application component.
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @package system.base
+ * @package Mindy\Base
  * @since 1.0
  */
 interface IApplicationComponent

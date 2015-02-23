@@ -3,25 +3,12 @@
 namespace Mindy\Base\Interfaces;
 
 /**
- * 
- *
- * All rights reserved.
- * 
- * @author Falaleev Maxim
- * @email max@studio107.ru
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 09/06/14.06.2014 17:43
- */
-
-/**
  * ICache is the interface that must be implemented by cache components.
  *
  * This interface must be implemented by classes supporting caching feature.
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @package system.caching
+ * @package Mindy\Base
  * @since 1.0
  */
 interface ICache
