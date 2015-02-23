@@ -16,7 +16,7 @@ namespace Mindy\Base\Interfaces;
 
 /**
  * Interface IModule
- * @package Mindy\Base\Interfaces
+ * @package Mindy\Base
  */
 interface IModule
 {
