@@ -311,7 +311,7 @@ class ErrorHandler extends ApplicationComponent
     /**
      * Handles the PHP error.
      */
-    public function handleError($code, $message, $file, $line, array $errcontext = [])
+    public function handleError($code, $message, $file, $line, $errcontext = [])
     {
         if (MINDY_DEBUG) {
             // Tryhard
