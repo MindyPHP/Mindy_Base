@@ -62,7 +62,7 @@ abstract class MindyBase
      * Repeated invocation of this method or the CApplication constructor
      * will cause the throw of an exception.
      * To retrieve the application instance, use {@link app()}.
-     * @param \Mindy\Application\Application $app the application instance. If this is null, the existing
+     * @param \Mindy\Application\BaseApplication $app the application instance. If this is null, the existing
      * application singleton will be removed.
      * @throws Exception if multiple application instances are registered.
      */
