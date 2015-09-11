@@ -36,6 +36,16 @@ del {
     text-decoration: line-through;
 }
 
+hr {
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+    height: 1px;
+    background-color: #ccc;
+    border: 0;
+    padding: 0;
+    margin: 10px 0;
+}
+
 table {
     border-collapse: collapse;
     border-spacing: 0;
@@ -88,16 +98,17 @@ pre span.error-ln {
     font-weight: bold;
 }
 
-.container {
-    margin: 1em 4em;
+p {
+    margin-bottom: 5px;
+}
+
+.base-container {
+    padding: 25px;
 }
 
 .version {
-    color: gray;
-    font-size: 8pt;
-    border-top: 1px solid #aaa;
-    padding-top: 1em;
-    margin-bottom: 1em;
+    color: #aaa;
+    font-size: .9em;
 }
 
 .message {

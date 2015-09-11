@@ -210,6 +210,7 @@ class ErrorHandler extends ApplicationComponent
             $code = ($exception instanceof HttpException) ? $exception->statusCode : 500;
 
             $this->_exception = $exception;
+
             $this->_error = [
                 'code' => $code,
                 'type' => get_class($exception),
@@ -487,27 +488,14 @@ class ErrorHandler extends ApplicationComponent
      */
     protected function render($view, $data)
     {
-        // additional information to be passed to view
-        $data['version'] = $this->getVersionInfo();
-        $data['time'] = time();
-        $data['admin'] = $this->adminInfo;
-
-        if (!isset($data['code'])) {
-            $code = '';
-        } else {
-            $code = $data['code'];
-        }
-
-        $params = [
-            'data' => $data,
+        echo $this->renderInternal(__DIR__ . '/templates/' . $view . '.php', [
+            'data' => array_merge($data, [
+                'time' => time(),
+                'admin' => $this->adminInfo,
+                'version' => $this->getVersionInfo()
+            ]),
             'this' => $this
-        ];
-
-        if (Mindy::app()->hasComponent('template')) {
-            echo $this->renderTemplate('core/' . $view . '.html', $params);
-        } else {
-            echo $this->renderInternal(__DIR__ . '/templates/' . $view . '.php', $params);
-        }
+        ]);
         Mindy::app()->end();
     }
 
@@ -518,17 +506,13 @@ class ErrorHandler extends ApplicationComponent
     protected function renderException()
     {
         $exception = $this->getException();
-        if (Console::isCli()) {
+        if ($this->getIsAjax() || Console::isCli()) {
             $this->displayException($exception);
         } else {
-            if ($exception instanceof Exception || !MINDY_DEBUG) {
-                $this->renderError();
+            if (MINDY_DEBUG) {
+                $this->render('exception', $this->getError());
             } else {
-                if ($this->getIsAjax() || Console::isCli()) {
-                    $this->displayException($exception);
-                } else {
-                    $this->render('exception', $this->getError());
-                }
+                $this->renderError();
             }
         }
     }
@@ -539,7 +523,7 @@ class ErrorHandler extends ApplicationComponent
      */
     protected function renderError()
     {
-        $this->render(MINDY_DEBUG ? 'exception' : 'error', $this->getError());
+        $this->render('error', $this->getError());
     }
 
     /**

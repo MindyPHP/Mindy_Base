@@ -7,24 +7,21 @@
 <head>
     <meta charset="utf-8">
     <title><?php echo $data['type']; ?></title>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/SyntaxHighlighter/3.0.83/scripts/shCore.min.js"
-            type="text/javascript"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/SyntaxHighlighter/3.0.83/scripts/shBrushJScript.min.js"
-            type="text/javascript"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/SyntaxHighlighter/3.0.83/scripts/shBrushPhp.min.js"
-            type="text/javascript"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/SyntaxHighlighter/3.0.83/scripts/shBrushCss.min.js"
-            type="text/javascript"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/SyntaxHighlighter/3.0.83/scripts/shBrushXml.js"
-            type="text/javascript"></script>
-    <style>
-        <?php echo file_get_contents(__DIR__ . '/core.css'); ?>
-        <?php echo file_get_contents(__DIR__ . '/exception.css'); ?>
+    <script type="text/javascript">
+        <?php
+        echo file_get_contents(__DIR__ . '/sh.js');
+        ?>
+    </script>
+    <style type="text/css">
+        <?php
+        echo file_get_contents(__DIR__ . '/base.css');
+        echo file_get_contents(__DIR__ . '/core.css');
+        ?>
     </style>
 </head>
 
 <body>
-<div class="container">
+<div class="base-container">
     <div class="message">
         <h1><?php echo $data['type']; ?></h1>
         <h2><?php echo $data['message']; ?></h2>
