@@ -2,6 +2,11 @@
 
 namespace Mindy\Base;
 
+use Mindy\Helper\Alias;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use ReflectionClass;
+
 /**
  * Class Module
  * @package Mindy\Base
@@ -61,5 +66,45 @@ class Module extends BaseModule
      */
     public function downgrade()
     {
+    }
+
+    /**
+     * @return \Mindy\Orm\Model[]
+     */
+    public function getModels()
+    {
+        $object = new ReflectionClass(get_called_class());
+        $path = dirname($object->getFilename()) . DIRECTORY_SEPARATOR . 'Models';
+        if (is_dir($path) === false) {
+            return [];
+        }
+
+        $files = [];
+        $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path));
+        /** @var RecursiveDirectoryIterator $it */
+        while ($it->valid()) {
+            if (!$it->isDot() && substr($it->getSubPathName(), 0, 1) !== '_') {
+                $files[] = str_replace('.php', '', $it->getSubPathName());
+            }
+            $it->next();
+        }
+        $basePath = str_replace(Alias::get('App'), '', $path);
+        $modelClasses = array_filter($files, function (&$file) use ($basePath) {
+            $file = str_replace('/', '\\', $basePath . DIRECTORY_SEPARATOR . $file);
+            return $file;
+        });
+
+        $models = [];
+        foreach ($modelClasses as $cls) {
+            if (is_subclass_of($cls, '\Mindy\Orm\Base')) {
+                $reflectClass = new ReflectionClass($cls);
+                if ($reflectClass->isAbstract()) {
+                    continue;
+                }
+                $models[$cls] = new $cls;
+            }
+        }
+
+        return $models;
     }
 }
