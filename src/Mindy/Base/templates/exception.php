@@ -52,11 +52,11 @@
                         <div class="trace-file">
                             #<?php echo $i ?> <?php echo $trace['file']; ?>(<?php echo $trace['line']; ?>):
 
-                            <?php if ($trace['class']) { ?>
+                            <?php if (isset($trace['class'])) { ?>
                                 <strong><?php echo $trace['class'] ?></strong> <?php echo $trace['type'] ?>
                             <?php } ?>
 
-                            <?php if ($trace['args']) { ?>
+                            <?php if (isset($trace['args'])) { ?>
                                 <strong><?php echo $trace['function'] ?></strong>
                                 <?php echo $this->argsToString($trace['args']); ?>
                             <?php } ?>
