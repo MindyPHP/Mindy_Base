@@ -93,6 +93,10 @@ class ErrorHandler extends ApplicationComponent
      */
     public $discardOutput = true;
     /**
+     * @var boolean whether to discard any existing page output before error display. Defaults to true.
+     */
+    public $shortOutput = false;
+    /**
      * @var string the route (eg 'site/error') to the controller action that will be used to display external errors.
      * Inside the action, it can retrieve the error information by Yii::app()->errorHandler->error.
      * This property defaults to null, meaning CErrorHandler will handle the error display.
@@ -294,7 +298,11 @@ class ErrorHandler extends ApplicationComponent
      */
     public function displayException($exception)
     {
-        if (Console::isCli()) {
+        if ($this->shortOutput) {
+            echo get_class($exception) . PHP_EOL;
+            echo $exception->getMessage() . ' (' . $exception->getFile() . ':' . $exception->getLine() . ')' . PHP_EOL;
+            echo $exception->getTraceAsString() . PHP_EOL;
+        } else if (Console::isCli()) {
             if (MINDY_DEBUG) {
                 echo Console::color(get_class($exception), Console::FOREGROUND_RED) . PHP_EOL;
                 echo $exception->getMessage() . ' (' . $exception->getFile() . ':' . $exception->getLine() . ')' . PHP_EOL;
@@ -506,7 +514,7 @@ class ErrorHandler extends ApplicationComponent
     protected function renderException()
     {
         $exception = $this->getException();
-        if ($this->getIsAjax() || Console::isCli()) {
+        if ($this->getIsAjax() || Console::isCli() || $this->shortOutput) {
             $this->displayException($exception);
         } else {
             if (MINDY_DEBUG) {
