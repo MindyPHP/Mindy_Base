@@ -1,7 +1,7 @@
 {
   "name": "mindy/base",
   "homepage": "https://github.com/studio107/Mindy_Base",
-  "version": "0.3.2",
+  "version": "0.4",
   "license": "MIT",
   "autoload": {
     "psr-4": {
