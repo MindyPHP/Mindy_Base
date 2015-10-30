@@ -97,6 +97,10 @@ class ErrorHandler extends ApplicationComponent
      */
     public $shortOutput = false;
     /**
+     * @var bool use external template system for render error and exception page
+     */
+    public $useTemplate = false;
+    /**
      * @var string the route (eg 'site/error') to the controller action that will be used to display external errors.
      * Inside the action, it can retrieve the error information by Yii::app()->errorHandler->error.
      * This property defaults to null, meaning CErrorHandler will handle the error display.
@@ -496,14 +500,19 @@ class ErrorHandler extends ApplicationComponent
      */
     protected function render($view, $data)
     {
-        echo $this->renderInternal(__DIR__ . '/templates/' . $view . '.php', [
+        $data = [
             'data' => array_merge($data, [
                 'time' => time(),
                 'admin' => $this->adminInfo,
                 'version' => $this->getVersionInfo()
             ]),
             'this' => $this
-        ]);
+        ];
+        if ($this->useTemplate) {
+            echo $this->renderTemplate($view, $data);
+        } else {
+            echo $this->renderInternal(__DIR__ . '/templates/' . $view . '.php', $data);
+        }
         Mindy::app()->end();
     }
 
