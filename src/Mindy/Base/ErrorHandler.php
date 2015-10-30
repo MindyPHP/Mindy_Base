@@ -509,7 +509,7 @@ class ErrorHandler extends ApplicationComponent
             'this' => $this
         ];
         if ($this->useTemplate) {
-            echo $this->renderTemplate($view, $data);
+            echo $this->renderTemplate($view . '.html', $data);
         } else {
             echo $this->renderInternal(__DIR__ . '/templates/' . $view . '.php', $data);
         }
