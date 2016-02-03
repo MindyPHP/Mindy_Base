@@ -89,10 +89,10 @@ class Module extends BaseModule
             $it->next();
         }
         $basePath = str_replace(Alias::get('App'), '', $path);
-        $modelClasses = array_filter($files, function (&$file) use ($basePath) {
-            $file = str_replace('/', '\\', $basePath . DIRECTORY_SEPARATOR . $file);
-            return $file;
-        });
+        $modelClasses = [];
+        foreach ($files as $file) {
+            $modelClasses[] = str_replace('/', '\\', $basePath . DIRECTORY_SEPARATOR . $file);
+        }
 
         $models = [];
         foreach ($modelClasses as $cls) {
