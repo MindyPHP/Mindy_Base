@@ -1,8 +1,8 @@
 {
   "name": "mindy/base",
   "homepage": "https://github.com/studio107/Mindy_Base",
-  "version": "0.4",
-  "license": "MIT",
+  "version": "1.0",
+  "license": "BSD",
   "autoload": {
     "psr-4": {
       "Mindy\\Base\\": "src/Mindy/Base"
@@ -11,13 +11,13 @@
   "require": {
     "php": ">=5.4",
     "mindy/exception": "*",
-    "mindy/di": "0.*",
-    "mindy/utils": "0.*",
-    "mindy/http": "0.*",
-    "mindy/middleware": "0.*",
-    "mindy/logger": "1.*",
-    "mindy/locale": "0.*",
-    "mindy/router": "0.*"
+    "mindy/di": "*",
+    "mindy/utils": "*",
+    "mindy/http": "*",
+    "mindy/middleware": "*",
+    "mindy/logger": "*",
+    "mindy/locale": "*",
+    "mindy/router": "*"
   },
   "require-dev": {
     "phpunit/phpunit": "3.7.32",
