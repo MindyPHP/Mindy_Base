@@ -14,7 +14,6 @@
 
 namespace Mindy\Base;
 
-
 use Mindy\Base\Interfaces\IApplicationComponent;
 use Mindy\Helper\Traits\BehaviorAccessors;
 use Mindy\Helper\Traits\Configurator;

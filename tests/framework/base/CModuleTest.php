@@ -1,5 +1,4 @@
 <?php
-use Mindy\Base\AttributeCollection;
 use Mindy\Base\Mindy;
 
 require_once dirname(__FILE__) . '/NewModule.php';
@@ -46,13 +45,6 @@ class CModuleTest extends CTestCase
     public function testGetBasePath()
     {
         $this->assertEquals($this->d, $this->mod->getBasePath());
-    }
-
-    public function testGetParams()
-    {
-        $expected = new AttributeCollection;
-        $expected->caseSensitive = TRUE;
-        $this->assertEquals($expected, $this->mod->getParams());
     }
 
     public function testSetParams()
