@@ -1,9 +1,12 @@
 <?php
 
-use Mindy\Base\ApplicationComponent;
+use Mindy\Helper\Traits\Accessors;
+use Mindy\Helper\Traits\Configurator;
 
-class NewApplicationComponent extends ApplicationComponent
+class NewApplicationComponent
 {
+    use Configurator, Accessors;
+
     private $_text = NULL;
 
     public function getText($text = NULL)

@@ -119,19 +119,6 @@ class CComponentTest extends CTestCase
         }
     }
 
-    public function testCallMethodFromBehavior()
-    {
-        $this->component->attachBehavior('newBehavior', new NewBehavior);
-        $this->assertSame(2, $this->component->test());
-
-        try {
-            $this->component->otherMethod();
-        } catch (Exception $e) {
-            $this->assertInstanceOf('\Mindy\Exception\Exception', $e);
-            $this->assertSame('NewComponent and its behaviors do not have a method or closure named "otherMethod".', $e->getMessage());
-        }
-    }
-
     public function testHasEvent()
     {
         $this->assertTrue($this->component->hasEvent('OnMyEvent'));
@@ -278,66 +265,6 @@ class CComponentTest extends CTestCase
             $this->assertInstanceOf('\Mindy\Exception\Exception', $e);
             $this->assertSame('Event "NewComponent.onmyevent" is attached with an invalid handler "nullHandler".', $e->getMessage());
         }
-    }
-
-    public function testAttachingBehavior()
-    {
-        $this->component->attachBehavior('newBehavior', 'NewBehavior');
-        $this->assertInstanceOf('NewBehavior', $this->component->newBehavior);
-    }
-
-    public function testDetachingBehavior()
-    {
-        $behavior = new NewBehavior;
-        $this->component->attachBehavior('newBehavior', $behavior);
-        $this->assertSame($behavior, $this->component->detachBehavior('newBehavior'));
-        $this->assertFalse(isset($this->component->newBehavior));
-    }
-
-    public function testDetachingBehaviors()
-    {
-        $behavior = new NewBehavior;
-
-        $this->component->attachBehavior('newBehavior', $behavior);
-        $this->component->detachBehaviors();
-
-        try {
-            $this->component->test();
-        } catch (Exception $e) {
-            $this->assertInstanceOf('\Mindy\Exception\Exception', $e);
-            $this->assertSame('NewComponent and its behaviors do not have a method or closure named "test".', $e->getMessage());
-        }
-    }
-
-    public function testEnablingBehavior()
-    {
-        $behavior = new NewBehavior;
-
-        $this->component->attachBehavior('newBehavior', $behavior);
-        $this->component->disableBehavior('newBehavior');
-        $this->assertFalse($behavior->getEnabled());
-
-        $this->component->enableBehavior('newBehavior');
-        $this->assertTrue($behavior->getEnabled());
-    }
-
-    public function testEnablingBehaviors()
-    {
-        $behavior = new NewBehavior;
-
-        $this->component->attachBehavior('newBehavior', $behavior);
-        $this->component->disableBehaviors();
-        $this->assertFalse($behavior->getEnabled());
-
-        $this->component->enableBehaviors();
-        $this->assertTrue($behavior->getEnabled());
-    }
-
-    public function testAsa()
-    {
-        $behavior = new NewBehavior;
-        $this->component->attachBehavior('newBehavior', $behavior);
-        $this->assertSame($behavior, $this->component->asa('newBehavior'));
     }
 
     public function testEvaluateExpression()

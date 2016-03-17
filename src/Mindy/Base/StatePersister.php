@@ -17,6 +17,8 @@ namespace Mindy\Base;
 use Mindy\Base\Interfaces\IStatePersister;
 use Mindy\Cache\FileDependency;
 use Mindy\Exception\Exception;
+use Mindy\Helper\Traits\Accessors;
+use Mindy\Helper\Traits\Configurator;
 
 /**
  * CStatePersister implements a file-based persistent data storage.
@@ -49,8 +51,10 @@ use Mindy\Exception\Exception;
  * @package Mindy\Base
  * @since 1.0
  */
-class StatePersister extends ApplicationComponent implements IStatePersister
+class StatePersister implements IStatePersister
 {
+    use Configurator, Accessors;
+
     /**
      * @var string the file path storing the state data. Make sure the directory containing
      * the file exists and is writable by the Web server process. If using relative path, also
@@ -71,7 +75,6 @@ class StatePersister extends ApplicationComponent implements IStatePersister
      */
     public function init()
     {
-        parent::init();
         if ($this->stateFile === null) {
             $this->stateFile = Mindy::app()->getRuntimePath() . DIRECTORY_SEPARATOR . 'state.bin';
         }

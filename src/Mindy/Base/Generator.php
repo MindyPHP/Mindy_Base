@@ -6,7 +6,7 @@ namespace Mindy\Base;
  * Class Generator
  * @package Mindy\Base
  */
-class Generator extends ApplicationComponent
+class Generator
 {
     /**
      * substr offset for .php extension

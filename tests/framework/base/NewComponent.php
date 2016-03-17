@@ -7,7 +7,6 @@ class NewComponent extends Component
     private $_object = null;
     private $_text = 'default';
     public $eventHandled = false;
-    public $behaviorCalled = false;
 
     public function getText()
     {

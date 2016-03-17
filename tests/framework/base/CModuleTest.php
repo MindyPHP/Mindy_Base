@@ -93,20 +93,6 @@ class CModuleTest extends CTestCase
         $this->assertEquals($expected, $p->getModules());
     }
 
-    public function testGetComponents()
-    {
-        $c = new NewApplicationComponent;
-        $this->mod->setComponent('foo', $c);
-        $this->assertSame(array('foo' => $c), $this->mod->getComponents());
-    }
-
-    public function testSetComponents()
-    {
-        $expected = array('foo' => new NewApplicationComponent);
-        $this->mod->setComponents($expected);
-        $this->assertSame($expected, $this->mod->getComponents());
-    }
-
     public function testSetComponentsViaConfig()
     {
         $this->mod = new NewModule('foo', $this->parent, array(
@@ -137,7 +123,7 @@ class CModuleTest extends CTestCase
         $this->assertEquals('test', $this->mod->bar->getText());
         $this->mod->setComponents(array(
             'bar' => array(
-                'class' => 'AnotherNewApplicationComponent'
+                'class' => 'NewApplicationComponent'
             ),
         ));
         $this->assertEquals('new', $this->mod->bar->getText());
@@ -151,7 +137,7 @@ class CModuleTest extends CTestCase
             ),
         ));
         $this->mod->setComponents(array(
-            'bar' => array('class' => 'AnotherNewApplicationComponent'),
+            'bar' => array('class' => 'NewApplicationComponent'),
         ));
         $this->assertEquals('new', $this->mod->bar->getText());
     }

@@ -21,7 +21,7 @@ use Mindy\Helper\Alias;
 use Mindy\Helper\Collection;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Params;
-use Mindy\Helper\Traits\BehaviorAccessors;
+use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
 use ReflectionClass;
 
@@ -54,7 +54,7 @@ use ReflectionClass;
  */
 abstract class BaseModule implements IModule
 {
-    use Configurator, BehaviorAccessors;
+    use Configurator, Accessors;
 
     /**
      * @var array the IDs of the application components that should be preloaded.
@@ -108,7 +108,6 @@ abstract class BaseModule implements IModule
         $this->preinit();
 
         $this->configure($config);
-        $this->attachBehaviors($this->behaviors);
         $this->preloadComponents();
 
         $this->init();

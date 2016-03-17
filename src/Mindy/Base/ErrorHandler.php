@@ -5,6 +5,8 @@ namespace Mindy\Base;
 use ErrorException;
 use Mindy\Application\Application;
 use Mindy\Helper\Console;
+use Mindy\Helper\Traits\Accessors;
+use Mindy\Helper\Traits\Configurator;
 use Mindy\Utils\RenderTrait;
 
 use Mindy\Exception\CompileErrorException;
@@ -67,9 +69,9 @@ use Mindy\Exception\WarningException;
  * @package system.base
  * @since 1.0
  */
-class ErrorHandler extends ApplicationComponent
+class ErrorHandler
 {
-    use RenderTrait;
+    use Configurator, Accessors, RenderTrait;
 
     public $handlers = [];
 
