@@ -85,11 +85,6 @@ class ErrorHandler
      * @since 1.1.6
      */
     public $maxTraceSourceLines = 10;
-
-    /**
-     * @var string the application administrator information (could be a name or email link). It is displayed in error pages to end users. Defaults to 'the webmaster'.
-     */
-    public $adminInfo = 'the webmaster';
     /**
      * @var boolean whether to discard any existing page output before error display. Defaults to true.
      */
@@ -102,12 +97,6 @@ class ErrorHandler
      * @var bool use external template system for render error and exception page
      */
     public $useTemplate = false;
-    /**
-     * @var string the route (eg 'site/error') to the controller action that will be used to display external errors.
-     * Inside the action, it can retrieve the error information by Yii::app()->errorHandler->error.
-     * This property defaults to null, meaning CErrorHandler will handle the error display.
-     */
-    public $errorAction;
 
     protected $_error;
     protected $_exception;
@@ -505,7 +494,6 @@ class ErrorHandler
         $data = [
             'data' => array_merge($data, [
                 'time' => time(),
-                'admin' => $this->adminInfo,
                 'version' => $this->getVersionInfo()
             ]),
             'this' => $this
