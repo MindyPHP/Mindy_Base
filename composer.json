@@ -1,6 +1,6 @@
 {
   "name": "mindy/base",
-  "homepage": "https://github.com/studio107/Mindy_Base",
+  "homepage": "https://github.com/MindyPHP/Mindy_Base",
   "version": "1.0",
   "license": "BSD",
   "autoload": {
@@ -36,6 +36,6 @@
     }
   ],
   "support": {
-    "issues": "https://github.com/studio107/Mindy_Base/issues?state=open"
+    "issues": "https://github.com/MindyPHP/Mindy_Base/issues?state=open"
   }
 }
