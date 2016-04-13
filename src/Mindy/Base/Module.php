@@ -101,7 +101,9 @@ class Module extends BaseModule
                 if ($reflectClass->isAbstract()) {
                     continue;
                 }
-                $models[$cls] = new $cls;
+                if (call_user_func([$cls, 'tableName'])) {
+                    $models[$cls] = new $cls;
+                }
             }
         }
 
