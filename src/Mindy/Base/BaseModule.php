@@ -360,6 +360,11 @@ abstract class BaseModule implements IModule
         return self::t(ucfirst($this->getId()));
     }
 
+    public function getDescription()
+    {
+        return '';
+    }
+
     public static function t($str, $params = [], $dic = 'main')
     {
         return Mindy::t(get_called_class() . "." . $dic, $str, $params);
