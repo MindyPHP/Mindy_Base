@@ -1,7 +1,6 @@
 {
   "name": "mindy/base",
   "homepage": "https://github.com/MindyPHP/Mindy_Base",
-  "version": "1.0",
   "license": "BSD",
   "autoload": {
     "psr-4": {
