@@ -7,7 +7,7 @@ use Mindy\Application\Application;
 use Mindy\Helper\Console;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
-use Mindy\Utils\RenderTrait;
+use Mindy\Helper\Traits\RenderTrait;
 
 use Mindy\Exception\CompileErrorException;
 use Mindy\Exception\CoreErrorException;
