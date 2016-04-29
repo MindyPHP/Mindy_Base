@@ -12,7 +12,7 @@
     <h1>Internal Server Error</h1>
     <h2><?php echo $data['message']; ?></h2>
     <p>An internal error occurred while the Web server was processing your request.</p>
-    <p>Please contact <?php echo $data['admin'] ?> to report this problem.</p>
+    <p>Please contact webmaster to report this problem.</p>
     <p>Thank you.</p>
     <hr>
     <div class="version">
