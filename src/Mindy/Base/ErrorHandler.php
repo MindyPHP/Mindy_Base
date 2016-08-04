@@ -512,6 +512,7 @@ class ErrorHandler
      */
     protected function renderException()
     {
+        ob_get_clean();
         $exception = $this->getException();
         if ($this->getIsAjax() || Console::isCli() || $this->shortOutput) {
             $this->displayException($exception);
