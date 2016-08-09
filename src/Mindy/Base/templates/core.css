@@ -19,7 +19,7 @@
     vertical-align: baseline !important;
     width: auto !important;
     box-sizing: content-box !important;
-    font-family: Monaco, Consolas, "Bitstream Vera Sans Mono", "Courier New", Courier, monospace !important;
+    font-family: Monaco, Menlo, Consolas, "Lucida Console", Monospace;
     font-weight: 400 !important;
     font-style: normal !important;
     font-size: 13px !important;

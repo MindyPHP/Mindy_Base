@@ -3,11 +3,8 @@
 namespace Mindy\Base;
 
 use ErrorException;
-use Mindy\Application\Application;
-use Mindy\Helper\Console;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
-use Mindy\Helper\Traits\RenderTrait;
 
 use Mindy\Exception\CompileErrorException;
 use Mindy\Exception\CoreErrorException;
@@ -71,9 +68,7 @@ use Mindy\Exception\WarningException;
  */
 class ErrorHandler
 {
-    use Configurator, Accessors, RenderTrait;
-
-    public $handlers = [];
+    use Configurator, Accessors;
 
     /**
      * @var integer maximum number of source code lines to be displayed. Defaults to 25.
@@ -89,24 +84,34 @@ class ErrorHandler
      * @var boolean whether to discard any existing page output before error display. Defaults to true.
      */
     public $discardOutput = true;
-    /**
-     * @var boolean whether to discard any existing page output before error display. Defaults to true.
-     */
-    public $shortOutput = false;
-    /**
-     * @var bool use external template system for render error and exception page
-     */
-    public $useTemplate = false;
 
-    protected $_error;
-    protected $_exception;
+    /**
+     * @var array exception map
+     */
+    private $_levelClasses = [
+        E_ERROR => ErrorException::class,
+        E_WARNING => WarningException::class,
+        E_PARSE => ParseException::class,
+        E_NOTICE => NoticeException::class,
+        E_CORE_ERROR => CoreErrorException::class,
+        E_CORE_WARNING => CoreWarningException::class,
+        E_COMPILE_ERROR => CompileErrorException::class,
+        E_COMPILE_WARNING => CoreWarningException::class,
+        E_USER_ERROR => UserErrorException::class,
+        E_USER_WARNING => UserWarningException::class,
+        E_USER_NOTICE => UserNoticeException::class,
+        E_STRICT => StrictException::class,
+        E_RECOVERABLE_ERROR => RecoverableErrorException::class,
+        E_DEPRECATED => DeprecatedException::class,
+        E_USER_DEPRECATED => UserDeprecatedException::class,
+    ];
 
     /**
      * Handles the exception/error event.
      * This method is invoked by the application whenever it captures
      * an exception or PHP error.
      */
-    public function process($exception)
+    public function process()
     {
         if ($this->discardOutput) {
             $gzHandler = false;
@@ -124,46 +129,10 @@ class ErrorHandler
             }
             // reset headers in case there was an ob_start("ob_gzhandler") before
             if ($gzHandler && !headers_sent() && ob_list_handlers() === array()) {
-                if (function_exists('header_remove')) { // php >= 5.3
-                    header_remove('Vary');
-                    header_remove('Content-Encoding');
-                } else {
-                    header('Vary:');
-                    header('Content-Encoding:');
-                }
+                header('Vary:');
+                header('Content-Encoding:');
             }
         }
-
-//        $this->handleException($event->exception);
-//        $this->handleError($event);
-    }
-
-    /**
-     * Returns the details about the error that is currently being handled.
-     * The error is returned in terms of an array, with the following information:
-     * <ul>
-     * <li>code - the HTTP status code (e.g. 403, 500)</li>
-     * <li>type - the error type (e.g. 'CHttpException', 'PHP Error')</li>
-     * <li>message - the error message</li>
-     * <li>file - the name of the PHP script file where the error occurs</li>
-     * <li>line - the line number of the code where the error occurs</li>
-     * <li>trace - the call stack of the error</li>
-     * <li>source - the context source code where the error occurs</li>
-     * </ul>
-     * @return array the error details. Null if there is no error.
-     */
-    public function getError()
-    {
-        return $this->_error;
-    }
-
-    /**
-     * Returns the instance of the exception that is currently being handled.
-     * @return Exception|null exception instance. Null if there is no exception.
-     */
-    public function getException()
-    {
-        return $this->_exception;
     }
 
     /**
@@ -172,65 +141,83 @@ class ErrorHandler
      */
     public function handleException($exception)
     {
-        $app = Mindy::app();
-
-        // TODO move to events
-//        if($app->hasComponent('middleware')) {
-//            $app->getComponent('middleware')->processException($exception);
-//        }
-
-        if ($app instanceof Application) {
-            if (($trace = $this->getExactTrace($exception)) === null) {
-                $fileName = $exception->getFile();
-                $errorLine = $exception->getLine();
-            } else {
-                $fileName = $trace['file'];
-                $errorLine = $trace['line'];
-            }
-
-            $trace = $exception->getTrace();
-
-            foreach ($trace as $i => $t) {
-                if (!isset($t['file'])) {
-                    $trace[$i]['file'] = 'unknown';
-                }
-
-                if (!isset($t['line'])) {
-                    $trace[$i]['line'] = 0;
-                }
-
-                if (!isset($t['function'])) {
-                    $trace[$i]['function'] = 'unknown';
-                }
-
-                unset($trace[$i]['object']);
-            }
-
-            $code = ($exception instanceof HttpException) ? $exception->statusCode : 500;
-
-            $this->_exception = $exception;
-
-            $this->_error = [
-                'code' => $code,
-                'type' => get_class($exception),
-                'errorCode' => $exception->getCode(),
-                'message' => $exception->getMessage(),
-                'file' => $fileName,
-                'line' => $errorLine,
-                'trace' => $exception->getTraceAsString(),
-                'traces' => $trace,
-            ];
-
-            $app->logger->critical($exception->getMessage(), $this->_error);
-
-            if (!headers_sent()) {
-                header("HTTP/1.0 {$code} " . $this->getHttpHeader($code, get_class($exception)));
-            }
-
-            $this->renderException();
+        $this->process();
+        if ($trace = $this->getExactTrace($exception)) {
+            $fileName = $trace['file'];
+            $errorLine = $trace['line'];
         } else {
-            $this->displayException($exception);
+            $fileName = $exception->getFile();
+            $errorLine = $exception->getLine();
         }
+
+        $trace = $exception->getTrace();
+        foreach ($trace as $i => $t) {
+            if (!isset($t['file'])) {
+                $trace[$i]['file'] = 'unknown';
+            }
+            if (!isset($t['line'])) {
+                $trace[$i]['line'] = 0;
+            }
+            if (!isset($t['function'])) {
+                $trace[$i]['function'] = 'unknown';
+            }
+            unset($trace[$i]['object']);
+        }
+
+        if ($exception instanceof HttpException) {
+            $code = $exception->statusCode;
+        } else {
+            $code = 500;
+        }
+
+        $data = [
+            'code' => $code,
+            'type' => get_class($exception),
+            'errorCode' => $exception->getCode(),
+            'message' => $exception->getMessage(),
+            'file' => $fileName,
+            'line' => $errorLine,
+            'trace' => $exception->getTraceAsString(),
+            'traces' => $trace,
+        ];
+
+        if (Mindy::app()->hasComponent('logger')) {
+            $newData = $data;
+            unset($newData['traces']);
+            if (Mindy::app()->hasComponent('logger')) {
+                Mindy::app()->logger->critical($exception->getMessage(), $newData);
+            }
+        }
+
+        if (!headers_sent()) {
+            header("HTTP/1.0 {$code} " . $this->getHttpHeader($code, get_class($exception)));
+        }
+
+        ob_get_clean();
+        if ($this->isAjax() || $this->isCli()) {
+            $this->displayException($exception);
+            Mindy::app()->end();
+        } else {
+            $this->render('exception', $data);
+            Mindy::app()->end();
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCli()
+    {
+        return php_sapi_name() === 'cli';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAjax()
+    {
+        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+        $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
     }
 
     /**
@@ -245,7 +232,7 @@ class ErrorHandler
     public function displayError($code, $message, $file, $line)
     {
         if (MINDY_DEBUG) {
-            if (Console::isCli()) {
+            if ($this->isCli()) {
                 echo "PHP Error [$code]" . PHP_EOL;
                 echo "$message ($file:$line)" . PHP_EOL;
             } else {
@@ -271,11 +258,11 @@ class ErrorHandler
                 echo "{$t['function']}()\n";
             }
 
-            if (!Console::isCli()) {
+            if (!$this->isCli()) {
                 echo '</pre>';
             }
         } else {
-            if (Console::isCli()) {
+            if ($this->isCli()) {
                 echo "PHP Error [$code]\n" . PHP_EOL;
                 echo "$message\n" . PHP_EOL;
             } else {
@@ -293,17 +280,13 @@ class ErrorHandler
      */
     public function displayException($exception)
     {
-        if ($this->shortOutput) {
-            echo get_class($exception) . PHP_EOL;
-            echo $exception->getMessage() . ' (' . $exception->getFile() . ':' . $exception->getLine() . ')' . PHP_EOL;
-            echo $exception->getTraceAsString() . PHP_EOL;
-        } else if (Console::isCli()) {
+        if ($this->isCli()) {
             if (MINDY_DEBUG) {
-                echo Console::color(get_class($exception), Console::FOREGROUND_RED) . PHP_EOL;
+                echo get_class($exception) . PHP_EOL;
                 echo $exception->getMessage() . ' (' . $exception->getFile() . ':' . $exception->getLine() . ')' . PHP_EOL;
                 echo $exception->getTraceAsString() . PHP_EOL;
             } else {
-                echo Console::color(get_class($exception), Console::FOREGROUND_RED) . PHP_EOL;
+                echo get_class($exception) . PHP_EOL;
                 echo $exception->getMessage() . PHP_EOL;
             }
         } else {
@@ -320,67 +303,20 @@ class ErrorHandler
 
     /**
      * Handles the PHP error.
+     * @param $code
+     * @param $message
+     * @param $file
+     * @param $line
+     * @param array $errcontext
      */
     public function handleError($code, $message, $file, $line, array $errcontext = [])
     {
-        $app = Mindy::app();
-        if (MINDY_DEBUG) {
-            // Tryhard
-            switch ($code) {
-                case E_ERROR:
-                    $app->logger->critical($message, ['code' => $code, 'file' => $file, 'line' => $line]);
-                    throw new ErrorException($message, 0, $code, $file, $line);
-                case E_WARNING:
-                    $app->logger->critical($message, ['code' => $code, 'file' => $file, 'line' => $line]);
-                    throw new WarningException($message, 0, $code, $file, $line);
-                case E_PARSE:
-                    $app->logger->critical($message, ['code' => $code, 'file' => $file, 'line' => $line]);
-                    throw new ParseException($message, 0, $code, $file, $line);
-                case E_NOTICE:
-                    $app->logger->critical($message, ['code' => $code, 'file' => $file, 'line' => $line]);
-                    throw new NoticeException($message, 0, $code, $file, $line);
-                case E_CORE_ERROR:
-                    $app->logger->critical($message, ['code' => $code, 'file' => $file, 'line' => $line]);
-                    throw new CoreErrorException($message, 0, $code, $file, $line);
-                case E_CORE_WARNING:
-                    $app->logger->critical($message, ['code' => $code, 'file' => $file, 'line' => $line]);
-                    throw new CoreWarningException($message, 0, $code, $file, $line);
-                case E_COMPILE_ERROR:
-                    $app->logger->critical($message, ['code' => $code, 'file' => $file, 'line' => $line]);
-                    throw new CompileErrorException($message, 0, $code, $file, $line);
-                case E_COMPILE_WARNING:
-                    $app->logger->critical($message, ['code' => $code, 'file' => $file, 'line' => $line]);
-                    throw new CoreWarningException($message, 0, $code, $file, $line);
-                case E_USER_ERROR:
-                    $app->logger->critical($message, ['code' => $code, 'file' => $file, 'line' => $line]);
-                    throw new UserErrorException($message, 0, $code, $file, $line);
-                case E_USER_WARNING:
-                    $app->logger->critical($message, ['code' => $code, 'file' => $file, 'line' => $line]);
-                    throw new UserWarningException($message, 0, $code, $file, $line);
-                case E_USER_NOTICE:
-                    $app->logger->critical($message, ['code' => $code, 'file' => $file, 'line' => $line]);
-                    throw new UserNoticeException($message, 0, $code, $file, $line);
-                case E_STRICT:
-                    $app->logger->critical($message, ['code' => $code, 'file' => $file, 'line' => $line]);
-                    throw new StrictException($message, 0, $code, $file, $line);
-                case E_RECOVERABLE_ERROR:
-                    $app->logger->critical($message, ['code' => $code, 'file' => $file, 'line' => $line]);
-                    throw new RecoverableErrorException($message, 0, $code, $file, $line);
-                case E_DEPRECATED:
-                    $app->logger->critical($message, ['code' => $code, 'file' => $file, 'line' => $line]);
-                    throw new DeprecatedException($message, 0, $code, $file, $line);
-                case E_USER_DEPRECATED:
-                    $app->logger->critical($message, ['code' => $code, 'file' => $file, 'line' => $line]);
-                    throw new UserDeprecatedException($message, 0, $code, $file, $line);
-            }
+        if (isset($this->_levelClasses[$code])) {
+            $exceptionClass = $this->_levelClasses[$code];
+            $exception = new $exceptionClass($message, 0, $code, $file, $line);
+            $this->handleException($exception);
         } else {
-            $msg = "Error: {$message}\nFile: {$file}\nLine: {$line}";
-
-            // TODO move to events
-            //        if(Mindy::app()->hasComponent('middleware')) {
-            //            Mindy::app()->getComponent('middleware')->processException(new Exception($msg));
-            //        }
-
+            $this->process();
             $trace = debug_backtrace();
             // skip the first 3 stacks as they do not tell the error position
             if (count($trace) > 3) {
@@ -409,60 +345,53 @@ class ErrorHandler
                 unset($trace[$i]['object']);
             }
 
-            $app = Mindy::app();
-            if ($app instanceof Application && Console::isCli() === false) {
-                switch ($code) {
-                    case E_WARNING:
-                        $type = 'PHP warning';
-                        break;
-                    case E_NOTICE:
-                        $type = 'PHP notice';
-                        break;
-                    case E_USER_ERROR:
-                        $type = 'User error';
-                        break;
-                    case E_USER_WARNING:
-                        $type = 'User warning';
-                        break;
-                    case E_USER_NOTICE:
-                        $type = 'User notice';
-                        break;
-                    case E_RECOVERABLE_ERROR:
-                        $type = 'Recoverable error';
-                        break;
-                    default:
-                        $type = 'PHP error';
-                }
-                $this->_exception = null;
-                $this->_error = [
-                    'code' => 500,
-                    'type' => $type,
-                    'message' => $message,
-                    'file' => $file,
-                    'line' => $line,
-                    'trace' => $traceString,
-                    'traces' => $trace,
-                ];
+            switch ($code) {
+                case E_WARNING:
+                    $type = 'PHP warning';
+                    break;
+                case E_NOTICE:
+                    $type = 'PHP notice';
+                    break;
+                case E_USER_ERROR:
+                    $type = 'User error';
+                    break;
+                case E_USER_WARNING:
+                    $type = 'User warning';
+                    break;
+                case E_USER_NOTICE:
+                    $type = 'User notice';
+                    break;
+                case E_RECOVERABLE_ERROR:
+                    $type = 'Recoverable error';
+                    break;
+                default:
+                    $type = 'PHP error';
+            }
 
-                $app->logger->error($type, $this->_error);
+            $data = [
+                'code' => 500,
+                'type' => $type,
+                'message' => $message,
+                'file' => $file,
+                'line' => $line,
+                'trace' => $traceString,
+                'traces' => $trace,
+                'errorContext' => $errcontext
+            ];
 
+            if (Mindy::app()->has('logger')) {
+                Mindy::app()->logger->error($type, $data);
+            }
+
+            if ($this->isCli()) {
+                $this->displayError($code, $message, $file, $line);
+            } else {
                 if (!headers_sent()) {
                     header("HTTP/1.0 500 Internal Server Error");
                 }
-                $this->renderError();
-            } else {
-                $this->displayError($code, $message, $file, $line);
+                $this->render('error', $data);
             }
         }
-    }
-
-    /**
-     * whether the current request is an AJAX (XMLHttpRequest) request.
-     * @return boolean whether the current request is an AJAX request.
-     */
-    protected function getIsAjax()
-    {
-        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
     }
 
     /**
@@ -485,53 +414,19 @@ class ErrorHandler
 
     /**
      * Renders the view.
-     * @param string $view the view name (file name without extension).
-     * See {@link getViewFile} for how a view file is located given its name.
-     * @param array $data data to be passed to the view
+     * @param $_viewFile_
+     * @param array $_data_
      */
-    protected function render($view, $data)
+    protected function render($_viewFile_, array $_data_ = [])
     {
-        $data = [
-            'data' => array_merge($data, [
-                'time' => time(),
-                'version' => $this->getVersionInfo()
-            ]),
-            'this' => $this
-        ];
-        if ($this->useTemplate) {
-            echo $this->renderTemplate($view . '.html', $data);
-        } else {
-            echo $this->renderInternal(__DIR__ . '/templates/' . $view . '.php', $data);
-        }
-        Mindy::app()->end();
-    }
-
-    /**
-     * Renders the exception information.
-     * This method will display information from current {@link error} value.
-     */
-    protected function renderException()
-    {
-        ob_get_clean();
-        $exception = $this->getException();
-        if ($this->getIsAjax() || Console::isCli() || $this->shortOutput) {
-            $this->displayException($exception);
-        } else {
-            if (MINDY_DEBUG) {
-                $this->render('exception', $this->getError());
-            } else {
-                $this->renderError();
-            }
-        }
-    }
-
-    /**
-     * Renders the current error information.
-     * This method will display information from current {@link error} value.
-     */
-    protected function renderError()
-    {
-        $this->render('error', $this->getError());
+        // we use special variable names here to avoid conflict when extracting data
+        extract(['data' => array_merge($_data_, [
+            'this' => $this, 'time' => time(),
+            'version' => $this->getVersionInfo()])
+        ]);
+        ob_implicit_flush(false);
+        require(__DIR__ . '/templates/' . $_viewFile_ . '.php');
+        echo ob_get_clean();
     }
 
     /**
@@ -542,7 +437,7 @@ class ErrorHandler
     protected function getVersionInfo()
     {
         if (MINDY_DEBUG) {
-            $version = '<a href="http://www.mindy-cms.com/">Mindy Framework</a>/' . Mindy::getVersion();
+            $version = '<a href="http://mindy-cms.com/">Mindy Framework</a>/' . Mindy::getVersion();
             if (isset($_SERVER['SERVER_SOFTWARE'])) {
                 $version = $_SERVER['SERVER_SOFTWARE'] . ' ' . $version;
             }
@@ -602,20 +497,6 @@ class ErrorHandler
     }
 
     /**
-     * Returns a value indicating whether the call stack is from application code.
-     * @param array $trace the trace data
-     * @return boolean whether the call stack is from application code.
-     */
-    protected function isCoreCode($trace)
-    {
-        if (isset($trace['file'])) {
-            $systemPath = realpath(dirname(__FILE__) . '/..');
-            return $trace['file'] === 'unknown' || strpos(realpath($trace['file']), $systemPath . DIRECTORY_SEPARATOR) === 0;
-        }
-        return false;
-    }
-
-    /**
      * Renders the source code around the error line.
      * @param string $file source file path
      * @param integer $errorLine the error line number
@@ -634,7 +515,7 @@ class ErrorHandler
 
         $output = '';
         for ($i = $beginLine; $i <= $endLine; ++$i) {
-            $code = sprintf("%s", htmlentities(str_replace("\t", '    ', $lines[$i]), ENT_QUOTES, Mindy::app()->getTranslate()->charset));
+            $code = sprintf("%s", htmlentities(str_replace("\t", '    ', $lines[$i]), ENT_QUOTES, Mindy::app()->locale['charset']));
             $output .= $code;
         }
         return strtr('<pre class="brush: php; highlight: {errorLine}; first-line: {beginLine}; toolbar: false;">{content}</pre>', [
@@ -720,16 +601,6 @@ class ErrorHandler
     public function argsToString($args)
     {
         return $this->argumentsToString($args);
-    }
-
-    /**
-     * @deprecated
-     * @param $trace
-     * @return bool
-     */
-    public function isCore($trace)
-    {
-        return $this->isCoreCode($trace);
     }
 
     /**

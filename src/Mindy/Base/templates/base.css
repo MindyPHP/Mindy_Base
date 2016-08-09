@@ -9,7 +9,11 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
 }
 
 body {
-    line-height: 1;
+    line-height: 1.3;
+    font-size: 16px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #353535;
+    background: #fff;
 }
 
 ol, ul {
@@ -51,14 +55,6 @@ table {
     border-spacing: 0;
 }
 
-body {
-    font-size: 14px;
-    font-weight: 400;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    color: #353535;
-    background: #fff;
-}
-
 h1, h2, h3, h4, h5, h6 {
     -webkit-font-smoothing: antialiased;
     font-family: "Helvetica Neue", Arial;
@@ -68,19 +64,19 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
-    font-size: 32px;
+    font-size: 2rem;
 }
 
 h2 {
-    font-size: 22px;
+    font-size: 1.5rem;
 }
 
 h3 {
-    font-size: 14px;
+    font-size: 1rem;
 }
 
 pre {
-    font: normal 11pt Menlo, Consolas, "Lucida Console", Monospace;
+    font: normal .9rem Monaco, Menlo, Consolas, "Lucida Console", Monospace;
 }
 
 pre span.error {
@@ -102,7 +98,7 @@ p {
     margin-bottom: 5px;
 }
 
-.base-container {
+.trace-container {
     padding: 25px;
 }
 
@@ -112,9 +108,18 @@ p {
 }
 
 .message {
-    font-size: 11pt;
+    font-family: Monaco, Menlo, Consolas, "Lucida Console", Monospace;
+    -webkit-font-smoothing: antialiased;
+    background-color: #353535;
+    color: #fff;
+    font-size: 1.05rem;
     margin-bottom: 1em;
-    border-bottom: 3px solid #F7C8C8;
+    border-bottom: 3px solid #ed5313;
+    padding: 25px;
+}
+
+.message strong {
+    font-size: 1.25rem;
 }
 
 .source {
@@ -148,12 +153,23 @@ p {
 }
 
 .trace-file {
-    cursor: pointer;
+    font-family: Monaco, Menlo, Consolas, "Lucida Console", Monospace;
     margin-bottom: 20px;
-    background-color: #f1f1f1;
+    background-color: #353535;
+    color: #f4f4f4;
     padding: 15px 25px;
+}
+
+.trace-file strong {
+    color: #fff;
 }
 
 .trace .content {
     padding-bottom: 20px;
+}
+
+blockquote {
+    background-color: #f1f1f1;
+    padding: 10px;
+    margin: 20px 0;
 }

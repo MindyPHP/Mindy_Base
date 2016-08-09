@@ -2,13 +2,7 @@
 
 namespace Mindy\Base;
 
-use Mindy\Helper\Alias;
-
-if (!function_exists('d')) {
-    require_once __DIR__ . '/m.php';
-}
-
-Alias::set('mindy', __DIR__);
+require_once('m.php');
 
 /**
  * Class Mindy

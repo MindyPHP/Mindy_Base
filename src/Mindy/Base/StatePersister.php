@@ -1,16 +1,4 @@
 <?php
-/**
- *
- *
- * All rights reserved.
- *
- * @author Falaleev Maxim
- * @email max@studio107.ru
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 10/06/14.06.2014 17:58
- */
 
 namespace Mindy\Base;
 
@@ -21,35 +9,8 @@ use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
 
 /**
- * CStatePersister implements a file-based persistent data storage.
- *
- * It can be used to keep data available through multiple requests and sessions.
- *
- * By default, CStatePersister stores data in a file named 'state.bin' that is located
- * under the application {@link CApplication::getRuntimePath runtime path}.
- * You may change the location by setting the {@link stateFile} property.
- *
- * To retrieve the data from CStatePersister, call {@link load()}. To save the data,
- * call {@link save()}.
- *
- * Comparison among state persister, session and cache is as follows:
- * <ul>
- * <li>session: data persisting within a single user session.</li>
- * <li>state persister: data persisting through all requests/sessions (e.g. hit counter).</li>
- * <li>cache: volatile and fast storage. It may be used as storage medium for session or state persister.</li>
- * </ul>
- *
- * Since server resource is often limited, be cautious if you plan to use CStatePersister
- * to store large amount of data. You should also consider using database-based persister
- * to improve the throughput.
- *
- * CStatePersister is a core application component used to store global application state.
- * It may be accessed via {@link CApplication::getStatePersister()}.
- * page state persistent method based on cache.
- *
- * @author Qiang Xue <qiang.xue@gmail.com>
+ * Class StatePersister
  * @package Mindy\Base
- * @since 1.0
  */
 class StatePersister implements IStatePersister
 {
@@ -96,7 +57,7 @@ class StatePersister implements IStatePersister
             file_put_contents($stateFile, '');
         }
         if ($this->cacheID !== false && ($cache = Mindy::app()->getComponent($this->cacheID)) !== null) {
-            $cacheKey = 'Yii.CStatePersister.' . $stateFile;
+            $cacheKey = 'persister.state.storage.' . $stateFile;
             if (($value = $cache->get($cacheKey)) !== false) {
                 return unserialize($value);
             } elseif (($content = @file_get_contents($stateFile)) !== false) {
