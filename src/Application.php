@@ -16,6 +16,7 @@ declare(strict_types = 1);
 namespace Mindy\Base;
 
 use Mindy\Console\ConsoleCommandRunner;
+use Mindy\ErrorHandler\ErrorHandler;
 use Mindy\Di\ServiceLocator;
 use Mindy\Exception\Exception;
 use Mindy\Exception\HttpException;
@@ -36,9 +37,9 @@ use RuntimeException;
  * @property \Mindy\Query\ConnectionManager $db The database connection.
  * @property \Modules\Auth\Components\Auth $auth The auth component.
  * @property \Mindy\Logger\LoggerManager $logger The logging component.
- * @property \Mindy\Base\ErrorHandler $errorHandler The error handler application component.
+ * @property \Mindy\ErrorHandler\ErrorHandler $errorHandler The error handler application component.
  * @property \Mindy\Security\SecurityManager $securityManager The security manager application component.
- * @property \Mindy\Base\StatePersister $statePersister The state persister application component.
+ * @property \Mindy\StatePersister\StatePersister $statePersister The state persister application component.
  * @property \Mindy\Cache\Cache $cache The cache application component. Null if the component is not enabled.
  * @property \Mindy\Mail\Mailer|\Modules\Mail\Components\DbMailer $mail The mail application component. Null if the component is not enabled.
  * @property \Mindy\Locale\Locale $translate The application translate component.

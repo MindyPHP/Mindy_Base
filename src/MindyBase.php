@@ -43,13 +43,13 @@ defined('MINDY_TEST') or define('MINDY_TEST', false);
 abstract class MindyBase
 {
     /**
-     * @var \Mindy\Application\Application
+     * @var \Mindy\Base\Application
      */
     private static $_app;
 
     /**
      * Returns the application singleton or null if the singleton has not been created yet.
-     * @return \Mindy\Application\Application the application singleton, null if the singleton has not been created yet.
+     * @return \Mindy\Base\Application the application singleton, null if the singleton has not been created yet.
      */
     public static function app()
     {
@@ -104,9 +104,9 @@ abstract class MindyBase
      * which should point to the directory containing all application logic, template and data.
      * If not, the directory will be defaulted to 'protected'.
      * @param string $className
-     * @return \Mindy\Application\Application
+     * @return \Mindy\Base\Application
      */
-    public static function getInstance($config = null, $className = '\Mindy\Application\Application')
+    public static function getInstance($config = null, $className = '\Mindy\Base\Application')
     {
         $aliases = [
             'system' => MINDY_PATH,
