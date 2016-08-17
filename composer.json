@@ -4,25 +4,32 @@
   "license": "BSD",
   "autoload": {
     "files": [
-      "src/Mindy/Base/m.php"
+      "src/functions.php"
     ],
     "psr-4": {
-      "Mindy\\Base\\": "src/Mindy/Base"
+      "Mindy\\Base\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "files": [
+      "src/functions.php"
+    ],
+    "psr-4": {
+      "Mindy\\Base\\Tests\\": "test/"
     }
   },
   "require": {
     "php": ">=5.6",
-    "mindy/application": "1.*",
-    "mindy/exception": "1.*",
-    "mindy/di": "1.*",
-    "mindy/http": "1.*",
-    "mindy/logger": "1.*",
-    "mindy/locale": "1.*",
-    "mindy/router": "1.*"
+    "mindy/exception": "*",
+    "mindy/di": "2.*",
+    "mindy/http": "dev-master",
+    "mindy/logger": "*",
+    "mindy/locale": "2.*",
+    "mindy/router": "*"
   },
   "require-dev": {
-    "phpunit/phpunit": "3.*",
-    "satooshi/php-coveralls": "dev-master"
+    "phpunit/phpunit": "*",
+    "phpunit/php-code-coverage": "*"
   },
   "authors": [
     {
