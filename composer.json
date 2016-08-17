@@ -22,7 +22,7 @@
     "php": ">=5.6",
     "mindy/exception": "*",
     "mindy/di": "2.*",
-    "mindy/http": "dev-master",
+    "mindy/http": "2.*",
     "mindy/logger": "*",
     "mindy/locale": "2.*",
     "mindy/router": "*"
